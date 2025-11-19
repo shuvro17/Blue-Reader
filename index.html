@@ -3,128 +3,150 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BlueReader | Interactive Library (Optimized)</title>
+    <title>BlueReader | Gradient Library</title>
     
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     
     <style>
         /* --- Global Reset & Fonts --- */
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=IBM+Plex+Mono:wght+400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap');
         :root {
-            --primary: #0d6efd;
-            --primary-hover: #0056b3;
-            --text-main: #222;
-            --text-light: #666;
-            --bg-main: #f0f2f5; 
-            --bg-card: #ffffff;
-            --border-light: #e0e0e0;
-            --mono-font: 'IBM Plex Mono', monospace;
-            --main-font: 'Poppins', sans-serif;
-            --border-radius: 4px;
-            --shadow: 4px 4px 0 0 rgba(0, 0, 0, 0.1);
+            --primary: #5a76fd; /* Soft Blue */
+            --primary-hover: #4863e0;
+            --text-dark: #2c3e50;
+            --text-light: #7f8c8d;
+            --bg-start: #f5f7fa;
+            --bg-end: #e3e8f0;
+            --card-light: rgba(255, 255, 255, 0.7); /* Translucent White */
+            --glass-border: rgba(255, 255, 255, 0.4);
+            --main-font: 'Quicksand', sans-serif;
+            --radius-large: 15px;
+            --shadow-soft: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
         }
         .dark-mode {
-            --primary: #3b8aff; /* Lighter primary for contrast */
-            --primary-hover: #0d6efd; 
-            --text-main: #f0f0f0;
-            --text-light: #b0b0b0;
-            --bg-main: #121212;
-            --bg-card: #1e1e1e;
-            --border-light: #444;
-            --shadow: 4px 4px 0 0 rgba(255, 255, 255, 0.1);
+            --primary: #4cc9f0; /* Cyan */
+            --primary-hover: #3a97b2;
+            --text-dark: #f0f4f8;
+            --text-light: #bdc3c7;
+            --bg-start: #1c2a48;
+            --bg-end: #0a1128;
+            --card-light: rgba(30, 40, 60, 0.6); /* Translucent Dark */
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --shadow-soft: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
         }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: var(--main-font); }
         body { 
-            background-color: var(--bg-main); 
-            color: var(--text-main); 
-            transition: background-color 0.3s, color 0.3s; 
+            background: linear-gradient(135deg, var(--bg-start) 0%, var(--bg-end) 100%);
+            background-attachment: fixed;
+            color: var(--text-dark); 
+            transition: all 0.5s; 
             min-height: 100vh;
-            padding-left: 300px; /* Space for fixed sidebar */
+            padding-left: 300px; 
+            overflow-x: hidden;
         }
+        /* Background Animation (Subtle) */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at top left, var(--primary) 0%, transparent 40%),
+                        radial-gradient(circle at bottom right, var(--primary-hover) 0%, transparent 40%);
+            opacity: 0.1;
+            z-index: -1;
+            animation: bg-move 60s infinite alternate;
+        }
+        @keyframes bg-move {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(-50%, -50%); }
+        }
+        
         /* --- Utility Classes --- */
-        .flex-center { display: flex; justify-content: center; align-items: center; }
-        .separator { border: 0; height: 1px; background: var(--border-light); margin: 20px 0; }
+        .separator { border: 0; height: 1px; background: var(--glass-border); margin: 20px 0; }
 
-        /* --- Sidebar (Fixed Nav) --- */
+        /* --- Sidebar (Glass Panel) --- */
         .sidebar { 
-            position: fixed; 
-            top: 0; left: 0; 
-            width: 300px; 
-            height: 100vh; 
-            background: var(--bg-card); 
-            padding: 30px 20px; 
-            border-right: 1px solid var(--border-light); 
+            position: fixed; top: 0; left: 0; width: 300px; height: 100vh; 
+            background: var(--card-light);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid var(--glass-border); 
             display: flex; flex-direction: column; 
             z-index: 100;
-            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+            box-shadow: var(--shadow-soft);
+            padding: 30px 25px; 
         }
         .branding { display: flex; align-items: center; gap: 10px; margin-bottom: 30px; }
-        .logo-icon { font-size: 2rem; color: var(--primary); }
+        .logo-icon { font-size: 2.2rem; color: var(--primary); }
         .branding h2 { font-size: 1.8rem; font-weight: 700; margin: 0; }
         .logo-accent { color: var(--primary); }
 
         .auth-info { text-align: center; margin-bottom: 20px; }
-        .profile-photo { width: 80px; height: 80px; border-radius: 50%; border: 3px solid var(--primary); object-fit: cover; margin: 0 auto 10px; background: #ddd; }
-        .name { font-size: 1.1rem; font-weight: 600; }
-        .status { font-size: 0.75rem; color: var(--text-light); display: block; }
+        .profile-photo { width: 90px; height: 90px; border-radius: 50%; border: 4px solid var(--primary); object-fit: cover; margin: 0 auto 10px; background: #ddd; }
+        .name { font-size: 1.2rem; font-weight: 700; }
+        .status { font-size: 0.8rem; color: var(--text-light); display: block; }
 
         .nav-menu { list-style: none; flex-grow: 1; display: flex; flex-direction: column;}
         .nav-btn { 
-            display: flex; align-items: center; gap: 10px; 
+            display: flex; align-items: center; gap: 12px; 
             width: 100%; text-align: left; 
-            padding: 12px 15px; margin-bottom: 8px;
-            background: transparent; border: 1px solid transparent;
-            border-radius: var(--border-radius); 
-            color: var(--text-main); font-weight: 600; 
-            cursor: pointer; transition: all 0.2s;
+            padding: 14px 15px; margin-bottom: 10px;
+            background: transparent; border: none;
+            border-radius: var(--radius-large); 
+            color: var(--text-dark); font-weight: 600; 
+            cursor: pointer; transition: all 0.3s;
             text-decoration: none;
         }
-        .nav-btn:hover { background: var(--bg-main); }
+        .nav-btn:hover { background: rgba(0, 0, 0, 0.05); }
         .nav-btn.active { 
-            background: var(--primary); 
+            background: linear-gradient(45deg, var(--primary), var(--primary-hover));
             color: white; 
-            border-color: var(--primary);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
+        .nav-btn i { font-size: 1.3rem; }
 
         /* --- Main Content & Header --- */
-        .main-content { padding: 40px; max-width: 100%; min-height: 100vh; position: relative;}
+        .main-content { padding: 40px; max-width: 100%; min-height: 100vh; position: relative; }
         .header-controls { 
-            position: absolute; top: 20px; right: 20px; 
+            position: absolute; top: 30px; right: 30px; 
             z-index: 101; 
-            display: flex; gap: 10px;
+            display: flex; gap: 15px;
         }
         .toggle-btn { 
-            background: var(--bg-card); 
-            color: var(--text-main); 
-            width: 40px; height: 40px; 
-            border-radius: var(--border-radius); 
-            border: 1px solid var(--border-light); 
-            cursor: pointer; font-size: 1.1rem; 
+            background: var(--card-light);
+            backdrop-filter: blur(5px);
+            color: var(--text-dark); 
+            width: 45px; height: 45px; 
+            border-radius: 50%; 
+            border: 1px solid var(--glass-border); 
+            cursor: pointer; font-size: 1.2rem; 
             transition: all 0.3s;
-            box-shadow: 2px 2px 0 0 var(--border-light);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
-        .toggle-btn:hover { background: var(--primary); color: white; border-color: var(--primary); }
+        .toggle-btn:hover { background: var(--primary); color: white; }
 
-        .section-title { font-size: 2rem; margin-bottom: 5px; font-weight: 700; }
+        .section-title { font-size: 2.2rem; margin-bottom: 5px; font-weight: 700; }
         .section-subtitle { font-size: 1rem; color: var(--text-light); margin-bottom: 30px; }
 
-        /* --- Tabs/Filters --- */
+        /* --- Tabs/Filters (Pills) --- */
         .tabs ul { list-style: none; display: flex; gap: 10px; margin-bottom: 30px; flex-wrap: wrap;}
         .tab-link { 
-            background: var(--bg-card); 
-            border: 1px solid var(--border-light); 
+            background: var(--card-light);
+            border: 1px solid var(--glass-border); 
             cursor: pointer; color: var(--text-light); 
-            padding: 8px 18px; border-radius: var(--border-radius); 
+            padding: 10px 20px; border-radius: 25px; 
             font-weight: 500; transition: all 0.3s;
             font-size: 0.9rem;
         }
         .tab-link.active { 
             background: var(--primary); 
             color: white; border-color: var(--primary);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
-        .tab-link:hover:not(.active) { border-color: var(--primary); color: var(--primary); }
+        .tab-link:hover:not(.active) { color: var(--primary); border-color: var(--primary); }
 
-        /* --- Book Grid & Card --- */
+        /* --- Book Grid & Card (Glassmorphism) --- */
         .portfolio-grid { 
             display: grid; 
             grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); 
@@ -132,39 +154,39 @@
             margin-bottom: 40px;
         }
         .project-card { 
-            background: var(--bg-card); 
-            border-radius: var(--border-radius); 
+            background: var(--card-light); 
+            backdrop-filter: blur(5px);
+            border-radius: var(--radius-large); 
             padding: 15px; 
-            border: 1px solid var(--border-light);
-            transition: all 0.2s;
+            border: 1px solid var(--glass-border);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             position: relative; 
             cursor: pointer; 
-            box-shadow: 4px 4px 0 0 var(--border-light);
+            box-shadow: var(--shadow-soft);
         }
-        .dark-mode .project-card { box-shadow: 4px 4px 0 0 var(--border-light); }
         .project-card:hover { 
-            transform: translate(-2px, -2px); 
-            box-shadow: 6px 6px 0 0 var(--primary); 
+            transform: translateY(-5px) scale(1.02); 
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15); 
         }
         .book-cover { 
             width: 100%; 
             aspect-ratio: 2/3; 
-            border-radius: var(--border-radius); 
+            border-radius: 10px; 
             object-fit: cover; 
             margin-bottom: 10px; 
-            border: 1px solid var(--border-light);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
         .project-card h5 { font-size: 1.1rem; font-weight: 700; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .project-card p { font-size: 0.85rem; color: var(--text-light); margin-bottom: 5px; }
 
         /* Progress Bar */
-        .progress-bar { height: 6px; background: var(--border-light); border-radius: 3px; overflow: hidden; margin-top: 10px; }
+        .progress-bar { height: 6px; background: rgba(0, 0, 0, 0.1); border-radius: 3px; overflow: hidden; margin-top: 10px; }
         .progress-fill { height: 100%; background: var(--primary); transition: width 0.5s; }
 
-        /* --- Modal Base --- */
+        /* --- Modal & Form Base --- */
         .modal-overlay {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0, 0, 0, 0.7);
+            background: rgba(0, 0, 0, 0.5);
             z-index: 200;
             display: none; 
             opacity: 0;
@@ -175,55 +197,71 @@
         }
         .modal-overlay.active { display: flex; opacity: 1; }
         .modal-content { 
-            background: var(--bg-card); 
+            background: var(--card-light); 
+            backdrop-filter: blur(15px);
             padding: 30px; 
-            border-radius: var(--border-radius); 
+            border-radius: var(--radius-large); 
             width: 100%; 
             max-width: 450px; 
             position: relative; 
-            margin: auto; 
-            border: 1px solid var(--text-main); 
-            box-shadow: 8px 8px 0 0 var(--primary);
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--shadow-soft);
         }
         .close-btn { position: absolute; top: 15px; right: 15px; background: none; border: none; cursor: pointer; font-size: 1.2rem; color: var(--text-light); }
+
+        /* Fix for Admin form when rendered directly */
+        .admin-form-container {
+            background: var(--card-light);
+            backdrop-filter: blur(8px);
+            padding: 30px;
+            border-radius: var(--radius-large);
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--shadow-soft);
+            max-width: 600px;
+            margin: 0 auto;
+        }
 
         /* --- Form & Buttons --- */
         .form-group { margin-bottom: 15px; }
         .form-input { 
-            width: 100%; padding: 10px; 
-            background: var(--bg-main); 
-            border: 1px solid var(--border-light); 
-            border-radius: var(--border-radius); 
-            color: var(--text-main);
+            width: 100%; padding: 12px; 
+            background: rgba(255, 255, 255, 0.5); 
+            border: 1px solid var(--glass-border); 
+            border-radius: var(--radius-large); 
+            color: var(--text-dark);
             font-size: 1rem;
-            transition: border-color 0.2s;
+            transition: all 0.2s;
         }
-        .form-input:focus { outline: none; border-color: var(--primary); background: var(--bg-card); }
+        .dark-mode .form-input { 
+            background: rgba(0, 0, 0, 0.2); 
+            color: var(--text-dark);
+        }
+        .form-input:focus { outline: none; border-color: var(--primary); background: var(--card-light); box-shadow: 0 0 0 3px rgba(90, 118, 253, 0.2); }
 
         .btn { 
             padding: 12px 25px; 
             background: var(--primary); 
             color: #fff; 
             border: none; 
-            border-radius: var(--border-radius); 
+            border-radius: var(--radius-large); 
             font-size: 0.9rem; 
             font-weight: 700; 
             cursor: pointer; 
-            transition: all 0.2s;
+            transition: all 0.3s;
             display: inline-flex; 
             align-items: center; 
             justify-content: center;
             gap: 8px; 
             text-decoration: none; 
-            box-shadow: 2px 2px 0 0 var(--primary-hover);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
-        .btn:hover { background: var(--primary-hover); transform: translate(-1px, -1px); box-shadow: 4px 4px 0 0 var(--primary-hover); }
+        .btn:hover { background: var(--primary-hover); transform: translateY(-1px); box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); }
         .btn-auth { margin-top: auto; }
 
-        /* --- PDF Reader Modal --- */
+        /* --- PDF Reader Modal (Cleaned up) --- */
         .reader-modal {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: var(--bg-main);
+            background: var(--bg-start);
             z-index: 300;
             display: none; 
             flex-direction: column;
@@ -232,36 +270,27 @@
         .reader-header {
             display: flex; justify-content: space-between; align-items: center;
             padding: 15px 20px;
-            background: var(--bg-card);
-            border-bottom: 1px solid var(--border-light);
-            color: var(--text-main);
+            background: var(--card-light);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--glass-border);
+            color: var(--text-dark);
             z-index: 301;
         }
-        .reader-title { font-weight: 700; font-size: 1.2rem; }
-        .reader-actions { display: flex; align-items: center; gap: 15px; }
-        .btn-back, .btn-fav { background: none; border: none; cursor: pointer; color: var(--text-main); font-weight: 600; font-size: 1rem; }
-        .btn-fav i { font-size: 1.5rem; color: var(--text-light); }
-        .btn-fav i.ph-fill { color: red; }
-        .reader-controls { display: flex; align-items: center; gap: 10px; }
-        .reader-controls label { font-size: 0.9rem; }
-        #pageInput { width: 50px; background: var(--bg-main); border: 1px solid var(--border-light); color: var(--text-main); text-align: center; border-radius: var(--border-radius); padding: 5px; font-family: var(--mono-font); }
-        .btn-save { padding: 5px 10px; font-size: 0.8rem; box-shadow: none; }
-        .reader-body { width: 100%; height: 100%; border: none; }
+        .reader-controls { background: var(--card-light); border-radius: 25px; padding: 5px 15px; border: 1px solid var(--glass-border);}
+        #pageInput { width: 50px; background: transparent; border: none; color: var(--text-dark); }
+        .btn-save { padding: 5px 10px; font-size: 0.75rem; border-radius: 15px; box-shadow: none; }
+        .btn-fav i { color: var(--primary); }
 
-        /* --- Loading Screen (Optimized CSS Loader) --- */
+        /* --- Loading Screen --- */
         .loading-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--bg-main); color: var(--text-main);
+            background: var(--bg-start); color: var(--primary);
             z-index: 400; display: flex; justify-content: center; align-items: center;
-            font-size: 2rem; font-weight: 700;
+            font-size: 2.5rem; font-weight: 700;
             transition: opacity 0.5s ease-out;
         }
         .loading-screen.hidden { opacity: 0; pointer-events: none; }
         .loader { animation: pulse 1s infinite alternate; }
-        @keyframes pulse {
-            from { opacity: 0.5; transform: scale(0.9); }
-            to { opacity: 1; transform: scale(1.0); }
-        }
 
         /* --- Responsive/Mobile Styles --- */
         @media (max-width: 900px) {
@@ -270,23 +299,17 @@
             .main-content { padding: 20px 15px; }
             .header-controls { display: none; } 
             .portfolio-grid { grid-template-columns: repeat(2, 1fr); gap: 15px; }
-            .project-card:hover { transform: none; box-shadow: 4px 4px 0 0 var(--border-light); } 
+            .project-card:hover { transform: none; box-shadow: var(--shadow-soft); } 
             .btn-auth { display: none; }
-
-            /* Mobile Bottom Nav */
             .mobile-nav {
                 position: fixed; bottom: 0; left: 0; width: 100%; height: 60px;
-                background: var(--bg-card); border-top: 1px solid var(--border-light);
+                background: var(--card-light); 
+                backdrop-filter: blur(10px);
+                border-top: 1px solid var(--glass-border);
                 z-index: 1000; display: flex; justify-content: space-around; align-items: center;
                 box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.1);
             }
-            .mobile-nav button {
-                display: flex; flex-direction: column; align-items: center;
-                background: none; border: none; color: var(--text-light);
-                font-size: 0.7rem; font-weight: 600; padding: 5px;
-                transition: color 0.2s;
-            }
-            .mobile-nav button i { font-size: 1.5rem; margin-bottom: 2px; }
+            .mobile-nav button { color: var(--text-light); font-size: 0.7rem; }
             .mobile-nav button.active { color: var(--primary); }
         }
     </style>
@@ -299,7 +322,7 @@
     </div>
     
     <div id="loadingScreen" class="loading-screen">
-        <div class="loader">Loading...</div>
+        <div class="loader">BlueReader</div>
     </div>
 
     <aside class="sidebar">
@@ -326,7 +349,7 @@
 
     <main class="main-content">
         <div class="header-controls">
-            <button class="toggle-btn" id="themeToggleBtn" data-action="toggle-theme" onclick="app.toggleTheme()" aria-label="Toggle Dark Mode">
+            <button class="toggle-btn" id="themeToggleBtn" data-action="toggle-theme" onclick="window.app.toggleTheme()" aria-label="Toggle Dark Mode">
                 <i class="ph-fill ph-moon" id="themeIcon"></i>
             </button>
         </div>
@@ -336,14 +359,14 @@
         
         <div id="readerModal" class="reader-modal">
             <div class="reader-header">
-                <button onclick="app.closeReader()" class="btn-back"><i class="ph-bold ph-arrow-left"></i> Back</button>
+                <button onclick="window.app.closeReader()" class="btn-back"><i class="ph-bold ph-arrow-left"></i> Back</button>
                 <span id="readerTitle" class="reader-title"></span>
                 <div class="reader-actions">
-                    <button id="readerFavBtn" class="btn-fav" onclick="app.toggleReaderFav()" aria-label="Favorite Book"><i class="ph-heart"></i></button>
+                    <button id="readerFavBtn" class="btn-fav" onclick="window.app.toggleReaderFav()" aria-label="Favorite Book"><i class="ph-heart"></i></button>
                     <div class="reader-controls">
                         <label for="pageInput">Page</label>
-                        <input type="number" id="pageInput" min="1" value="1" onchange="app.updateReaderPage()">
-                        <button onclick="app.saveCurrentPage()" class="btn btn-save">SAVE</button>
+                        <input type="number" id="pageInput" min="1" value="1" onchange="window.app.updateReaderPage()">
+                        <button onclick="window.app.saveCurrentPage()" class="btn btn-save">SAVE</button>
                     </div>
                 </div>
             </div>
@@ -360,9 +383,8 @@
     </div>
     
     <script type="module">
-        // Import Firebase SDKs (v10 syntax for module type)
+        // Import Firebase SDKs
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-app.js";
-        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-analytics.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc, updateDoc, arrayUnion, arrayRemove, collection, onSnapshot, query, addDoc } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-firestore.js";
 
@@ -377,15 +399,14 @@
             appId: "1:168539796198:web:d01f9b7915292e6c5fc127",
             measurementId: "G-GZ61PZQXC5"
         };
-        const APP_ID = 'blue-reader-1'; // Static ID for the artifact path
+        const APP_ID = 'blue-reader-1'; 
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
+        const fbApp = initializeApp(firebaseConfig);
+        const auth = getAuth(fbApp);
+        const db = getFirestore(fbApp);
         const googleProvider = new GoogleAuthProvider();
 
         const api = {
-            // Auth
             loginEmail: (e, p) => signInWithEmailAndPassword(auth, e, p),
             signupEmail: (e, p) => createUserWithEmailAndPassword(auth, e, p),
             loginGoogle: () => signInWithPopup(auth, googleProvider),
@@ -398,7 +419,6 @@
                     callback(user);
                 });
             },
-            // Progress/Favs Listeners
             subscribeToUserData: (uid, callback) => {
                 const progressRef = collection(db, 'artifacts', APP_ID, 'users', uid, 'progress');
                 const favRef = doc(db, 'artifacts', APP_ID, 'users', uid, 'preferences', 'favorites');
@@ -423,7 +443,6 @@
                     callback(books);
                 }, (error) => console.error("Error fetching books:", error));
             },
-            // Mutators
             saveBookProgress: async (uid, bookId, page) => {
                 const ref = doc(db, 'artifacts', APP_ID, 'users', uid, 'progress', bookId);
                 await setDoc(ref, { page: page, lastRead: new Date().toISOString(), bookId: bookId }, { merge: true });
@@ -449,7 +468,7 @@
 
         // --- APPLICATION STATE & LOGIC ---
 
-        const ADMIN_EMAILS = ["tanvirrshuvro@gmail.com"]; // REPLACE with your actual Google email
+        const ADMIN_EMAILS = ["your-email@gmail.com"]; // REPLACE with your actual Google email
         const STATIC_BOOKS = [
             { id: 'b1', title: 'The Great Gatsby', author: 'F. Scott Fitzgerald', genre: 'Classic', cover: 'https://upload.wikimedia.org/wikipedia/commons/7/7a/The_Great_Gatsby_Cover_1925_Retouched.jpg', pdfUrl: 'https://mozilla.github.io/pdf.js/web/compressed.tracemonkey-pldi-09.pdf' },
             { id: 'b2', title: 'Pride and Prejudice', author: 'Jane Austen', genre: 'Romance', cover: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/17/PrideAndPrejudiceTitlePage.jpg/800px-PrideAndPrejudiceTitlePage.jpg', pdfUrl: 'https://mozilla.github.io/pdf.js/web/compressed.tracemonkey-pldi-09.pdf' },
@@ -545,7 +564,7 @@
         const renderHomeView = () => {
             const genres = ['All', ...new Set(appState.books.map(b => b.genre))];
             const genreTabs = genres.map(g => `
-                <li><button class="tab-link ${appState.filter === g ? 'active' : ''}" onclick="window.app.filterBooks('${g}', this)">${g}</button></li>
+                <li><button class="tab-link ${appState.filter === g ? 'active' : ''}" onclick="window.app.filterBooks('${g}')">${g}</button></li>
             `).join('');
             const publicFiltered = appState.filter === 'All' ? appState.books : appState.books.filter(b => b.genre === appState.filter);
             const bookCards = publicFiltered.length > 0 ? publicFiltered.map(getBookCard).join('') : 
@@ -612,12 +631,13 @@
             `;
         };
 
+        // BUG FIX: Form moved to simple div structure to allow direct rendering
         const renderAdminForm = () => {
             return `
                 <button class="btn" style="margin-bottom: 20px;" onclick="window.app.switchView('home')"><i class="ph-bold ph-arrow-left"></i> Back to Discover</button>
                 <div class="section-title"><h2>Add New Book</h2></div>
                 <p class="section-subtitle">Only visible to administrators. Use this to add public e-books.</p>
-                <form onsubmit="window.app.submitNewBook(event)" class="modal-content" style="max-width: 600px; margin: 0 auto; border: 1px solid var(--border-light); box-shadow: 4px 4px 0 0 var(--border-light);">
+                <form onsubmit="window.app.submitNewBook(event)" class="admin-form-container">
                     <div class="form-group"><input type="text" id="nbTitle" class="form-input" placeholder="Title" required></div>
                     <div class="form-group"><input type="text" id="nbAuthor" class="form-input" placeholder="Author" required></div>
                     <div class="form-group"><input type="text" id="nbGenre" class="form-input" placeholder="Genre (e.g., Classic, Romance, Sci-Fi)" required></div>
@@ -653,9 +673,10 @@
                     const action = target.dataset.action;
                     if (action === 'auth') appMethods.handleAuthClick();
                     if (action === 'close-modal') appMethods.closeModal();
+                    if (action === 'toggle-theme') appMethods.toggleTheme();
                 }
                 if (target.hasAttribute('data-view')) {
-                    e.preventDefault(); // Prevent navigation for nav links
+                    e.preventDefault(); 
                     appMethods.switchView(target.dataset.view);
                 }
             },
@@ -742,7 +763,7 @@
                     <button onclick="window.app.closeModal()" class="close-btn" data-action="close-modal"><i class="ph-bold ph-x"></i></button>
                     <h2 class="section-title" style="text-align: center;">Welcome</h2>
                     <p style="text-align: center; color: var(--text-light); margin-bottom: 20px;">Sign in to save your progress.</p>
-                    <button class="btn" onclick="api.loginGoogle().then(window.app.closeModal).catch(e => alert(e.message))" style="width: 100%; justify-content: center; background: #fff; color: #333; border: 1px solid var(--border-light); margin-bottom: 20px; box-shadow: 2px 2px 0 0 var(--border-light);">
+                    <button class="btn" onclick="api.loginGoogle().then(window.app.closeModal).catch(e => alert(e.message))" style="width: 100%; justify-content: center; background: white; color: var(--text-dark); border: 1px solid var(--glass-border); margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
                         <img src="https://www.svgrepo.com/show/475656/google-color.svg" style="width: 20px; margin-right: 10px;"> Continue with Google
                     </button>
                     <div class="separator"></div>
