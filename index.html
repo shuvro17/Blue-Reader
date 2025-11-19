@@ -138,65 +138,58 @@
             --primary-color-light: #3b8aff;
             --text-light: #f0f0f0;
             --text-dark: #333;
-            --sidebar-bg-light: rgba(255, 255, 255, 0.2); /* Highly transparent white */
-            --content-bg-light: rgba(255, 255, 255, 0.95);
-            --border-color-light: rgba(13, 110, 253, 0.3); /* Subtle blue border */
-            --bg-dark: #050505; 
+            --sidebar-bg-light: #f8f9fa; 
+            --content-bg-light: #ffffff;
+            --border-color-light: #e9ecef;
+            --bg-dark: #121212;
             --text-dark-theme: #e0e0e0;
-            --sidebar-bg-dark: rgba(30, 30, 30, 0.4); /* Highly transparent dark */
-            --content-bg-dark: rgba(42, 42, 42, 0.95);
+            --sidebar-bg-dark: #1e1e1e;
+            --content-bg-dark: #2a2a2a;
             --border-color-dark: #444;
-            --box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25); 
-            --card-shadow: 0 4px 15px rgba(0, 0, 0, 0.08); 
+            --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --card-shadow: 0 8px 25px rgba(0, 0, 0, 0.15); 
         }
 
-        /* Base Styles - Full-Screen, Borderless Look */
+        /* Base Styles */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
         body { 
             background-color: #f0f2f5; 
             color: var(--text-dark); 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
             min-height: 100vh; 
-            padding: 0;
-            margin: 0;
-            display: flex; /* Ensure container fills viewport */
+            padding: 2rem; /* Padding for desktop */
             transition: background-color 0.3s, color 0.3s; 
             overflow-x: hidden; 
         }
         #particles-js { position: fixed; width: 100%; height: 100%; top: 0; left: 0; z-index: -1; }
 
-        /* Main Container - App Shell (Now full-screen and fluid) */
+        /* Main Container - The central, defined box */
         .portfolio-container { 
             width: 100%; 
-            height: 100vh;
+            max-width: 1200px; 
+            background: var(--content-bg-light); 
+            border-radius: 20px; 
+            box-shadow: var(--box-shadow); 
             display: flex; 
             overflow: hidden; 
-            /* Remove fixed radius and strong background/shadow */
-            background: transparent;
-            box-shadow: none;
-            border-radius: 0;
+            min-height: 80vh; 
+            z-index: 10;
         }
 
-        /* Sidebar - Floating Glassmorphism Panel */
+        /* Sidebar - Fixed width panel */
         .sidebar { 
             width: 300px; 
+            background-color: var(--sidebar-bg-light); 
             padding: 30px 20px; 
             text-align: center; 
+            border-right: 1px solid var(--border-color-light); 
             flex-shrink: 0; 
             display: flex; 
             flex-direction: column;
-            position: sticky;
-            top: 0;
-            height: 100vh;
-            
-            /* Glassmorphism effect */
-            background: var(--sidebar-bg-light);
-            backdrop-filter: blur(15px);
-            border-right: 1px solid var(--border-color-light); 
-            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease-in-out;
-            z-index: 100;
         }
-        .sidebar-content { position: static; width: 100%; }
+        .sidebar-content { position: sticky; top: 30px; width: 100%; }
         .profile-photo { width: 100px; height: 100px; border-radius: 50%; border: 3px solid var(--primary-color); object-fit: cover; margin-bottom: 15px; margin-left: auto; margin-right: auto; display: block; background: #ddd; }
         .name { font-size: 1.3rem; font-weight: 600; margin-bottom: 5px; }
         .title { font-size: 0.8rem; font-weight: 400; color: var(--text-dark); background: var(--border-color-light); display: inline-block; padding: 4px 10px; border-radius: 12px; margin-bottom: 15px; }
@@ -211,7 +204,7 @@
             background: transparent; 
             border: none; 
             border-radius: 8px; 
-            color: var(--text-dark); /* Use dark color for better contrast on light glass */
+            color: #666;
             font-weight: 500; 
             cursor: pointer; 
             display: flex; 
@@ -221,7 +214,8 @@
             font-size: 1rem; 
         }
         .nav-btn:hover {
-            background: rgba(13, 110, 253, 0.1); /* Subtle hover effect */
+            background: rgba(13, 110, 253, 0.1); 
+            color: var(--primary-color);
             transform: scale(1.02);
         }
         .nav-btn.active { 
@@ -232,14 +226,13 @@
         }
         .nav-btn i { font-size: 1.2rem; }
 
-        /* Main Content - Fluid Dashboard */
+        /* Main Content - Takes remaining space */
         .main-content { 
             flex-grow: 1; 
-            padding: 50px 40px; 
+            padding: 40px; 
             position: relative; 
             overflow-y: auto; 
-            height: 100vh; /* Match viewport height */
-            background: rgba(255, 255, 255, 0.05); /* Very light, transparent overlay */
+            max-height: 80vh; /* Controlled scrolling within the main box */
         }
         
         /* Tabs & Filters */
@@ -259,27 +252,27 @@
         }
         .tab-link.active { color: var(--primary-color); border-bottom-color: var(--primary-color); }
         
-        .section-title { font-size: 2rem; margin-bottom: 5px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
-        .section-subtitle { font-size: 1.1rem; color: #666; margin-bottom: 30px; font-weight: 300; }
+        .section-title { font-size: 1.8rem; margin-bottom: 5px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
+        .section-subtitle { font-size: 1rem; color: #666; margin-bottom: 30px; font-weight: 400; }
 
         /* Book Grid - Responsive Fix */
         .portfolio-grid { 
             display: grid; 
             grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); 
-            gap: 30px; /* Increased spacing for fluid look */
+            gap: 25px; 
             margin-bottom: 40px;
         }
 
         /* Book Card - Bookish Aesthetic with 3D Hover */
         .project-card { 
-            background: var(--content-bg-light); 
+            background: var(--sidebar-bg-light); 
             border-radius: 12px; 
             padding: 15px; 
             transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             position: relative; 
             cursor: pointer; 
-            border: 1px solid rgba(255,255,255,0.8); /* Lighter border for light mode */
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15); /* Sleek shadow */
+            border: 1px solid var(--border-color-light);
+            box-shadow: var(--card-shadow); 
             transform-style: preserve-3d;
             transform: perspective(1000px);
         }
@@ -322,10 +315,10 @@
         .btn-primary:active { transform: translateY(0); box-shadow: none; }
         
         .toggle-btn { 
-            position: fixed; /* Fixed position outside main container */
+            position: absolute; 
             top: 30px; 
-            right: 40px; 
-            background: var(--sidebar-bg-light); 
+            right: 30px; 
+            background: var(--content-bg-light); 
             color: var(--text-dark); 
             width: 45px; 
             height: 45px; 
@@ -336,27 +329,29 @@
             border: 1px solid var(--border-color-light); 
             cursor: pointer; 
             font-size: 1.2rem; 
-            z-index: 200; /* Higher Z-index to float over sidebar */
+            z-index: 11;
             transition: all 0.3s; 
-            backdrop-filter: blur(5px);
         }
 
-        /* Dark Mode adjustments for new look */
+        /* Dark Mode adjustments for contained look */
         body.dark-mode { background-color: var(--bg-dark); color: var(--text-dark-theme); }
+        .dark-mode .portfolio-container { 
+            background: var(--content-bg-dark); 
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
         .dark-mode .sidebar { 
             background: var(--sidebar-bg-dark);
             border-right-color: var(--border-color-dark);
-            box-shadow: 2px 0 10px rgba(255, 255, 255, 0.05);
-        }
-        .dark-mode .main-content {
-            background: rgba(0, 0, 0, 0.15); /* More visible overlay in dark mode */
         }
         .dark-mode .title { background: var(--content-bg-dark); color: var(--text-dark-theme); }
         .dark-mode .nav-btn { color: var(--text-dark-theme); }
-        .dark-mode .separator, .dark-mode .tabs ul { border-color: var(--border-color-dark); }
-        .dark-mode .toggle-btn { background: var(--sidebar-bg-dark); color: var(--text-dark-theme); border-color: var(--border-color-dark); }
+        .dark-mode .nav-btn:hover { background: rgba(13, 110, 253, 0.2); color: white; }
+
+        .dark-mode .separator, .dark-mode .tabs ul, .dark-mode .toggle-btn { border-color: var(--border-color-dark); }
+        .dark-mode .toggle-btn { background: var(--content-bg-dark); color: var(--text-dark-theme); }
+        
         .dark-mode .project-card { 
-            background: rgba(30, 30, 30, 0.8);
+            background: var(--sidebar-bg-dark);
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
             border: 1px solid rgba(255,255,255,0.1);
         }
@@ -365,45 +360,44 @@
         }
         .dark-mode .section-subtitle { color: #aaa; }
         .dark-mode .form-input { background: var(--sidebar-bg-dark); border-color: var(--border-color-dark); color: white; }
-        .dark-mode .modal-box { background: rgba(30, 30, 30, 0.95); }
+        .dark-mode .modal-box { background: var(--content-bg-dark); }
 
 
-        /* Responsive Styles (Mobile-First Dashboard) */
+        /* Responsive Styles (Mobile - Full screen, stacked, two-column grid) */
         @media (max-width: 900px) {
-            body { padding: 0; }
+            body { padding: 0; align-items: flex-start; }
             .portfolio-container { 
                 flex-direction: column; 
-                height: 100vh;
+                min-height: 100vh;
+                border-radius: 0;
             }
-            .toggle-btn { top: 15px; right: 15px; z-index: 2000; }
-            
-            /* Sidebar becomes fixed header/nav */
             .sidebar { 
                 width: 100%; 
                 height: auto;
-                position: fixed; 
-                bottom: 0;
-                top: auto;
-                padding: 10px 0;
-                border: none;
-                border-top: 1px solid var(--border-color-light);
-                z-index: 1000;
-                background: var(--sidebar-bg-light);
+                position: static; 
+                padding: 20px;
+                border-right: none;
+                border-bottom: 1px solid var(--border-color-light);
             }
-            .dark-mode .sidebar { border-top: 1px solid var(--border-color-dark); }
+            .dark-mode .sidebar { border-bottom-color: var(--border-color-dark); }
 
             .sidebar-content { 
+                position: static;
                 display: flex; 
                 flex-direction: column;
             }
-            .sidebar .auth-info { display: none; } /* Hide user info block on mobile */
-            
-            /* Horizontal scrolling nav bar */
+            .sidebar .auth-info { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+            .sidebar .branding { margin-bottom: 20px; }
+            .sidebar .auth-info .profile-photo { margin: 0; width: 60px; height: 60px; }
+            .sidebar .auth-info .name, .sidebar .auth-info .title { text-align: left; margin: 0; }
+            .sidebar .auth-info .name { font-size: 1.2rem; }
+            .sidebar .auth-info .title { display: none; } /* Hide status text on small screen */
+
             .nav-menu { 
                 display: flex; 
                 overflow-x: auto; 
-                gap: 10px; 
-                padding: 0 10px;
+                gap: 5px; 
+                padding: 10px 0;
                 white-space: nowrap; 
                 margin: 0;
             }
@@ -412,21 +406,19 @@
                 padding: 8px 12px; 
                 font-size: 0.8rem; 
                 justify-content: center; 
-                background: rgba(0,0,0,0.05); /* Mobile background */
-                color: #666;
             }
-            .dark-mode .nav-btn { background: rgba(255,255,255,0.05); color: #aaa; }
             .nav-btn i { display: none; }
             .nav-btn.active { color: white; background: var(--primary-color); }
             
-            /* Main Content takes over full screen above the fixed nav */
             .main-content { 
-                padding: 20px 15px 70px 15px; /* Add bottom padding to clear the fixed nav bar */
-                overflow-y: auto; 
-                height: 100%;
+                padding: 20px 15px;
+                overflow-y: visible;
+                max-height: none;
             }
             .section-title { font-size: 1.6rem; }
             .section-subtitle { margin-bottom: 15px; font-size: 0.9rem; }
+            
+            /* Crucial fix for book grid visibility on mobile */
             .portfolio-grid { 
                 grid-template-columns: repeat(2, 1fr); 
                 gap: 15px;
@@ -435,11 +427,8 @@
             .project-card h5 { font-size: 0.9rem; }
             .project-card p { font-size: 0.75rem; }
             
-            /* Branding adjustment */
-            .sidebar .branding {
-                display: none; /* Hide branding on mobile to save space, relies on toggle-btn */
-            }
-            .sidebar #authBtn { display: none; } /* Handle auth via mobile header or dedicated modal */
+            .toggle-btn { top: 15px; right: 15px; }
+            .sidebar #authBtn { display: none; } /* Hide auth button in main flow, use the modal */
         }
     </style>
 </head>
@@ -472,8 +461,10 @@
 
                 <div class="auth-info">
                     <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Guest" id="userAvatar" class="profile-photo" alt="Profile">
-                    <h1 class="name" id="userName">Guest Reader</h1>
-                    <span class="title" id="userStatus">Log in to sync</span>
+                    <div style="flex-grow: 1; text-align: center;">
+                        <h1 class="name" id="userName">Guest Reader</h1>
+                        <span class="title" id="userStatus">Log in to sync</span>
+                    </div>
                     <div class="separator"></div>
                 </div>
 
@@ -705,7 +696,7 @@
         
         // !!! IMPORTANT !!!
         // REPLACE "your-email@gmail.com" WITH YOUR ACTUAL GOOGLE EMAIL BELOW
-        const adminEmails = ["your-email@gmail.com"]; 
+        const adminEmails = ["tanvirrshuvro@gmail.com"]; 
 
         function playSound() {
             // This is a short, high-frequency sound for a 'click' feel
