@@ -1,23 +1,384 @@
+That's a practical request for deployment\! To put everything into a single `index.html` file, I need to combine the HTML structure, the new CSS styles, and both JavaScript files (`firebase-init.js` and `app.js`) into one cohesive document, using `<style>` and inline `<script>` tags.
+
+Here is the complete, redesigned, optimized, and unified file.
+
+-----
+
+## 📦 Single-File BlueReader (`index.html`)
+
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BlueReader | Interactive Library</title>
+    <title>BlueReader | Interactive Library (Optimized)</title>
     
-    <!-- Phosphor Icons for UI elements -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <style>
+        /* --- Global Reset & Fonts --- */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=IBM+Plex+Mono:wght+400;700&display=swap');
+        :root {
+            --primary: #0d6efd;
+            --primary-hover: #0056b3;
+            --text-main: #222;
+            --text-light: #666;
+            --bg-main: #f0f2f5; 
+            --bg-card: #ffffff;
+            --border-light: #e0e0e0;
+            --mono-font: 'IBM Plex Mono', monospace;
+            --main-font: 'Poppins', sans-serif;
+            --border-radius: 4px;
+            --shadow: 4px 4px 0 0 rgba(0, 0, 0, 0.1);
+        }
+        .dark-mode {
+            --primary: #3b8aff; /* Lighter primary for contrast */
+            --primary-hover: #0d6efd; 
+            --text-main: #f0f0f0;
+            --text-light: #b0b0b0;
+            --bg-main: #121212;
+            --bg-card: #1e1e1e;
+            --border-light: #444;
+            --shadow: 4px 4px 0 0 rgba(255, 255, 255, 0.1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: var(--main-font); }
+        body { 
+            background-color: var(--bg-main); 
+            color: var(--text-main); 
+            transition: background-color 0.3s, color 0.3s; 
+            min-height: 100vh;
+            padding-left: 300px; /* Space for fixed sidebar */
+        }
+        /* --- Utility Classes --- */
+        .flex-center { display: flex; justify-content: center; align-items: center; }
+        .separator { border: 0; height: 1px; background: var(--border-light); margin: 20px 0; }
 
-    <!-- Firebase SDKs - Mandatory for Auth and Firestore -->
+        /* --- Sidebar (Fixed Nav) --- */
+        .sidebar { 
+            position: fixed; 
+            top: 0; left: 0; 
+            width: 300px; 
+            height: 100vh; 
+            background: var(--bg-card); 
+            padding: 30px 20px; 
+            border-right: 1px solid var(--border-light); 
+            display: flex; flex-direction: column; 
+            z-index: 100;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+        }
+        .branding { display: flex; align-items: center; gap: 10px; margin-bottom: 30px; }
+        .logo-icon { font-size: 2rem; color: var(--primary); }
+        .branding h2 { font-size: 1.8rem; font-weight: 700; margin: 0; }
+        .logo-accent { color: var(--primary); }
+
+        .auth-info { text-align: center; margin-bottom: 20px; }
+        .profile-photo { width: 80px; height: 80px; border-radius: 50%; border: 3px solid var(--primary); object-fit: cover; margin: 0 auto 10px; background: #ddd; }
+        .name { font-size: 1.1rem; font-weight: 600; }
+        .status { font-size: 0.75rem; color: var(--text-light); display: block; }
+
+        .nav-menu { list-style: none; flex-grow: 1; display: flex; flex-direction: column;}
+        .nav-btn { 
+            display: flex; align-items: center; gap: 10px; 
+            width: 100%; text-align: left; 
+            padding: 12px 15px; margin-bottom: 8px;
+            background: transparent; border: 1px solid transparent;
+            border-radius: var(--border-radius); 
+            color: var(--text-main); font-weight: 600; 
+            cursor: pointer; transition: all 0.2s;
+            text-decoration: none;
+        }
+        .nav-btn:hover { background: var(--bg-main); }
+        .nav-btn.active { 
+            background: var(--primary); 
+            color: white; 
+            border-color: var(--primary);
+        }
+
+        /* --- Main Content & Header --- */
+        .main-content { padding: 40px; max-width: 100%; min-height: 100vh; position: relative;}
+        .header-controls { 
+            position: absolute; top: 20px; right: 20px; 
+            z-index: 101; 
+            display: flex; gap: 10px;
+        }
+        .toggle-btn { 
+            background: var(--bg-card); 
+            color: var(--text-main); 
+            width: 40px; height: 40px; 
+            border-radius: var(--border-radius); 
+            border: 1px solid var(--border-light); 
+            cursor: pointer; font-size: 1.1rem; 
+            transition: all 0.3s;
+            box-shadow: 2px 2px 0 0 var(--border-light);
+        }
+        .toggle-btn:hover { background: var(--primary); color: white; border-color: var(--primary); }
+
+        .section-title { font-size: 2rem; margin-bottom: 5px; font-weight: 700; }
+        .section-subtitle { font-size: 1rem; color: var(--text-light); margin-bottom: 30px; }
+
+        /* --- Tabs/Filters --- */
+        .tabs ul { list-style: none; display: flex; gap: 10px; margin-bottom: 30px; flex-wrap: wrap;}
+        .tab-link { 
+            background: var(--bg-card); 
+            border: 1px solid var(--border-light); 
+            cursor: pointer; color: var(--text-light); 
+            padding: 8px 18px; border-radius: var(--border-radius); 
+            font-weight: 500; transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+        .tab-link.active { 
+            background: var(--primary); 
+            color: white; border-color: var(--primary);
+        }
+        .tab-link:hover:not(.active) { border-color: var(--primary); color: var(--primary); }
+
+        /* --- Book Grid & Card --- */
+        .portfolio-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); 
+            gap: 30px; 
+            margin-bottom: 40px;
+        }
+        .project-card { 
+            background: var(--bg-card); 
+            border-radius: var(--border-radius); 
+            padding: 15px; 
+            border: 1px solid var(--border-light);
+            transition: all 0.2s;
+            position: relative; 
+            cursor: pointer; 
+            box-shadow: 4px 4px 0 0 var(--border-light);
+        }
+        .dark-mode .project-card { box-shadow: 4px 4px 0 0 var(--border-light); }
+        .project-card:hover { 
+            transform: translate(-2px, -2px); 
+            box-shadow: 6px 6px 0 0 var(--primary); 
+        }
+        .book-cover { 
+            width: 100%; 
+            aspect-ratio: 2/3; 
+            border-radius: var(--border-radius); 
+            object-fit: cover; 
+            margin-bottom: 10px; 
+            border: 1px solid var(--border-light);
+        }
+        .project-card h5 { font-size: 1.1rem; font-weight: 700; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .project-card p { font-size: 0.85rem; color: var(--text-light); margin-bottom: 5px; }
+
+        /* Progress Bar */
+        .progress-bar { height: 6px; background: var(--border-light); border-radius: 3px; overflow: hidden; margin-top: 10px; }
+        .progress-fill { height: 100%; background: var(--primary); transition: width 0.5s; }
+
+        /* --- Modal Base --- */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 200;
+            display: none; 
+            opacity: 0;
+            transition: opacity 0.3s;
+            overflow-y: auto;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-overlay.active { display: flex; opacity: 1; }
+        .modal-content { 
+            background: var(--bg-card); 
+            padding: 30px; 
+            border-radius: var(--border-radius); 
+            width: 100%; 
+            max-width: 450px; 
+            position: relative; 
+            margin: auto; 
+            border: 1px solid var(--text-main); 
+            box-shadow: 8px 8px 0 0 var(--primary);
+        }
+        .close-btn { position: absolute; top: 15px; right: 15px; background: none; border: none; cursor: pointer; font-size: 1.2rem; color: var(--text-light); }
+
+        /* --- Form & Buttons --- */
+        .form-group { margin-bottom: 15px; }
+        .form-input { 
+            width: 100%; padding: 10px; 
+            background: var(--bg-main); 
+            border: 1px solid var(--border-light); 
+            border-radius: var(--border-radius); 
+            color: var(--text-main);
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+        .form-input:focus { outline: none; border-color: var(--primary); background: var(--bg-card); }
+
+        .btn { 
+            padding: 12px 25px; 
+            background: var(--primary); 
+            color: #fff; 
+            border: none; 
+            border-radius: var(--border-radius); 
+            font-size: 0.9rem; 
+            font-weight: 700; 
+            cursor: pointer; 
+            transition: all 0.2s;
+            display: inline-flex; 
+            align-items: center; 
+            justify-content: center;
+            gap: 8px; 
+            text-decoration: none; 
+            box-shadow: 2px 2px 0 0 var(--primary-hover);
+        }
+        .btn:hover { background: var(--primary-hover); transform: translate(-1px, -1px); box-shadow: 4px 4px 0 0 var(--primary-hover); }
+        .btn-auth { margin-top: auto; }
+
+        /* --- PDF Reader Modal --- */
+        .reader-modal {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: var(--bg-main);
+            z-index: 300;
+            display: none; 
+            flex-direction: column;
+        }
+        .reader-modal.active { display: flex; }
+        .reader-header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 15px 20px;
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border-light);
+            color: var(--text-main);
+            z-index: 301;
+        }
+        .reader-title { font-weight: 700; font-size: 1.2rem; }
+        .reader-actions { display: flex; align-items: center; gap: 15px; }
+        .btn-back, .btn-fav { background: none; border: none; cursor: pointer; color: var(--text-main); font-weight: 600; font-size: 1rem; }
+        .btn-fav i { font-size: 1.5rem; color: var(--text-light); }
+        .btn-fav i.ph-fill { color: red; }
+        .reader-controls { display: flex; align-items: center; gap: 10px; }
+        .reader-controls label { font-size: 0.9rem; }
+        #pageInput { width: 50px; background: var(--bg-main); border: 1px solid var(--border-light); color: var(--text-main); text-align: center; border-radius: var(--border-radius); padding: 5px; font-family: var(--mono-font); }
+        .btn-save { padding: 5px 10px; font-size: 0.8rem; box-shadow: none; }
+        .reader-body { width: 100%; height: 100%; border: none; }
+
+        /* --- Loading Screen (Optimized CSS Loader) --- */
+        .loading-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg-main); color: var(--text-main);
+            z-index: 400; display: flex; justify-content: center; align-items: center;
+            font-size: 2rem; font-weight: 700;
+            transition: opacity 0.5s ease-out;
+        }
+        .loading-screen.hidden { opacity: 0; pointer-events: none; }
+        .loader { animation: pulse 1s infinite alternate; }
+        @keyframes pulse {
+            from { opacity: 0.5; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1.0); }
+        }
+
+        /* --- Responsive/Mobile Styles --- */
+        @media (max-width: 900px) {
+            body { padding-left: 0; padding-bottom: 60px; }
+            .sidebar { display: none; }
+            .main-content { padding: 20px 15px; }
+            .header-controls { display: none; } 
+            .portfolio-grid { grid-template-columns: repeat(2, 1fr); gap: 15px; }
+            .project-card:hover { transform: none; box-shadow: 4px 4px 0 0 var(--border-light); } 
+            .btn-auth { display: none; }
+
+            /* Mobile Bottom Nav */
+            .mobile-nav {
+                position: fixed; bottom: 0; left: 0; width: 100%; height: 60px;
+                background: var(--bg-card); border-top: 1px solid var(--border-light);
+                z-index: 1000; display: flex; justify-content: space-around; align-items: center;
+                box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.1);
+            }
+            .mobile-nav button {
+                display: flex; flex-direction: column; align-items: center;
+                background: none; border: none; color: var(--text-light);
+                font-size: 0.7rem; font-weight: 600; padding: 5px;
+                transition: color 0.2s;
+            }
+            .mobile-nav button i { font-size: 1.5rem; margin-bottom: 2px; }
+            .mobile-nav button.active { color: var(--primary); }
+        }
+    </style>
+</head>
+<body data-view="home">
+    
+    <div class="modal-overlay" id="globalModal">
+        <div class="modal-content" id="modalBox" onclick="event.stopPropagation()">
+            </div>
+    </div>
+    
+    <div id="loadingScreen" class="loading-screen">
+        <div class="loader">Loading...</div>
+    </div>
+
+    <aside class="sidebar">
+        <div class="branding">
+            <i class="ph-fill ph-book-open-text logo-icon"></i>
+            <h2>Blue<span class="logo-accent">Reader</span></h2>
+        </div>
+        <div class="auth-info" id="authInfoBlock">
+            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Guest" id="userAvatar" class="profile-photo" alt="Profile">
+            <span class="name" id="userName">Guest Reader</span>
+            <small class="status" id="userStatus">Log in to sync</small>
+        </div>
+        <div class="separator"></div>
+        <nav class="nav-menu">
+            <a href="#" class="nav-btn active" data-view="home"><i class="ph-bold ph-compass"></i> Discover</a>
+            <a href="#" class="nav-btn" data-view="library"><i class="ph-bold ph-books"></i> My Library</a>
+            <a href="#" class="nav-btn" data-view="continue"><i class="ph-bold ph-clock-counter-clockwise"></i> Continue</a>
+            <a href="#" class="nav-btn" data-view="admin" id="adminBtn" style="display: none;"><i class="ph-bold ph-plus-circle"></i> Add Book</a>
+        </nav>
+        <button id="desktopAuthBtn" class="btn btn-auth" data-action="auth">
+            <i class="ph-bold ph-sign-in"></i> Sign In
+        </button>
+    </aside>
+
+    <main class="main-content">
+        <div class="header-controls">
+            <button class="toggle-btn" id="themeToggleBtn" data-action="toggle-theme" onclick="app.toggleTheme()" aria-label="Toggle Dark Mode">
+                <i class="ph-fill ph-moon" id="themeIcon"></i>
+            </button>
+        </div>
+
+        <div id="viewContainer">
+            </div>
+        
+        <div id="readerModal" class="reader-modal">
+            <div class="reader-header">
+                <button onclick="app.closeReader()" class="btn-back"><i class="ph-bold ph-arrow-left"></i> Back</button>
+                <span id="readerTitle" class="reader-title"></span>
+                <div class="reader-actions">
+                    <button id="readerFavBtn" class="btn-fav" onclick="app.toggleReaderFav()" aria-label="Favorite Book"><i class="ph-heart"></i></button>
+                    <div class="reader-controls">
+                        <label for="pageInput">Page</label>
+                        <input type="number" id="pageInput" min="1" value="1" onchange="app.updateReaderPage()">
+                        <button onclick="app.saveCurrentPage()" class="btn btn-save">SAVE</button>
+                    </div>
+                </div>
+            </div>
+            <iframe id="pdfFrame" class="reader-body" src=""></iframe>
+        </div>
+
+    </main>
+
+    <div class="mobile-nav">
+        <button data-view="home" class="active"><i class="ph-bold ph-compass"></i> Discover</button>
+        <button data-view="library"><i class="ph-bold ph-books"></i> Library</button>
+        <button data-view="continue"><i class="ph-bold ph-clock-counter-clockwise"></i> Continue</button>
+        <button data-action="auth"><i class="ph-bold ph-user-circle" id="mobileAuthIcon"></i> <span id="mobileAuthText">Sign In</span></button>
+    </div>
+    
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-analytics.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, updateDoc, arrayUnion, arrayRemove, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        // Import Firebase SDKs (v10 syntax for module type)
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-analytics.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, updateDoc, arrayUnion, arrayRemove, collection, onSnapshot, query, addDoc } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-firestore.js";
 
-        // --- CONFIGURATION (Ensure these match your Firebase project) ---
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
-            apiKey: "AIzaSyCh6YZVCawcGfyPz6s1K9DJqBeIC-c7Hsw",
+        // --- FIREBASE CONFIGURATION & API ---
+        const firebaseConfig = {
+            // Replace with your actual Firebase config
+            apiKey: "AIzaSyCh6YZVCawcGfyPz6s1K9DJqBeIC-c7Hsw", 
             authDomain: "readersparadize-85e8e.firebaseapp.com",
             projectId: "readersparadize-85e8e",
             storageBucket: "readersparadize-85e8e.firebasestorage.app",
@@ -25,1128 +386,489 @@
             appId: "1:168539796198:web:d01f9b7915292e6c5fc127",
             measurementId: "G-GZ61PZQXC5"
         };
+        const APP_ID = 'blue-reader-1'; // Static ID for the artifact path
 
         const app = initializeApp(firebaseConfig);
-        const analytics = getAnalytics(app);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const googleProvider = new GoogleAuthProvider();
 
-        window.auth = auth;
-        window.db = db;
-        window.appId = appId;
-        window.googleProvider = new GoogleAuthProvider();
-        
-        // Expose Auth functions
-        window.loginEmail = async (e, p) => signInWithEmailAndPassword(auth, e, p);
-        window.signupEmail = async (e, p) => createUserWithEmailAndPassword(auth, e, p);
-        window.loginGoogle = async () => signInWithPopup(auth, window.googleProvider);
-        window.logout = async () => signOut(auth);
-        
-        // Initial Auth Logic: Handle token sign-in or fall back to anonymous if needed
-        const initAuth = async () => {
-            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                await signInWithCustomToken(auth, __initial_auth_token);
-            } else {
+        const api = {
+            // Auth
+            loginEmail: (e, p) => signInWithEmailAndPassword(auth, e, p),
+            signupEmail: (e, p) => createUserWithEmailAndPassword(auth, e, p),
+            loginGoogle: () => signInWithPopup(auth, googleProvider),
+            logout: () => signOut(auth),
+            onAuthStateChanged: (callback) => {
                 onAuthStateChanged(auth, (user) => {
                     if (!user) {
-                        // Sign in anonymously if no user is present
                         signInAnonymously(auth).catch(err => console.error("Anon Auth Failed:", err));
                     }
+                    callback(user);
                 });
-            }
-        };
-        initAuth();
-
-        // Firestore Helpers
-        window.saveBookProgress = async (bookId, page) => {
-            const user = auth.currentUser;
-            if(!user || user.isAnonymous) return;
-            const ref = doc(db, 'artifacts', appId, 'users', user.uid, 'progress', bookId);
-            await setDoc(ref, { page: page, lastRead: new Date().toISOString(), bookId: bookId }, { merge: true });
-        };
-
-        window.toggleFav = async (bookId) => {
-             const user = auth.currentUser;
-            if(!user || user.isAnonymous) return;
-            const ref = doc(db, 'artifacts', appId, 'users', user.uid, 'preferences', 'favorites');
-            const docSnap = await getDoc(ref);
-            
-            let isFav = false;
-            if(docSnap.exists() && docSnap.data().ids.includes(bookId)) {
-                await updateDoc(ref, { ids: arrayRemove(bookId) });
-                isFav = false;
-            } else {
-                await setDoc(ref, { ids: arrayUnion(bookId) }, { merge: true });
-                isFav = true;
-            }
-            // Re-fetch user data to update appState immediately
-            await fetchUserData(user); 
-            return isFav; 
-        };
-
-        window.addBookToDB = async (bookData) => {
-            const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'books');
-            await addDoc(colRef, bookData);
-        };
-
-        // Real-time listener for public book data
-        window.subscribeToBooks = (callback) => {
-            const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'books');
-            return onSnapshot(colRef, (snapshot) => {
-                const books = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                callback(books);
-            }, (error) => console.error("Error fetching books:", error));
-        };
-        
-        // Function to fetch all user data (progress and favorites)
-        window.fetchUserData = async (user) => {
-            if (!user || user.isAnonymous) {
-                appState.progress = {};
-                appState.favorites = [];
-                render();
-                return;
-            }
-
-            // Fetch Progress
-            const progressRef = collection(db, 'artifacts', appId, 'users', user.uid, 'progress');
-            onSnapshot(progressRef, (snapshot) => {
-                const progress = {};
-                snapshot.docs.forEach(doc => {
-                    progress[doc.id] = doc.data();
-                });
-                appState.progress = progress;
-                render();
-            }, (error) => console.error("Error fetching progress:", error));
-
-            // Fetch Favorites
-            const favRef = doc(db, 'artifacts', appId, 'users', user.uid, 'preferences', 'favorites');
-            onSnapshot(favRef, (docSnap) => {
-                appState.favorites = docSnap.exists() ? docSnap.data().ids || [] : [];
-                render();
-            }, (error) => console.error("Error fetching favorites:", error));
-        };
-    </script>
-
-    <style>
-        /* Google Fonts */
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
-
-        /* CSS Variables */
-        :root {
-            --primary-color: #0d6efd;
-            --primary-color-light: #3b8aff;
-            --text-dark: #333;
-            --text-light-mode: #222;
-            --text-dark-theme: #e0e0e0;
-            --bg-light: #f0f2f5; 
-            --bg-dark: #121212;
-            --card-bg-light: rgba(255, 255, 255, 0.9);
-            --card-bg-dark: rgba(42, 42, 42, 0.9);
-            --sidebar-bg-light: rgba(255, 255, 255, 0.85);
-            --sidebar-bg-dark: rgba(30, 30, 30, 0.85);
-            --border-color-light: #e9ecef;
-            --border-color-dark: #444;
-            --shadow-light: 0 6px 20px rgba(0, 0, 0, 0.08);
-            --shadow-dark: 0 6px 20px rgba(0, 0, 0, 0.3);
-        }
-
-        /* Base Styles */
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
-        body { 
-            background-color: var(--bg-light); 
-            color: var(--text-light-mode); 
-            transition: all 0.3s; 
-            min-height: 100vh;
-            overflow-x: hidden;
-            padding-left: 300px; /* Space for fixed sidebar on desktop */
-        }
-        #particles-js { position: fixed; width: 100%; height: 100%; top: 0; left: 0; z-index: -1; }
-
-        /* Dark Mode */
-        body.dark-mode { 
-            background-color: var(--bg-dark); 
-            color: var(--text-dark-theme); 
-        }
-
-        /* Sidebar - Fixed, Floating Panel (Desktop) */
-        .sidebar { 
-            position: fixed; 
-            top: 0; 
-            left: 0; 
-            width: 300px; 
-            height: 100vh; 
-            background: var(--sidebar-bg-light); 
-            padding: 30px 20px; 
-            border-right: 1px solid var(--border-color-light); 
-            box-shadow: var(--shadow-light);
-            z-index: 100;
-            backdrop-filter: blur(5px);
-            transition: background 0.3s, border-color 0.3s, box-shadow 0.3s;
-        }
-        .dark-mode .sidebar { 
-            background: var(--sidebar-bg-dark); 
-            border-right-color: var(--border-color-dark);
-            box-shadow: var(--shadow-dark);
-        }
-        .sidebar-content { 
-            display: flex; 
-            flex-direction: column; 
-            height: 100%; 
-        }
-
-        /* Sidebar Elements */
-        .profile-photo { 
-            width: 80px; height: 80px; 
-            border-radius: 50%; 
-            border: 3px solid var(--primary-color); 
-            object-fit: cover; 
-            margin: 0 auto 15px; 
-            display: block; 
-            background: #ddd; 
-        }
-        .name { font-size: 1.2rem; font-weight: 600; margin-bottom: 2px; text-align: center; }
-        .title { font-size: 0.75rem; color: #888; text-align: center; display: block; margin-bottom: 20px; }
-        .separator { border: 0; height: 1px; background: var(--border-color-light); margin: 15px 0; }
-        .dark-mode .separator { background: var(--border-color-dark); }
-        
-        .nav-menu { list-style: none; flex-grow: 1; }
-        .nav-menu li { margin-bottom: 8px; }
-        .nav-btn { 
-            width: 100%; 
-            text-align: left; 
-            padding: 10px 15px; 
-            background: transparent; 
-            border: none; 
-            border-radius: 8px; 
-            color: var(--text-dark);
-            font-weight: 500; 
-            cursor: pointer; 
-            display: flex; 
-            align-items: center; 
-            gap: 10px; 
-            transition: all 0.2s; 
-            font-size: 1rem; 
-        }
-        .dark-mode .nav-btn { color: var(--text-dark-theme); }
-
-        .nav-btn:hover {
-            background: rgba(13, 110, 253, 0.1); 
-            color: var(--primary-color);
-        }
-        .nav-btn.active { 
-            background: var(--primary-color); 
-            color: white !important; 
-            box-shadow: 0 4px 10px rgba(13, 110, 253, 0.4); 
-        }
-        .nav-btn.active:hover {
-             background: var(--primary-color-light); 
-        }
-        .nav-btn i { font-size: 1.2rem; }
-
-        /* Main Content - Full width space to the right of the sidebar */
-        .main-content { 
-            padding: 40px; 
-            max-width: 100%; 
-            min-height: 100vh;
-        }
-
-        /* Global Header/Toggle */
-        .header-controls {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 101;
-            display: flex;
-            gap: 10px;
-        }
-        .toggle-btn { 
-            background: var(--card-bg-light); 
-            color: var(--text-dark); 
-            width: 40px; 
-            height: 40px; 
-            border-radius: 50%; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            border: 1px solid var(--border-color-light); 
-            cursor: pointer; 
-            font-size: 1.1rem; 
-            transition: all 0.3s;
-            box-shadow: var(--shadow-light);
-        }
-        .dark-mode .toggle-btn {
-             background: var(--card-bg-dark); 
-             color: var(--text-dark-theme);
-             border-color: var(--border-color-dark);
-             box-shadow: var(--shadow-dark);
-        }
-        .toggle-btn:hover { background: var(--primary-color); color: white; border-color: var(--primary-color); }
-        .dark-mode .toggle-btn:hover { background: var(--primary-color); color: white; border-color: var(--primary-color); }
-
-        /* Section Styling */
-        .section-title { font-size: 2rem; margin-bottom: 5px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
-        .section-subtitle { font-size: 1rem; color: #888; margin-bottom: 30px; }
-
-        /* Tabs & Filters */
-        .tabs ul { list-style: none; display: flex; gap: 10px; margin-bottom: 30px; flex-wrap: wrap;}
-        .tab-link { 
-            background: var(--card-bg-light); 
-            border: 1px solid var(--border-color-light); 
-            cursor: pointer; 
-            color: #666; 
-            padding: 8px 18px; 
-            border-radius: 20px; 
-            font-weight: 500; 
-            transition: all 0.3s;
-            font-size: 0.9rem;
-        }
-        .dark-mode .tab-link { background: var(--card-bg-dark); border-color: var(--border-color-dark); color: #ccc; }
-
-        .tab-link.active { 
-            background: var(--primary-color); 
-            color: white; 
-            border-color: var(--primary-color);
-        }
-        .tab-link:hover:not(.active) {
-            border-color: var(--primary-color-light);
-            color: var(--primary-color);
-        }
-
-        /* Book Grid - Clean and Responsive */
-        .portfolio-grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); 
-            gap: 30px; 
-            margin-bottom: 40px;
-        }
-
-        /* Book Card - Simple, Clean, Interactive */
-        .project-card { 
-            background: var(--card-bg-light); 
-            border-radius: 12px; 
-            padding: 15px; 
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            position: relative; 
-            cursor: pointer; 
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); 
-        }
-        .dark-mode .project-card { 
-            background: var(--card-bg-dark); 
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4); 
-        }
-        .project-card:hover { 
-            transform: translateY(-5px); 
-            box-shadow: 0 15px 30px rgba(0,0,0,0.15); 
-        }
-        .dark-mode .project-card:hover { 
-            box-shadow: 0 15px 30px rgba(0,0,0,0.6); 
-        }
-        
-        .book-cover { 
-            width: 100%; 
-            aspect-ratio: 2/3; 
-            border-radius: 8px; 
-            object-fit: cover; 
-            margin-bottom: 10px; 
-            box-shadow: 0 3px 10px rgba(0,0,0,0.2); 
-        }
-        .project-card h5 { font-size: 1rem; font-weight: 600; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .project-card p { font-size: 0.8rem; color: #888; margin-bottom: 5px; }
-        
-        /* Progress Bar */
-        .progress-bar { height: 4px; background: var(--border-color-light); border-radius: 2px; overflow: hidden; margin-top: 10px; }
-        .progress-fill { height: 100%; background: var(--primary-color); width: 0%; transition: width 0.5s; }
-
-        /* Buttons and Modals - Retained interaction styles */
-        .btn-primary { 
-            padding: 12px 25px; 
-            background: var(--primary-color); 
-            color: #fff; 
-            border: none; 
-            border-radius: 25px; 
-            font-size: 0.9rem; 
-            font-weight: 600; 
-            cursor: pointer; 
-            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            display: inline-flex; 
-            align-items: center; 
-            gap: 8px; 
-            text-decoration: none; 
-        }
-        .btn-primary:hover { background: #0056b3; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(13, 110, 253, 0.3); }
-        .btn-primary:active { transform: translateY(0); box-shadow: none; }
-        
-        .modal-box { 
-            background: var(--card-bg-light); 
-            padding: 30px; 
-            border-radius: 20px; 
-            width: 100%; 
-            max-width: 400px; 
-            position: relative; 
-            box-shadow: var(--shadow-dark); 
-        }
-        .dark-mode .modal-box { background: var(--card-bg-dark); }
-        .form-input { 
-            background: var(--sidebar-bg-light); 
-            border: 1px solid var(--border-color-light); 
-        }
-        .dark-mode .form-input { 
-            background: var(--sidebar-bg-dark); 
-            border-color: var(--border-color-dark); 
-            color: var(--text-dark-theme);
-        }
-
-        /* Responsive Styles (Mobile - Sidebar Hidden, Bottom Nav) */
-        @media (max-width: 900px) {
-            body { 
-                padding-left: 0; 
-                padding-bottom: 60px; /* Space for bottom nav */
-            }
-            .sidebar { 
-                display: none; /* Hide fixed sidebar entirely */
-            }
-            .main-content { 
-                padding: 20px 15px;
-            }
-            .header-controls { 
-                position: static; 
-                display: flex; 
-                justify-content: flex-end; 
-                margin-bottom: 20px;
-            }
-            
-            /* Mobile Bottom Nav */
-            .mobile-nav {
-                position: fixed;
-                bottom: 0;
-                left: 0;
-                width: 100%;
-                height: 60px;
-                background: var(--card-bg-light);
-                border-top: 1px solid var(--border-color-light);
-                z-index: 1000;
-                display: flex;
-                justify-content: space-around;
-                align-items: center;
-                box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.1);
-            }
-            .dark-mode .mobile-nav {
-                background: var(--sidebar-bg-dark);
-                border-top-color: var(--border-color-dark);
-                box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.4);
-            }
-
-            .mobile-nav button {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                background: none;
-                border: none;
-                color: #888;
-                font-size: 0.75rem;
-                font-weight: 500;
-                padding: 5px;
-                transition: color 0.2s;
-            }
-            .dark-mode .mobile-nav button { color: #ccc; }
-            .mobile-nav button i { font-size: 1.5rem; margin-bottom: 2px; }
-
-            .mobile-nav button.active {
-                color: var(--primary-color);
-            }
-            .mobile-nav button:hover {
-                color: var(--primary-color-light);
-            }
-            
-            /* Book Grid Mobile Fix */
-            .portfolio-grid { 
-                grid-template-columns: repeat(2, 1fr); 
-                gap: 15px;
-            }
-            .project-card { padding: 10px; }
-            .project-card h5 { font-size: 0.9rem; }
-            .project-card p { font-size: 0.75rem; }
-        }
-    </style>
-</head>
-<body>
-    <!-- Sound -->
-    <audio id="clickSound" src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA="></audio> 
-
-    <!-- Particles Background -->
-    <canvas id="particles-js"></canvas>
-
-    <!-- Loading -->
-    <div id="loadingScreen">
-        L<span class="loading-o"></span>ADING
-    </div>
-    
-    <!-- Theme Toggle and Auth Button (Desktop position) -->
-    <div class="header-controls">
-        <button class="toggle-btn" onclick="toggleTheme()">
-            <i class="ph-fill ph-moon" id="themeIcon"></i>
-        </button>
-         <button id="desktopAuthBtn" class="btn-primary" style="padding: 10px 20px; font-size: 0.9rem; margin-right: 50px;" onclick="handleAuthClick()">
-            <i class="ph-bold ph-sign-in"></i> Sign In
-        </button>
-    </div>
-
-    <!-- Sidebar (Desktop Fixed Nav) -->
-    <aside class="sidebar">
-        <div class="sidebar-content">
-            <!-- Branding / Logo -->
-            <div class="branding" style="margin-bottom: 30px; display: flex; align-items: center; justify-content: center; gap: 10px;">
-                <i class="ph-fill ph-book-open-text" style="font-size: 2rem; color: var(--primary-color);"></i>
-                <h2 style="font-size: 1.8rem; font-weight: 700; margin: 0;">Blue<span style="color: var(--primary-color);">Reader</span></h2>
-            </div>
-
-            <!-- User Info -->
-            <div class="auth-info">
-                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Guest" id="userAvatar" class="profile-photo" alt="Profile">
-                <h1 class="name" id="userName">Guest Reader</h1>
-                <span class="title" id="userStatus">Log in to sync</span>
-            </div>
-
-            <div class="separator"></div>
-
-            <!-- Navigation Links -->
-            <ul class="nav-menu">
-                <li><button id="nav-home" class="nav-btn active" onclick="switchTab('home', this)"><i class="ph-bold ph-compass"></i> Discover</button></li>
-                <li><button id="nav-library" class="nav-btn" onclick="switchTab('library', this)"><i class="ph-bold ph-books"></i> My Library</button></li>
-                <li><button id="nav-continue" class="nav-btn" onclick="switchTab('continue', this)"><i class="ph-bold ph-clock-counter-clockwise"></i> Continue Reading</button></li>
-                <li id="adminBtn" style="display: none;"><button class="nav-btn" onclick="openAdmin()"><i class="ph-bold ph-plus-circle"></i> Add Book</button></li>
-            </ul>
-        </div>
-    </aside>
-
-    <!-- Main Content -->
-    <main class="main-content">
-        <!-- View: Home -->
-        <div id="view-home" class="tab-content" style="display: block;">
-            <div class="section-title">
-                <h2>Discover New Worlds</h2>
-            </div>
-            <p class="section-subtitle">Explore our curated collection of free e-books by genre.</p>
-            
-            <div class="tabs">
-                <ul id="genreTabs">
-                    <li><button class="tab-link active" onclick="filterBooks('All', this)">All</button></li>
-                    <!-- Genres injected via JS -->
-                </ul>
-            </div>
-
-            <div class="portfolio-grid" id="publicGrid">
-                <!-- Books injected here -->
-            </div>
-        </div>
-
-        <!-- View: Library (Favs and Started) -->
-        <div id="view-library" class="tab-content" style="display: none;">
-            <div class="section-title">
-                <h2>My Library</h2>
-            </div>
-            <p class="section-subtitle">Your personal collection of favorited and in-progress books.</p>
-            <div class="portfolio-grid" id="libraryGrid">
-                <div style="grid-column: 1/-1; text-align: center; color: #888; padding: 20px;">
-                    Log in and start reading to build your library.
-                </div>
-            </div>
-        </div>
-
-         <!-- View: Continue -->
-         <div id="view-continue" class="tab-content" style="display: none;">
-            <div class="section-title">
-                <h2>Continue Reading</h2>
-            </div>
-            <p class="section-subtitle">Pick up exactly where you left off on your latest reads.</p>
-            <div class="portfolio-grid" id="continueGrid">
-                <p style="color:#888; grid-column: 1/-1; text-align:center;">You haven't started any books yet. Get reading!</p>
-            </div>
-        </div>
-    </main>
-    
-    <!-- Mobile Bottom Navigation -->
-    <div class="mobile-nav" style="display: none;">
-        <button id="nav-home-mobile" class="active" onclick="switchTab('home', this)"><i class="ph-bold ph-compass"></i> Discover</button>
-        <button id="nav-library-mobile" onclick="switchTab('library', this)"><i class="ph-bold ph-books"></i> Library</button>
-        <button id="nav-continue-mobile" onclick="switchTab('continue', this)"><i class="ph-bold ph-clock-counter-clockwise"></i> Continue</button>
-        <button onclick="handleAuthClick()"><i class="ph-bold ph-user-circle" id="mobileAuthIcon"></i> <span id="mobileAuthText">Sign In</span></button>
-    </div>
-
-    <!-- Auth Modal -->
-    <div class="modal-overlay" id="authModal" onclick="closeModal('authModal')">
-        <div class="modal-box" onclick="event.stopPropagation()">
-            <button onclick="closeModal('authModal')" style="position: absolute; top: 15px; right: 15px; background: none; border: none; cursor: pointer; font-size: 1.2rem; color: #888;"><i class="ph-bold ph-x"></i></button>
-            <h2 class="section-title" style="justify-content: center;">Welcome to BlueReader</h2>
-            <p style="text-align: center; color: #888; margin-bottom: 20px;">Sign in to save your progress across devices.</p>
-            
-            <button class="btn-primary" onclick="handleGoogleLogin()" style="width: 100%; justify-content: center; background: white; color: #333; border: 1px solid #ddd; margin-bottom: 20px;">
-                <img src="https://www.svgrepo.com/show/475656/google-color.svg" style="width: 20px; margin-right: 10px;"> Continue with Google
-            </button>
-
-            <div style="text-align: center; color: #aaa; margin-bottom: 15px; font-size: 0.8rem;">OR EMAIL</div>
-
-            <form onsubmit="handleEmailAuth(event)">
-                <div class="form-group">
-                    <input type="email" id="emailInput" class="form-input" placeholder="Email Address" required>
-                </div>
-                <div class="form-group">
-                    <input type="password" id="passInput" class="form-input" placeholder="Password (Min 6 characters)" required>
-                </div>
-                <button type="submit" class="btn-primary" style="width: 100%; justify-content: center;">Sign In / Sign Up</button>
-            </form>
-        </div>
-    </div>
-
-    <!-- Admin Modal -->
-    <div class="modal-overlay" id="adminModal" onclick="closeModal('adminModal')">
-        <div class="modal-box" onclick="event.stopPropagation()">
-            <button onclick="closeModal('adminModal')" style="position: absolute; top: 15px; right: 15px; background: none; border: none; cursor: pointer; font-size: 1.2rem; color: #888;"><i class="ph-bold ph-x"></i></button>
-            <h2 class="section-title">Add New Book</h2>
-            <form onsubmit="submitNewBook(event)">
-                <div class="form-group"><input type="text" id="nbTitle" class="form-input" placeholder="Title" required></div>
-                <div class="form-group"><input type="text" id="nbAuthor" class="form-input" placeholder="Author" required></div>
-                <div class="form-group"><input type="text" id="nbGenre" class="form-input" placeholder="Genre (e.g., Classic, Romance, Sci-Fi)" required></div>
-                <div class="form-group"><input type="url" id="nbCover" class="form-input" placeholder="Cover Image URL (e.g., from Wikipedia or Imgur)" required></div>
-                <div class="form-group"><input type="url" id="nbPdf" class="form-input" placeholder="PDF Link (Google Drive / OneDrive / Direct URL)" required></div>
-                <button type="submit" class="btn-primary" style="width: 100%; justify-content: center;">Add to Library</button>
-            </form>
-        </div>
-    </div>
-
-    <!-- PDF Reader -->
-    <div id="readerModal">
-        <div class="reader-header">
-            <button onclick="closeReader()" style="background: none; border: none; color: white; cursor: pointer; display: flex; align-items: center; gap: 5px;"><i class="ph-bold ph-arrow-left"></i> Back</button>
-            <span id="readerTitle" style="font-weight: 600;">Book Title</span>
-            <button id="readerFavBtn" onclick="toggleReaderFav()" style="background: none; border: none; color: white; cursor: pointer; font-size: 1.2rem; transition: transform 0.1s;" onmousedown="this.style.transform='scale(0.9)'" onmouseup="this.style.transform='scale(1)'"><i class="ph-heart"></i></button>
-        </div>
-        <div class="reader-body">
-            <iframe id="pdfFrame" style="width: 100%; height: 100%; border: none;" src=""></iframe>
-            <div class="reader-controls">
-                <span>Page</span>
-                <input type="number" id="pageInput" style="width: 60px; background: #333; border: none; color: white; text-align: center; border-radius: 5px; padding: 5px;" value="1">
-                <button onclick="saveCurrentPage()" class="btn-primary" style="background: var(--primary-color); padding: 5px 15px; border-radius: 15px; font-size: 0.8rem; height: 30px;">SAVE</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Advanced Constellation Particles Script -->
-    <script>
-        const canvas = document.getElementById('particles-js');
-        const ctx = canvas.getContext('2d');
-        
-        let width, height;
-        let particles = [];
-        let mouse = { x: null, y: null, radius: 150 };
-
-        function initCanvas() {
-            width = window.innerWidth;
-            height = window.innerHeight;
-            canvas.width = width;
-            canvas.height = height;
-            
-            // Create particles (Responsive density)
-            particles = [];
-            const numParticles = Math.floor((width * height) / 9000); 
-            for (let i = 0; i < numParticles; i++) {
-                particles.push({
-                    x: Math.random() * width,
-                    y: Math.random() * height,
-                    vx: (Math.random() - 0.5) * 0.8, // Slightly slower movement
-                    vy: (Math.random() - 0.5) * 0.8,
-                    size: Math.random() * 2 + 1
-                });
-            }
-        }
-
-        window.addEventListener('resize', initCanvas);
-        window.addEventListener('mousemove', (e) => {
-            mouse.x = e.x;
-            mouse.y = e.y;
-        });
-        window.addEventListener('mouseout', () => {
-            mouse.x = null;
-            mouse.y = null;
-        });
-
-        function animateParticles() {
-            ctx.clearRect(0, 0, width, height);
-            
-            const isDark = document.body.classList.contains('dark-mode');
-            const dotColor = isDark ? 'rgba(255, 255, 255, 0.4)' : 'rgba(13, 110, 253, 0.5)';
-            const lineColor = isDark ? '255, 255, 255' : '13, 110, 253'; 
-
-            // Update & Draw Particles
-            particles.forEach(p => {
-                p.x += p.vx;
-                p.y += p.vy;
-
-                // Bounce off edges
-                if (p.x < 0 || p.x > width) p.vx *= -1;
-                if (p.y < 0 || p.y > height) p.vy *= -1;
-
-                // Draw Dot
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-                ctx.fillStyle = dotColor;
-                ctx.fill();
-            });
-
-            // Draw Connections
-            for (let a = 0; a < particles.length; a++) {
-                // Connection distance check (optimized loop)
-                for (let b = a + 1; b < particles.length; b++) { 
-                    let dx = particles[a].x - particles[b].x;
-                    let dy = particles[a].y - particles[b].y;
-                    let distance = Math.sqrt(dx * dx + dy * dy);
-
-                    if (distance < 120) {
-                        ctx.beginPath();
-                        ctx.strokeStyle = `rgba(${lineColor}, ${0.8 - distance / 120})`;
-                        ctx.lineWidth = 1;
-                        ctx.moveTo(particles[a].x, particles[a].y);
-                        ctx.lineTo(particles[b].x, particles[b].y);
-                        ctx.stroke();
-                    }
-                }
+            },
+            // Progress/Favs Listeners
+            subscribeToUserData: (uid, callback) => {
+                const progressRef = collection(db, 'artifacts', APP_ID, 'users', uid, 'progress');
+                const favRef = doc(db, 'artifacts', APP_ID, 'users', uid, 'preferences', 'favorites');
                 
-                // Connect to mouse
-                if(mouse.x) {
-                    let dx = particles[a].x - mouse.x;
-                    let dy = particles[a].y - mouse.y;
-                    let distance = Math.sqrt(dx*dx + dy*dy);
-                    if(distance < mouse.radius) {
-                         ctx.beginPath();
-                        ctx.strokeStyle = `rgba(${lineColor}, ${1 - distance / mouse.radius})`;
-                        ctx.lineWidth = 1;
-                        ctx.moveTo(particles[a].x, particles[a].y);
-                        ctx.lineTo(mouse.x, mouse.y);
-                        ctx.stroke();
-                    }
+                const unsubProgress = onSnapshot(query(progressRef), (snapshot) => {
+                    const progress = {};
+                    snapshot.docs.forEach(doc => progress[doc.id] = doc.data());
+                    callback({ progress });
+                }, (error) => console.error("Error fetching progress:", error));
+                
+                const unsubFavs = onSnapshot(favRef, (docSnap) => {
+                    const favorites = docSnap.exists() ? docSnap.data().ids || [] : [];
+                    callback({ favorites });
+                }, (error) => console.error("Error fetching favorites:", error));
+                
+                return () => { unsubProgress(); unsubFavs(); }; 
+            },
+            subscribeToBooks: (callback) => {
+                const colRef = collection(db, 'artifacts', APP_ID, 'public', 'data', 'books');
+                return onSnapshot(query(colRef), (snapshot) => {
+                    const books = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    callback(books);
+                }, (error) => console.error("Error fetching books:", error));
+            },
+            // Mutators
+            saveBookProgress: async (uid, bookId, page) => {
+                const ref = doc(db, 'artifacts', APP_ID, 'users', uid, 'progress', bookId);
+                await setDoc(ref, { page: page, lastRead: new Date().toISOString(), bookId: bookId }, { merge: true });
+            },
+            toggleFav: async (uid, bookId) => {
+                const ref = doc(db, 'artifacts', APP_ID, 'users', uid, 'preferences', 'favorites');
+                const docSnap = await getDoc(ref);
+                let isFav = docSnap.exists() && (docSnap.data().ids || []).includes(bookId);
+
+                if(isFav) {
+                    await updateDoc(ref, { ids: arrayRemove(bookId) });
+                    return false;
+                } else {
+                    await setDoc(ref, { ids: arrayUnion(bookId) }, { merge: true });
+                    return true;
                 }
+            },
+            addBookToDB: async (bookData) => {
+                const colRef = collection(db, 'artifacts', APP_ID, 'public', 'data', 'books');
+                return await addDoc(colRef, bookData);
             }
+        };
 
-            requestAnimationFrame(animateParticles);
-        }
+        // --- APPLICATION STATE & LOGIC ---
 
-        initCanvas();
-        animateParticles();
-    </script>
-
-    <script>
-        // --- APP LOGIC ---
-        
-        // !!! IMPORTANT !!!
-        // REPLACE "your-email@gmail.com" WITH YOUR ACTUAL GOOGLE EMAIL BELOW
-        const adminEmails = ["your-email@gmail.com"]; 
-
-        function playSound() {
-            // This is a short, high-frequency sound for a 'click' feel
-            try {
-                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                if (audioCtx.state === 'suspended') audioCtx.resume();
-                const o = audioCtx.createOscillator();
-                const g = audioCtx.createGain();
-                o.type = 'sine'; o.frequency.setValueAtTime(800, audioCtx.currentTime);
-                o.frequency.exponentialRampToValueAtTime(300, audioCtx.currentTime + 0.05);
-                g.gain.setValueAtTime(0.1, audioCtx.currentTime);
-                g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
-                o.connect(g); g.connect(audioCtx.destination);
-                o.start(); o.stop(audioCtx.currentTime + 0.05);
-            } catch (e) {
-                console.warn("Audio context failed:", e);
-            }
-        }
-
-        const staticBooks = [
+        const ADMIN_EMAILS = ["your-email@gmail.com"]; // REPLACE with your actual Google email
+        const STATIC_BOOKS = [
             { id: 'b1', title: 'The Great Gatsby', author: 'F. Scott Fitzgerald', genre: 'Classic', cover: 'https://upload.wikimedia.org/wikipedia/commons/7/7a/The_Great_Gatsby_Cover_1925_Retouched.jpg', pdfUrl: 'https://mozilla.github.io/pdf.js/web/compressed.tracemonkey-pldi-09.pdf' },
             { id: 'b2', title: 'Pride and Prejudice', author: 'Jane Austen', genre: 'Romance', cover: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/17/PrideAndPrejudiceTitlePage.jpg/800px-PrideAndPrejudiceTitlePage.jpg', pdfUrl: 'https://mozilla.github.io/pdf.js/web/compressed.tracemonkey-pldi-09.pdf' },
             { id: 'b3', title: '1984', author: 'George Orwell', genre: 'Dystopian', cover: 'https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1676649712i/1984._SY75_.jpg', pdfUrl: 'https://mozilla.github.io/pdf.js/web/compressed.tracemonkey-pldi-09.pdf' },
             { id: 'b4', title: 'Moby Dick', author: 'Herman Melville', genre: 'Adventure', cover: 'https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1327940562i/153747.jpg', pdfUrl: 'https://mozilla.github.io/pdf.js/web/compressed.tracemonkey-pldi-09.pdf' },
         ];
-
-        let appState = {
+        
+        const appState = {
             user: null,
-            theme: 'light',
+            theme: localStorage.getItem('theme') || 'light',
             progress: {},
             favorites: [],
+            books: [],
+            filter: 'All',
+            currentView: 'home',
             currentBook: null,
-            books: [...staticBooks],
-            filter: 'All'
+            unsubUserData: null, 
         };
 
-        // Init
-        window.onload = () => {
-            setTimeout(() => document.getElementById('loadingScreen').style.display = 'none', 1500);
-            const savedTheme = localStorage.getItem('theme');
-            if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-                document.body.classList.add('dark-mode');
-                appState.theme = 'dark';
-                document.getElementById('themeIcon').className = 'ph-fill ph-sun';
-            }
-            
-            // Check screen width to determine mobile nav visibility
-            if (window.innerWidth <= 900) {
-                document.querySelector('.mobile-nav').style.display = 'flex';
-                document.getElementById('desktopAuthBtn').style.display = 'none';
-            } else {
-                document.querySelector('.mobile-nav').style.display = 'none';
-                document.getElementById('desktopAuthBtn').style.display = 'inline-flex';
-            }
-        };
+        // --- CORE LOGIC FUNCTIONS (Bound to window.app) ---
 
-        window.addEventListener('resize', () => {
-            if (window.innerWidth <= 900) {
-                document.querySelector('.mobile-nav').style.display = 'flex';
-                document.getElementById('desktopAuthBtn').style.display = 'none';
-            } else {
-                document.querySelector('.mobile-nav').style.display = 'none';
-                document.getElementById('desktopAuthBtn').style.display = 'inline-flex';
-            }
-        });
-
-
-        // Book Listener: Merges static books with dynamic Firestore books
-        const bookInterval = setInterval(() => {
-            if (window.subscribeToBooks) {
-                clearInterval(bookInterval);
-                window.subscribeToBooks((firestoreBooks) => {
-                    // Combine static books with Firestore books, removing duplicates by ID
-                    const firestoreBookMap = new Map(firestoreBooks.map(b => [b.id, b]));
-                    const uniqueStaticBooks = staticBooks.filter(b => !firestoreBookMap.has(b.id));
-                    appState.books = [...uniqueStaticBooks, ...firestoreBooks];
-                    render();
-                });
-            }
-        }, 500);
-
-        // Auth Listener: Handles user state changes
-        const authInterval = setInterval(() => {
-            if (window.auth) {
-                clearInterval(authInterval);
-                window.auth.onAuthStateChanged(async (user) => {
-                    appState.user = user;
-                    
-                    if (user && !user.isAnonymous) {
-                        // Logged in user: Fetch private data
-                        console.log("Logged in as:", user.email.toLowerCase()); 
-                        
-                        document.getElementById('userAvatar').src = user.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`;
-                        document.getElementById('userName').innerText = user.displayName || user.email.split('@')[0];
-                        document.getElementById('userStatus').innerText = "Premium Reader";
-                        
-                        // Update Auth Buttons
-                        document.getElementById('desktopAuthBtn').innerHTML = '<i class="ph-bold ph-sign-out"></i> Sign Out';
-                        document.getElementById('mobileAuthIcon').className = 'ph-bold ph-sign-out';
-                        document.getElementById('mobileAuthText').innerText = 'Sign Out';
-                        
-                        // Fetch user specific data
-                        await window.fetchUserData(user); 
-
-                        // Auto-switch to Library Dashboard
-                        if(document.getElementById('view-home').style.display === 'block') {
-                            switchTab('library', document.getElementById('nav-library'));
-                        }
-                    } else {
-                        // Guest/Anonymous user
-                        document.getElementById('userAvatar').src = `https://api.dicebear.com/7.x/avataaars/svg?seed=Guest`;
-                        document.getElementById('userName').innerText = "Guest Reader";
-                        document.getElementById('userStatus').innerText = "Log in to sync";
-                        
-                        // Update Auth Buttons
-                        document.getElementById('desktopAuthBtn').innerHTML = '<i class="ph-bold ph-sign-in"></i> Sign In';
-                        document.getElementById('mobileAuthIcon').className = 'ph-bold ph-user-circle';
-                        document.getElementById('mobileAuthText').innerText = 'Sign In';
-
-                        // Clear private data
-                        appState.progress = {};
-                        appState.favorites = [];
-                        render(); 
-                    }
-                });
-            }
-        }, 100);
-
-        // UI Functions
-        function toggleTheme() {
-            playSound();
-            document.body.classList.toggle('dark-mode');
-            appState.theme = document.body.classList.contains('dark-mode') ? 'dark' : 'light';
-            localStorage.setItem('theme', appState.theme);
+        const render = () => {
+            // 1. Theme and Layout
+            document.body.className = appState.theme === 'dark' ? 'dark-mode' : '';
+            document.body.dataset.view = appState.currentView;
             document.getElementById('themeIcon').className = appState.theme === 'dark' ? 'ph-fill ph-sun' : 'ph-fill ph-moon';
-        }
 
-        function switchTab(tabName, btn) {
-            playSound();
-            // Hide all tabs
-            document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
-            
-            // Clear desktop and mobile active states
-            document.querySelectorAll('.nav-btn, .mobile-nav button').forEach(b => b.classList.remove('active'));
-            
-            // Show selected view
-            document.getElementById('view-'+tabName).style.display = 'block';
+            // 2. Auth Info
+            const user = appState.user;
+            const isLoggedIn = user && !user.isAnonymous;
+            const authBtn = document.getElementById('desktopAuthBtn');
+            const mobileAuthIcon = document.getElementById('mobileAuthIcon');
+            const mobileAuthText = document.getElementById('mobileAuthText');
 
-            // Set active class for the corresponding buttons
-            if (btn) {
-                btn.classList.add('active');
-            } else if (window.innerWidth > 900) {
-                document.getElementById('nav-' + tabName).classList.add('active');
+            if (isLoggedIn) {
+                document.getElementById('userAvatar').src = user.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`;
+                document.getElementById('userName').innerText = user.displayName || user.email.split('@')[0];
+                document.getElementById('userStatus').innerText = "Logged In";
+                authBtn.innerHTML = '<i class="ph-bold ph-sign-out"></i> Sign Out';
+                mobileAuthIcon.className = 'ph-bold ph-sign-out';
+                mobileAuthText.innerText = 'Sign Out';
             } else {
-                document.getElementById('nav-' + tabName + '-mobile').classList.add('active');
+                document.getElementById('userAvatar').src = `https://api.dicebear.com/7.x/avataaars/svg?seed=Guest`;
+                document.getElementById('userName').innerText = "Guest Reader";
+                document.getElementById('userStatus').innerText = "Log in to sync";
+                authBtn.innerHTML = '<i class="ph-bold ph-sign-in"></i> Sign In';
+                mobileAuthIcon.className = 'ph-bold ph-user-circle';
+                mobileAuthText.innerText = 'Sign In';
             }
             
-            render(); 
-        }
+            // 3. Admin Button
+            const isAdmin = isLoggedIn && ADMIN_EMAILS.includes(user.email.toLowerCase());
+            document.getElementById('adminBtn').style.display = isAdmin ? 'flex' : 'none';
+            
+            // 4. Navigation Active State
+            document.querySelectorAll('.nav-btn, .mobile-nav button').forEach(btn => {
+                const view = btn.dataset.view;
+                btn.classList.toggle('active', view === appState.currentView);
+            });
 
-        function filterBooks(genre, btn) {
-            playSound();
-            appState.filter = genre;
-            document.querySelectorAll('#genreTabs .tab-link').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            render();
-        }
-
-        function render() {
-            // Admin Logic
-            const isAdmin = appState.user && !appState.user.isAnonymous && 
-                            adminEmails.some(email => email.toLowerCase() === appState.user.email.toLowerCase());
-            document.getElementById('adminBtn').style.display = isAdmin ? 'list-item' : 'none';
-
-            // --- Home Tab (Public Grid) ---
-            const genres = ['All', ...new Set(appState.books.map(b => b.genre))];
-            document.getElementById('genreTabs').innerHTML = genres.map(g => `
-                <li><button class="tab-link ${appState.filter === g ? 'active' : ''}" onclick="filterBooks('${g}', this)">${g}</button></li>
-            `).join('');
-
-            const publicFiltered = appState.filter === 'All' ? appState.books : appState.books.filter(b => b.genre === appState.filter);
-            document.getElementById('publicGrid').innerHTML = publicFiltered.map(b => getBookCard(b, true)).join('');
-
-            // --- Library Tab (Favorites + Started) ---
-            if(appState.user && !appState.user.isAnonymous) {
-                // Filter books that are either favorited OR have progress
-                const libraryBooks = appState.books.filter(b => 
-                    appState.favorites.includes(b.id) || appState.progress[b.id]
-                );
-                
-                if(libraryBooks.length > 0) {
-                     document.getElementById('libraryGrid').innerHTML = libraryBooks.map(b => getBookCard(b, false)).join('');
-                } else {
-                     document.getElementById('libraryGrid').innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #888; padding: 20px;">Your library is empty. Go to the Discover tab and start reading or add favorites!</div>';
-                }
-            } else {
-                document.getElementById('libraryGrid').innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #888; padding: 20px;">Log in to build your personal library.</div>';
+            // 5. Render Current View
+            let content = '';
+            switch (appState.currentView) {
+                case 'home': content = renderHomeView(); break;
+                case 'library': content = renderLibraryView(); break;
+                case 'continue': content = renderContinueView(); break;
+                case 'admin': content = renderAdminForm(); break;
+                default: content = renderHomeView();
             }
-
-            // --- Continue Reading Tab ---
-            const continueReading = appState.books
-                .filter(b => appState.progress[b.id])
-                .sort((a, b) => new Date(appState.progress[b.id].lastRead) - new Date(appState.progress[a.id].lastRead)); // Sort by most recent read
-
-            if(continueReading.length > 0) {
-                document.getElementById('continueGrid').innerHTML = continueReading.map(b => getBookCard(b, false)).join('');
-            } else {
-                document.getElementById('continueGrid').innerHTML = '<p style="color:#888; grid-column: 1/-1; text-align:center;">You haven\'t started any books yet. Get reading!</p>';
-            }
-        }
-
-        function getBookCard(book, requireAuth) {
+            document.getElementById('viewContainer').innerHTML = content;
+        };
+        
+        const getBookCard = (book) => {
             const progress = appState.progress[book.id];
-            // Mock total pages for progress bar demo (assuming 200 pages max)
             const progressPercent = progress ? Math.min(100, (progress.page / 200) * 100).toFixed(0) : 0; 
             const isFav = appState.favorites.includes(book.id);
-            const overlayClass = requireAuth && (!appState.user || appState.user.isAnonymous) ? 'auth-overlay' : '';
-            
+            const requireAuth = appState.currentView === 'home'; 
+
             return `
-                <div class="project-card" onclick="openBook('${book.id}', ${requireAuth})">
+                <div class="project-card" onclick="window.app.openBook('${book.id}', ${requireAuth})">
                     <img src="${book.cover}" class="book-cover" onerror="this.src='https://placehold.co/200x300/CCCCCC/333333?text=${book.title.substring(0, 1).toUpperCase()}'">
                     <h5>${book.title}</h5>
                     <p>${book.author}</p>
                     ${progress ? `
-                        <div class="progress-bar">
-                            <div class="progress-fill" style="width: ${progressPercent}%"></div>
-                        </div>
-                        <p style="font-size: 0.75rem; margin-top: 5px; color: var(--primary-color);">${progressPercent}% Complete (Pg ${progress.page})</p>
+                        <div class="progress-bar"><div class="progress-fill" style="width: ${progressPercent}%"></div></div>
+                        <p style="font-size: 0.75rem; margin-top: 5px; color: var(--primary);">${progressPercent}% Complete (Pg ${progress.page})</p>
                     ` : ''}
-                    ${isFav && !requireAuth ? '<i class="ph-fill ph-heart" style="position:absolute; top: 10px; right: 10px; color: red;"></i>' : ''}
+                    ${isFav ? `<i class="ph-fill ph-heart" style="position:absolute; top: 10px; right: 10px; color: red;"></i>` : ''}
                 </div>
             `;
-        }
-
-        // Modal Functions
-        function closeModal(id) { 
-            playSound();
-            document.getElementById(id).classList.remove('active'); 
-        }
-        function openAdmin() { 
-            playSound();
-            document.getElementById('adminModal').classList.add('active'); 
-        }
+        };
         
-        function handleAuthClick() {
-            playSound();
-            if(appState.user && !appState.user.isAnonymous) {
-                window.logout();
-            } else {
-                document.getElementById('authModal').classList.add('active');
-            }
-        }
+        const renderHomeView = () => {
+            const genres = ['All', ...new Set(appState.books.map(b => b.genre))];
+            const genreTabs = genres.map(g => `
+                <li><button class="tab-link ${appState.filter === g ? 'active' : ''}" onclick="window.app.filterBooks('${g}', this)">${g}</button></li>
+            `).join('');
+            const publicFiltered = appState.filter === 'All' ? appState.books : appState.books.filter(b => b.genre === appState.filter);
+            const bookCards = publicFiltered.length > 0 ? publicFiltered.map(getBookCard).join('') : 
+                `<div style="grid-column: 1/-1; text-align: center; color: var(--text-light); padding: 20px;">No books found in this genre.</div>`;
 
-        async function handleGoogleLogin() {
-            playSound();
-            try { 
-                await window.loginGoogle(); 
-                closeModal('authModal'); 
-            } catch(e) { 
-                console.error("Google Login Failed:", e);
-                alert("Google Login failed. Error: " + (e.message || "Check console for details.")); 
-            }
-        }
+            return `
+                <div>
+                    <div class="section-title"><h2>Discover New Worlds</h2></div>
+                    <p class="section-subtitle">Explore our curated collection of free e-books by genre.</p>
+                    <div class="tabs">
+                        <ul id="genreTabs">${genreTabs}</ul>
+                    </div>
+                    <div class="portfolio-grid">${bookCards}</div>
+                </div>
+            `;
+        };
 
-        async function handleEmailAuth(e) {
-            e.preventDefault();
-            playSound();
-            const em = document.getElementById('emailInput').value;
-            const pw = document.getElementById('passInput').value;
-            
-            if (pw.length < 6) {
-                alert("Password must be at least 6 characters long.");
-                return;
-            }
-
-            try { 
-                await window.loginEmail(em, pw); 
-                closeModal('authModal'); 
-            }
-            catch(err) {
-                // If login fails, try to sign up
-                if(err.code.includes('not-found') || err.code.includes('invalid-credential') || err.code.includes('wrong-password')) {
-                    try { 
-                        await window.signupEmail(em, pw); 
-                        closeModal('authModal'); 
-                        alert("Sign Up Successful! You are now logged in.");
-                    }
-                    catch(e2) { 
-                        console.error("Email Auth Failed:", e2);
-                        alert("Authentication Failed. Error: " + (e2.message || "Invalid credentials or email format.")); 
-                    }
+        const renderLibraryView = () => {
+            const isLoggedIn = appState.user && !appState.user.isAnonymous;
+            let content = '';
+            if (isLoggedIn) {
+                const libraryBooks = appState.books.filter(b => appState.favorites.includes(b.id) || appState.progress[b.id]);
+                if (libraryBooks.length > 0) {
+                    content = libraryBooks.map(getBookCard).join('');
                 } else {
-                    console.error("Email Auth Failed:", err);
-                    alert("Authentication Failed. Error: " + (err.message || "Please check your network connection."));
+                    content = '<div style="grid-column: 1/-1; text-align: center; color: var(--text-light); padding: 20px;">Your library is empty. Go to Discover and start reading or add favorites!</div>';
                 }
+            } else {
+                content = '<div style="grid-column: 1/-1; text-align: center; color: var(--text-light); padding: 20px;">Log in to build your personal library.</div>';
             }
-        }
 
-        async function submitNewBook(e) {
-            e.preventDefault();
-            playSound();
-            
-            let pdf = document.getElementById('nbPdf').value;
-            
-            // --- AUTO-FIX LINK LOGIC ---
-            if (pdf.includes("drive.google.com") && pdf.includes("/view")) {
-                pdf = pdf.replace("/view", "/preview");
-            } else if (pdf.includes("dropbox.com") && (pdf.includes("dl=0") || pdf.includes("?dl=0"))) {
-                pdf = pdf.replace("dl=0", "raw=1");
-            } else if (pdf.includes("sharepoint.com") || pdf.includes("1drv.ms")) {
-                if(pdf.includes("download=1")) pdf = pdf.replace("download=1", "action=embedview");
-                if(!pdf.includes("action=embedview") && !pdf.includes("action=view")) {
-                    pdf += (pdf.includes('?') ? '&' : '?') + 'action=embedview';
+            return `
+                <div>
+                    <div class="section-title"><h2>My Library</h2></div>
+                    <p class="section-subtitle">Your personal collection of favorited and in-progress books.</p>
+                    <div class="portfolio-grid">${content}</div>
+                </div>
+            `;
+        };
+
+        const renderContinueView = () => {
+            const isLoggedIn = appState.user && !appState.user.isAnonymous;
+            let content = '';
+            if (isLoggedIn) {
+                const continueReading = appState.books
+                    .filter(b => appState.progress[b.id])
+                    .sort((a, b) => new Date(appState.progress[b.id].lastRead) - new Date(appState.progress[a.id].lastRead));
+                
+                if (continueReading.length > 0) {
+                    content = continueReading.map(getBookCard).join('');
+                } else {
+                    content = '<div style="grid-column: 1/-1; text-align: center; color: var(--text-light); padding: 20px;">You haven\'t started any books yet. Get reading!</div>';
                 }
+            } else {
+                content = '<div style="grid-column: 1/-1; text-align: center; color: var(--text-light); padding: 20px;">Log in to track your reading progress.</div>';
             }
 
-            const book = {
-                title: document.getElementById('nbTitle').value,
-                author: document.getElementById('nbAuthor').value,
-                genre: document.getElementById('nbGenre').value,
-                cover: document.getElementById('nbCover').value,
-                pdfUrl: pdf,
-                createdAt: new Date().toISOString()
-            };
-            
-            try {
-                await window.addBookToDB(book);
-                alert(`Book "${book.title}" added successfully!`);
-            } catch (error) {
-                alert("Failed to add book. Do you have Admin permissions and Firestore write access?");
-                console.error("Firestore Add Book Error:", error);
-            }
-            
-            closeModal('adminModal');
-            e.target.reset();
-        }
+            return `
+                <div>
+                    <div class="section-title"><h2>Continue Reading</h2></div>
+                    <p class="section-subtitle">Pick up exactly where you left off on your latest reads.</p>
+                    <div class="portfolio-grid">${content}</div>
+                </div>
+            `;
+        };
 
-        // Reader Logic
-        function openBook(id, requireAuth) {
-            if(requireAuth && (!appState.user || appState.user.isAnonymous)) {
-                playSound();
-                document.getElementById('authModal').classList.add('active');
-                return;
-            }
-            playSound();
-            const book = appState.books.find(b => b.id === id);
-            if (!book) return;
+        const renderAdminForm = () => {
+            return `
+                <button class="btn" style="margin-bottom: 20px;" onclick="window.app.switchView('home')"><i class="ph-bold ph-arrow-left"></i> Back to Discover</button>
+                <div class="section-title"><h2>Add New Book</h2></div>
+                <p class="section-subtitle">Only visible to administrators. Use this to add public e-books.</p>
+                <form onsubmit="window.app.submitNewBook(event)" class="modal-content" style="max-width: 600px; margin: 0 auto; border: 1px solid var(--border-light); box-shadow: 4px 4px 0 0 var(--border-light);">
+                    <div class="form-group"><input type="text" id="nbTitle" class="form-input" placeholder="Title" required></div>
+                    <div class="form-group"><input type="text" id="nbAuthor" class="form-input" placeholder="Author" required></div>
+                    <div class="form-group"><input type="text" id="nbGenre" class="form-input" placeholder="Genre (e.g., Classic, Romance, Sci-Fi)" required></div>
+                    <div class="form-group"><input type="url" id="nbCover" class="form-input" placeholder="Cover Image URL" required></div>
+                    <div class="form-group"><input type="url" id="nbPdf" class="form-input" placeholder="PDF Link (Google Drive / Direct URL)" required></div>
+                    <button type="submit" class="btn" style="width: 100%;">Add to Library</button>
+                </form>
+            `;
+        };
 
-            appState.currentBook = book;
-            document.getElementById('readerTitle').innerText = book.title;
-            
-            // Set initial page number
-            const initialPage = appState.progress[id] ? appState.progress[id].page : 1;
-            document.getElementById('pageInput').value = initialPage;
-            // Jump PDF to specific page and hide toolbar
-            document.getElementById('pdfFrame').src = book.pdfUrl + (book.pdfUrl.includes('#') ? '&' : '#') + `page=${initialPage}&toolbar=0`;
-            document.getElementById('readerModal').classList.add('active');
+        const appMethods = {
+            init: () => {
+                setTimeout(() => document.getElementById('loadingScreen').classList.add('hidden'), 500);
+                
+                if (appState.theme === 'dark' || (!appState.theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                    appState.theme = 'dark';
+                } else {
+                    appState.theme = 'light';
+                }
+                
+                document.body.addEventListener('click', appMethods.handleGlobalClick);
 
+                api.onAuthStateChanged(appMethods.handleAuthStateChange);
+                api.subscribeToBooks(appMethods.handleBookUpdate);
+                
+                render();
+            },
+            handleGlobalClick: (e) => {
+                const target = e.target.closest('[data-action], [data-view]');
+                if (!target) return;
+                
+                if (target.hasAttribute('data-action')) {
+                    const action = target.dataset.action;
+                    if (action === 'auth') appMethods.handleAuthClick();
+                    if (action === 'close-modal') appMethods.closeModal();
+                }
+                if (target.hasAttribute('data-view')) {
+                    e.preventDefault(); // Prevent navigation for nav links
+                    appMethods.switchView(target.dataset.view);
+                }
+            },
+            handleAuthStateChange: async (user) => {
+                if (appState.unsubUserData) appState.unsubUserData(); 
+                appState.user = user;
+                
+                if (user && !user.isAnonymous) {
+                    appState.unsubUserData = api.subscribeToUserData(user.uid, ({ progress, favorites }) => {
+                        if (progress) appState.progress = progress;
+                        if (favorites) appState.favorites = favorites;
+                        render();
+                    });
+                    if(appState.currentView === 'home' || appState.currentView === 'admin') appMethods.switchView('library');
+                } else {
+                    appState.progress = {};
+                    appState.favorites = [];
+                    render();
+                }
+            },
+            handleAuthClick: () => {
+                if(appState.user && !appState.user.isAnonymous) {
+                    api.logout(); 
+                } else {
+                    appMethods.openAuthModal();
+                }
+            },
+            handleEmailAuth: async (e) => {
+                e.preventDefault();
+                const em = document.getElementById('emailInput').value;
+                const pw = document.getElementById('passInput').value;
+                try { 
+                    await api.loginEmail(em, pw); 
+                    appMethods.closeModal(); 
+                }
+                catch(err) {
+                    if(err.code.includes('not-found') || err.code.includes('invalid-credential')) {
+                        try { 
+                            await api.signupEmail(em, pw); 
+                            appMethods.closeModal(); 
+                            alert("Sign Up Successful! You are now logged in.");
+                        } catch(e2) { 
+                            alert("Authentication Failed. Error: " + (e2.message || "Invalid credentials.")); 
+                        }
+                    } else {
+                        alert("Authentication Failed. Error: " + (err.message || "Please check your network connection."));
+                    }
+                }
+            },
+            handleBookUpdate: (firestoreBooks) => {
+                const firestoreBookMap = new Map(firestoreBooks.map(b => [b.id, b]));
+                const uniqueStaticBooks = STATIC_BOOKS.filter(b => !firestoreBookMap.has(b.id));
+                appState.books = [...uniqueStaticBooks, ...firestoreBooks];
+                render();
+            },
+            toggleTheme: () => {
+                appState.theme = appState.theme === 'dark' ? 'light' : 'dark';
+                localStorage.setItem('theme', appState.theme);
+                render();
+            },
+            switchView: (viewName) => {
+                if (viewName === 'admin' && (!appState.user || !ADMIN_EMAILS.includes(appState.user.email.toLowerCase()))) {
+                    console.warn("Attempted access to Admin view without permission.");
+                    return; 
+                }
+                appState.currentView = viewName;
+                render();
+            },
+            filterBooks: (genre) => {
+                appState.filter = genre;
+                render();
+            },
+            openModal: (contentHTML) => {
+                const modal = document.getElementById('globalModal');
+                document.getElementById('modalBox').innerHTML = contentHTML;
+                modal.classList.add('active');
+            },
+            closeModal: () => {
+                document.getElementById('globalModal').classList.remove('active');
+                document.getElementById('modalBox').innerHTML = ''; 
+            },
+            openAuthModal: () => {
+                const authHTML = `
+                    <button onclick="window.app.closeModal()" class="close-btn" data-action="close-modal"><i class="ph-bold ph-x"></i></button>
+                    <h2 class="section-title" style="text-align: center;">Welcome</h2>
+                    <p style="text-align: center; color: var(--text-light); margin-bottom: 20px;">Sign in to save your progress.</p>
+                    <button class="btn" onclick="api.loginGoogle().then(window.app.closeModal).catch(e => alert(e.message))" style="width: 100%; justify-content: center; background: #fff; color: #333; border: 1px solid var(--border-light); margin-bottom: 20px; box-shadow: 2px 2px 0 0 var(--border-light);">
+                        <img src="https://www.svgrepo.com/show/475656/google-color.svg" style="width: 20px; margin-right: 10px;"> Continue with Google
+                    </button>
+                    <div class="separator"></div>
+                    <form onsubmit="window.app.handleEmailAuth(event)">
+                        <div class="form-group"><input type="email" id="emailInput" class="form-input" placeholder="Email Address" required></div>
+                        <div class="form-group"><input type="password" id="passInput" class="form-input" placeholder="Password (Min 6 characters)" required></div>
+                        <button type="submit" class="btn" style="width: 100%;">Sign In / Sign Up</button>
+                    </form>
+                `;
+                appMethods.openModal(authHTML);
+            },
+            openBook: (id, requireAuth) => {
+                if(requireAuth && (!appState.user || appState.user.isAnonymous)) {
+                    appMethods.openAuthModal();
+                    return;
+                }
+                const book = appState.books.find(b => b.id === id);
+                if (!book) return;
 
-            // Update heart
-            const isFav = appState.favorites.includes(id);
-            document.getElementById('readerFavBtn').innerHTML = isFav ? '<i class="ph-fill ph-heart" style="color: red;"></i>' : '<i class="ph-heart"></i>';
-        }
+                appState.currentBook = book;
+                document.getElementById('readerTitle').innerText = book.title;
+                
+                const initialPage = appState.progress[id] ? appState.progress[id].page : 1;
+                document.getElementById('pageInput').value = initialPage;
+                
+                appMethods.updateReaderPDF(initialPage);
+                document.getElementById('readerModal').classList.add('active');
+                appMethods.updateReaderFavIcon();
+            },
+            closeReader: () => {
+                document.getElementById('readerModal').classList.remove('active');
+                document.getElementById('pdfFrame').src = "";
+                appState.currentBook = null;
+                render();
+            },
+            updateReaderPDF: (page) => {
+                const book = appState.currentBook;
+                if (!book) return;
+                document.getElementById('pdfFrame').src = book.pdfUrl + (book.pdfUrl.includes('#') ? '&' : '#') + `page=${page}&toolbar=0`;
+            },
+            updateReaderPage: () => {
+                const page = parseInt(document.getElementById('pageInput').value);
+                if (page > 0) appMethods.updateReaderPDF(page);
+            },
+            saveCurrentPage: async () => {
+                if (!appState.user || appState.user.isAnonymous) return alert("Please log in to save progress.");
 
-        function closeReader() {
-            playSound();
-            document.getElementById('readerModal').classList.remove('active');
-            document.getElementById('pdfFrame').src = "";
-            appState.currentBook = null;
-            render();
-        }
-
-        async function saveCurrentPage() {
-            playSound();
-            const page = parseInt(document.getElementById('pageInput').value);
-            const id = appState.currentBook.id;
-            
-            // Optimistically update UI state
-            appState.progress[id] = { page, lastRead: new Date().toISOString() };
-            
-            try {
-                await window.saveBookProgress(id, page);
-                // Reload the PDF with the current page number for continuity
-                document.getElementById('pdfFrame').src = appState.currentBook.pdfUrl + (appState.currentBook.pdfUrl.includes('#') ? '&' : '#') + `page=${page}&toolbar=0`;
-                // Brief visual confirmation
-                document.querySelector('.reader-controls button').innerText = 'SAVED!';
-                setTimeout(() => document.querySelector('.reader-controls button').innerText = 'SAVE', 1000);
-            } catch (error) {
-                console.error("Failed to save progress:", error);
-                alert("Failed to save progress. Are you logged in?");
-            }
-            render();
-        }
-
-        async function toggleReaderFav() {
-            playSound();
-            const id = appState.currentBook.id;
-            try {
-                const isFav = await window.toggleFav(id);
+                const page = parseInt(document.getElementById('pageInput').value);
+                const id = appState.currentBook.id;
+                
+                try {
+                    await api.saveBookProgress(appState.user.uid, id, page);
+                    
+                    const btn = document.querySelector('.reader-controls .btn-save');
+                    btn.innerText = 'SAVED!';
+                    setTimeout(() => btn.innerText = 'SAVE', 1000);
+                    
+                    appState.progress[id] = { page, lastRead: new Date().toISOString() };
+                    render(); 
+                } catch (error) {
+                    console.error("Failed to save progress:", error);
+                    alert("Failed to save progress. Please try again.");
+                }
+            },
+            updateReaderFavIcon: () => {
+                const isFav = appState.favorites.includes(appState.currentBook.id);
                 document.getElementById('readerFavBtn').innerHTML = isFav ? '<i class="ph-fill ph-heart" style="color: red;"></i>' : '<i class="ph-heart"></i>';
-            } catch (error) {
-                console.error("Failed to toggle favorite:", error);
-                alert("Failed to change favorite status. Are you logged in?");
+            },
+            toggleReaderFav: async () => {
+                if (!appState.user || appState.user.isAnonymous) return alert("Please log in to favorite books.");
+                try {
+                    await api.toggleFav(appState.user.uid, appState.currentBook.id);
+                } catch (error) {
+                    console.error("Failed to toggle favorite:", error);
+                    alert("Failed to change favorite status. Please try again.");
+                }
+            },
+            submitNewBook: async (e) => {
+                e.preventDefault();
+                
+                const user = appState.user;
+                if (!user || !ADMIN_EMAILS.includes(user.email.toLowerCase())) {
+                    return alert("You do not have permission to add books.");
+                }
+                
+                let pdf = document.getElementById('nbPdf').value;
+                if (pdf.includes("drive.google.com") && pdf.includes("/view")) {
+                    pdf = pdf.replace("/view", "/preview");
+                }
+
+                const book = {
+                    title: document.getElementById('nbTitle').value,
+                    author: document.getElementById('nbAuthor').value,
+                    genre: document.getElementById('nbGenre').value,
+                    cover: document.getElementById('nbCover').value,
+                    pdfUrl: pdf,
+                    createdAt: new Date().toISOString()
+                };
+                
+                try {
+                    await api.addBookToDB(book);
+                    alert(`Book "${book.title}" added successfully!`);
+                } catch (error) {
+                    alert("Failed to add book. Check console for details.");
+                    console.error("Firestore Add Book Error:", error);
+                }
+                
+                e.target.reset();
+                appMethods.switchView('home');
             }
-            render();
-        }
+        };
+
+        // Expose all methods to the global window.app for inline HTML calls
+        window.app = appMethods;
+
+        // Start the application
+        window.addEventListener('load', appMethods.init);
     </script>
 </body>
 </html>
