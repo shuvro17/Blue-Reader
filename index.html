@@ -250,9 +250,9 @@
                 <div class="separator"></div>
 
                 <ul class="nav-menu">
-                    <li><button class="nav-btn active" onclick="switchTab('home', this)"><i class="ph-bold ph-house"></i> Home</button></li>
-                    <li><button class="nav-btn" onclick="switchTab('library', this)"><i class="ph-bold ph-books"></i> Library</button></li>
-                    <li><button class="nav-btn" onclick="switchTab('continue', this)"><i class="ph-bold ph-clock-counter-clockwise"></i> Continue</button></li>
+                    <li><button id="nav-home" class="nav-btn active" onclick="switchTab('home', this)"><i class="ph-bold ph-house"></i> Home</button></li>
+                    <li><button id="nav-library" class="nav-btn" onclick="switchTab('library', this)"><i class="ph-bold ph-books"></i> Library</button></li>
+                    <li><button id="nav-continue" class="nav-btn" onclick="switchTab('continue', this)"><i class="ph-bold ph-clock-counter-clockwise"></i> Continue</button></li>
                     <li id="adminBtn" style="display: none;"><button class="nav-btn" onclick="openAdmin()"><i class="ph-bold ph-plus-circle"></i> Add Book</button></li>
                 </ul>
 
@@ -489,6 +489,10 @@
 
     <script>
         // --- APP LOGIC ---
+        
+        // !!! IMPORTANT !!!
+        // REPLACE "your-email@gmail.com" WITH YOUR ACTUAL GOOGLE EMAIL BELOW
+        // Case sensitive! Use lowercase.
         const adminEmails = ["tanvirrshuvro@gmail.com"]; 
 
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -546,15 +550,21 @@
                 window.auth.onAuthStateChanged(async (user) => {
                     appState.user = user;
                     if (user && !user.isAnonymous) {
-                        // Load real data if needed
+                        // Logged in user
+                        console.log("Logged in as:", user.email); // DEBUGGING: CHECK CONSOLE FOR EXACT EMAIL
+                        
                         document.getElementById('userAvatar').src = user.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`;
                         document.getElementById('userName').innerText = user.displayName || user.email.split('@')[0];
                         document.getElementById('userStatus').innerText = "Reader";
                         document.getElementById('authBtn').innerText = "Sign Out";
+                        
+                        // Auto-switch to Library Dashboard
+                        switchTab('library', document.getElementById('nav-library'));
                     } else {
+                        // Guest
                         document.getElementById('userAvatar').src = `https://api.dicebear.com/7.x/avataaars/svg?seed=Guest`;
-                        document.getElementById('userName').innerText = "Guest User";
-                        document.getElementById('userStatus').innerText = "Sign in to sync";
+                        document.getElementById('userName').innerText = "Guest Reader";
+                        document.getElementById('userStatus').innerText = "Log in to sync";
                         document.getElementById('authBtn').innerText = "Sign In";
                     }
                     render();
@@ -591,9 +601,15 @@
         }
 
         function render() {
-            // Admin
-            if (appState.user && !appState.user.isAnonymous && adminEmails.includes(appState.user.email)) {
-                document.getElementById('adminBtn').style.display = 'block';
+            // Admin Logic with Case Insensitivity
+            if (appState.user && !appState.user.isAnonymous) {
+                // Check if any admin email matches the current user email (ignoring case)
+                const isAdmin = adminEmails.some(email => email.toLowerCase() === appState.user.email.toLowerCase());
+                if(isAdmin) {
+                    document.getElementById('adminBtn').style.display = 'block';
+                } else {
+                    document.getElementById('adminBtn').style.display = 'none';
+                }
             } else {
                 document.getElementById('adminBtn').style.display = 'none';
             }
@@ -608,14 +624,18 @@
             const filtered = appState.filter === 'All' ? appState.books : appState.books.filter(b => b.genre === appState.filter);
             document.getElementById('publicGrid').innerHTML = filtered.map(b => getBookCard(b)).join('');
 
-            // Library Grid (Favs + Started) -- Simplified for demo, normally check appState.favorites
-            // We will just show everything for now in library view but with progress bars
-            const started = appState.books.filter(b => appState.progress[b.id]);
-            if(started.length > 0) {
-                document.getElementById('libraryGrid').innerHTML = started.map(b => getBookCard(b)).join('');
-                document.getElementById('continueGrid').innerHTML = started.map(b => getBookCard(b)).join('');
+            // Library Grid (Favs + Started)
+            // In a real app, we'd filter by favorites or progress. Here we show all books in Library for demo visual completeness,
+            // or you can uncomment logic to only show started ones.
+            const started = appState.books; // Showing all for dashboard fullness
+            document.getElementById('libraryGrid').innerHTML = started.map(b => getBookCard(b)).join('');
+
+            // Continue Reading Grid (Only those with progress)
+            const continueReading = appState.books.filter(b => appState.progress[b.id]);
+            if(continueReading.length > 0) {
+                document.getElementById('continueGrid').innerHTML = continueReading.map(b => getBookCard(b)).join('');
             } else {
-                document.getElementById('continueGrid').innerHTML = '<p style="color:#888;">No reading history yet.</p>';
+                document.getElementById('continueGrid').innerHTML = '<p style="color:#888; grid-column: 1/-1; text-align:center;">Start reading a book to see it here.</p>';
             }
         }
 
@@ -684,10 +704,7 @@
             }
 
             // 3. OneDrive (Basic Open URL hack)
-            // If user pastes a direct browser URL from OneDrive business
-            // We try to append embedview, though this is hit or miss without the official embed button
             if (pdf.includes("sharepoint.com") || pdf.includes("1drv.ms")) {
-                // Try to ensure we are not downloading
                 if(pdf.includes("download=1")) pdf = pdf.replace("download=1", "action=embedview");
             }
 
