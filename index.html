@@ -1,15 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BlueReader | Immersive Reading</title>
-    
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <title>BlueReader | Interactive Library</title>
     
     <!-- Phosphor Icons -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
@@ -49,13 +43,11 @@
         window.loginGoogle = async () => signInWithPopup(auth, window.googleProvider);
         window.logout = async () => signOut(auth);
         
-        // Initial Auth Logic (Crucial for permission errors)
+        // Initial Auth Logic
         const initAuth = async () => {
             if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
                 await signInWithCustomToken(auth, __initial_auth_token);
             } else {
-                // Only sign in anonymously if no user is currently signed in
-                // This prevents overwriting an existing persistent session on reload
                 onAuthStateChanged(auth, (user) => {
                     if (!user) {
                         signInAnonymously(auth).catch(err => console.error("Anon Auth Failed:", err));
@@ -68,13 +60,9 @@
         // Firestore Helpers
         window.saveBookProgress = async (bookId, page) => {
             const user = auth.currentUser;
-            if(!user || user.isAnonymous) return; // Don't save progress for guest users in this demo logic
+            if(!user || user.isAnonymous) return;
             const ref = doc(db, 'artifacts', appId, 'users', user.uid, 'progress', bookId);
-            await setDoc(ref, { 
-                page: page, 
-                lastRead: new Date().toISOString(),
-                bookId: bookId 
-            }, { merge: true });
+            await setDoc(ref, { page: page, lastRead: new Date().toISOString(), bookId: bookId }, { merge: true });
         };
 
         window.toggleFav = async (bookId) => {
@@ -82,7 +70,6 @@
             if(!user || user.isAnonymous) return;
             const ref = doc(db, 'artifacts', appId, 'users', user.uid, 'preferences', 'favorites');
             const docSnap = await getDoc(ref);
-            
             if(docSnap.exists() && docSnap.data().ids.includes(bookId)) {
                 await updateDoc(ref, { ids: arrayRemove(bookId) });
                 return false; 
@@ -92,245 +79,326 @@
             }
         };
 
-        // Admin: Add Book
         window.addBookToDB = async (bookData) => {
             const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'books');
             await addDoc(colRef, bookData);
         };
 
-        // Real-time Books Listener
         window.subscribeToBooks = (callback) => {
-            // We only subscribe if we have a user (even anonymous)
-            // The caller should ensure auth is ready, or we wait for it here implicitly by being called after init
             const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'books');
             return onSnapshot(colRef, (snapshot) => {
                 const books = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 callback(books);
-            }, (error) => {
-                console.error("Error fetching books:", error);
-            });
+            }, (error) => console.error("Error fetching books:", error));
         };
     </script>
 
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#3B82F6',
-                        secondary: '#1E40AF',
-                        dark: '#0F172A',
-                        darker: '#020617',
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        serif: ['Playfair Display', 'serif'],
-                    },
-                    animation: {
-                        'spin-slow': 'spin 3s linear infinite',
-                    }
-                }
-            }
-        }
-    </script>
-
     <style>
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #3B82F6; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #2563EB; }
+        /* Google Fonts */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
-        .loading-o {
-            display: inline-block;
-            width: 1em; height: 1em;
-            border: 3px solid #3B82F6;
-            border-radius: 50%;
-            border-top-color: transparent;
-            animation: spin 1s linear infinite;
-            vertical-align: middle; margin: 0 2px;
+        /* CSS Variables */
+        :root {
+            --primary-color: #0d6efd;
+            --primary-color-light: #3b8aff;
+            --text-light: #f0f0f0;
+            --text-dark: #333;
+            --sidebar-bg-light: #f8f9fa;
+            --content-bg-light: #ffffff;
+            --border-color-light: #e9ecef;
+            --bg-dark: #121212;
+            --text-dark-theme: #e0e0e0;
+            --sidebar-bg-dark: #1e1e1e;
+            --content-bg-dark: #2a2a2a;
+            --border-color-dark: #444;
+            --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
         }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Base Styles */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { background-color: var(--sidebar-bg-light); color: var(--text-dark); display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 2rem; transition: background-color 0.3s, color 0.3s; }
+        #particles-js { position: fixed; width: 100%; height: 100%; top: 0; left: 0; z-index: -1; opacity: 0.5; pointer-events: none; }
+
+        /* Main Container */
+        .portfolio-container { width: 100%; max-width: 1200px; background: var(--content-bg-light); border-radius: 20px; box-shadow: var(--box-shadow); display: flex; overflow: hidden; min-height: 80vh; }
+
+        /* Sidebar */
+        .sidebar { width: 300px; background-color: var(--sidebar-bg-light); padding: 40px 30px; text-align: center; border-right: 1px solid var(--border-color-light); flex-shrink: 0; display: flex; flex-direction: column; }
+        .sidebar-content { position: sticky; top: 40px; width: 100%; }
+        .profile-photo { width: 120px; height: 120px; border-radius: 50%; border: 4px solid var(--primary-color); object-fit: cover; margin-bottom: 20px; margin-left: auto; margin-right: auto; display: block; background: #ddd;}
+        .name { font-size: 1.5rem; font-weight: 600; margin-bottom: 5px; }
+        .title { font-size: 0.9rem; font-weight: 400; color: var(--text-dark); background: var(--border-color-light); display: inline-block; padding: 5px 15px; border-radius: 15px; margin-bottom: 20px; }
+        .separator { border: 0; height: 1px; background: var(--border-color-light); margin: 20px 0; }
         
-        .btn-click { transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1); }
-        .btn-click:active { transform: scale(0.95); }
+        .nav-menu { list-style: none; text-align: left; margin-top: 20px; }
+        .nav-menu li { margin-bottom: 15px; }
+        .nav-btn { width: 100%; text-align: left; padding: 12px 15px; background: transparent; border: none; border-radius: 10px; color: #666; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: all 0.3s; font-size: 1rem; }
+        .nav-btn:hover, .nav-btn.active { background: var(--primary-color); color: white; transform: translateX(5px); }
+        .nav-btn i { font-size: 1.2rem; }
+
+        /* Main Content */
+        .main-content { flex-grow: 1; padding: 40px; position: relative; overflow-y: auto; max-height: 90vh; }
+        
+        /* Tabs & Filters */
+        .tabs ul { list-style: none; display: flex; gap: 15px; border-bottom: 1px solid var(--border-color-light); margin-bottom: 30px; flex-wrap: wrap;}
+        .tab-link { background: none; border: none; cursor: pointer; color: #888; padding: 10px 5px; display: block; font-weight: 500; position: relative; border-bottom: 3px solid transparent; transition: color 0.3s, border-color 0.3s; font-size: 1rem; }
+        .tab-link.active { color: var(--primary-color); border-bottom-color: var(--primary-color); }
+        
+        .section-title { font-size: 1.8rem; margin-bottom: 10px; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
+        .section-subtitle { font-size: 1rem; color: #888; margin-bottom: 30px; }
+
+        /* Book Grid (Portfolio Grid) */
+        .portfolio-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 25px; }
+        .project-card { background: var(--sidebar-bg-light); border-radius: 15px; padding: 15px; transition: all 0.3s; position: relative; cursor: pointer; border: 1px solid transparent; }
+        .project-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); border-color: var(--primary-color-light); }
+        .book-cover { width: 100%; aspect-ratio: 2/3; border-radius: 10px; object-fit: cover; margin-bottom: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .project-card h5 { font-size: 1rem; font-weight: 600; margin-bottom: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .project-card p { font-size: 0.85rem; color: #888; margin-bottom: 10px; }
+        
+        /* Progress Bar */
+        .progress-bar { height: 4px; background: var(--border-color-light); border-radius: 2px; overflow: hidden; margin-top: 10px; }
+        .progress-fill { height: 100%; background: var(--primary-color); width: 0%; transition: width 0.5s; }
+
+        /* Buttons */
+        .btn-primary { padding: 10px 25px; background: var(--primary-color); color: #fff; border: none; border-radius: 25px; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: background 0.3s; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; }
+        .btn-primary:hover { background: #0056b3; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(13, 110, 253, 0.3); }
+        
+        .toggle-btn { position: absolute; top: 30px; right: 40px; background: var(--sidebar-bg-light); color: var(--text-dark); width: 45px; height: 45px; border-radius: 50%; display: flex; justify-content: center; align-items: center; border: 1px solid var(--border-color-light); cursor: pointer; font-size: 1.2rem; z-index: 10; transition: all 0.3s; }
+        .toggle-btn:hover { background: var(--primary-color); color: white; border-color: var(--primary-color); }
+
+        /* Dark Mode */
+        body.dark-mode { background-color: var(--bg-dark); color: var(--text-dark-theme); }
+        .dark-mode .portfolio-container { background: var(--content-bg-dark); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4); }
+        .dark-mode .sidebar { background-color: var(--sidebar-bg-dark); border-right-color: var(--border-color-dark); }
+        .dark-mode .title, .dark-mode .nav-btn, .dark-mode .project-card { background: var(--sidebar-bg-dark); color: var(--text-dark-theme); }
+        .dark-mode .nav-btn:hover, .dark-mode .nav-btn.active { background: var(--primary-color); color: white; }
+        .dark-mode .separator, .dark-mode .tabs ul { border-color: var(--border-color-dark); }
+        .dark-mode .toggle-btn { background: var(--sidebar-bg-dark); color: var(--text-dark-theme); border-color: var(--border-color-dark); }
+        .dark-mode .toggle-btn:hover { background: var(--primary-color); color: white; }
+        .dark-mode .project-card p { color: #aaa; }
+        
+        /* Loading & Modals */
+        #loadingScreen { position: fixed; inset: 0; background: var(--content-bg-light); z-index: 9999; display: flex; justify-content: center; align-items: center; font-size: 2rem; font-weight: 700; }
+        .dark-mode #loadingScreen { background: var(--bg-dark); color: white; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; display: none; justify-content: center; align-items: center; padding: 20px; opacity: 0; transition: opacity 0.3s; }
+        .modal-overlay.active { display: flex; opacity: 1; }
+        .modal-box { background: var(--content-bg-light); padding: 30px; border-radius: 20px; width: 100%; max-width: 400px; position: relative; transform: translateY(20px); transition: transform 0.3s; }
+        .modal-overlay.active .modal-box { transform: translateY(0); }
+        .dark-mode .modal-box { background: var(--content-bg-dark); color: var(--text-dark-theme); }
+        
+        .form-group { margin-bottom: 15px; }
+        .form-input { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--border-color-light); background: var(--sidebar-bg-light); color: var(--text-dark); outline: none; }
+        .dark-mode .form-input { background: var(--sidebar-bg-dark); border-color: var(--border-color-dark); color: white; }
+
+        /* PDF Reader specific */
+        #readerModal { position: fixed; inset: 0; z-index: 3000; background: #1a1a1a; display: none; flex-direction: column; }
+        #readerModal.active { display: flex; }
+        .reader-header { height: 60px; background: #000; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; color: white; }
+        .reader-body { flex-grow: 1; position: relative; }
+        .reader-controls { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); padding: 10px 20px; border-radius: 30px; display: flex; gap: 10px; align-items: center; color: white; }
+
+        /* Animations */
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-o { display: inline-block; width: 20px; height: 20px; border: 3px solid var(--primary-color); border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite; }
+
+        @media (max-width: 900px) {
+            .portfolio-container { flex-direction: column; height: auto; min-height: 100vh; border-radius: 0; width: 100%; }
+            .sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--border-color-light); padding: 20px; }
+            .sidebar-content { position: static; }
+            .profile-photo { width: 80px; height: 80px; }
+            .nav-menu { display: flex; overflow-x: auto; gap: 10px; padding-bottom: 5px; }
+            .nav-menu li { margin-bottom: 0; flex-shrink: 0; }
+            .nav-btn { padding: 8px 15px; font-size: 0.9rem; background: var(--border-color-light); border-radius: 20px; justify-content: center; }
+            .nav-btn:hover { transform: none; }
+            .main-content { padding: 20px; overflow-y: visible; }
+            .toggle-btn { top: 15px; right: 15px; width: 35px; height: 35px; font-size: 1rem; }
+        }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-900 dark:bg-darker dark:text-white transition-colors duration-300 min-h-screen flex flex-col font-sans selection:bg-blue-500 selection:text-white">
-
+<body>
     <!-- Sound -->
     <audio id="clickSound" src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA="></audio> 
 
-    <!-- Loading Screen -->
-    <div id="loadingScreen" class="fixed inset-0 z-50 bg-white dark:bg-darker flex items-center justify-center transition-opacity duration-500">
-        <div class="text-4xl font-bold tracking-widest font-serif">
-            L<span class="loading-o"></span>ADING
-        </div>
+    <!-- Particles Background -->
+    <div id="particles-js"></div>
+
+    <!-- Loading -->
+    <div id="loadingScreen">
+        L<span class="loading-o"></span>ADING
     </div>
 
-    <!-- Navigation -->
-    <nav class="fixed w-full z-40 bg-white/80 dark:bg-darker/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16 items-center">
-                <div class="flex items-center gap-2 cursor-pointer btn-click" onclick="playSound(); appState.view='home'; render();">
-                    <i class="ph-fill ph-book-open-text text-3xl text-blue-500"></i>
-                    <span class="font-serif font-bold text-xl tracking-tight">Blue<span class="text-blue-500">Reader</span></span>
+    <!-- Theme Toggle -->
+    <button class="toggle-btn" onclick="toggleTheme()">
+        <i class="ph-fill ph-moon" id="themeIcon"></i>
+    </button>
+
+    <div class="portfolio-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-content">
+                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Guest" id="userAvatar" class="profile-photo" alt="Profile">
+                <h1 class="name" id="userName">Guest Reader</h1>
+                <span class="title" id="userStatus">Log in to sync</span>
+                
+                <div class="separator"></div>
+
+                <ul class="nav-menu">
+                    <li><button class="nav-btn active" onclick="switchTab('home', this)"><i class="ph-bold ph-house"></i> Home</button></li>
+                    <li><button class="nav-btn" onclick="switchTab('library', this)"><i class="ph-bold ph-books"></i> Library</button></li>
+                    <li><button class="nav-btn" onclick="switchTab('continue', this)"><i class="ph-bold ph-clock-counter-clockwise"></i> Continue</button></li>
+                    <li id="adminBtn" style="display: none;"><button class="nav-btn" onclick="openAdmin()"><i class="ph-bold ph-plus-circle"></i> Add Book</button></li>
+                </ul>
+
+                <div class="separator"></div>
+
+                <button id="authBtn" class="btn-primary" style="width: 100%; justify-content: center; margin-top: 10px;" onclick="handleAuthClick()">
+                    Sign In
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- View: Home -->
+            <div id="view-home" class="tab-content" style="display: block;">
+                <div class="section-title">
+                    <h2>Discover</h2>
+                </div>
+                <p class="section-subtitle">Explore our curated collection of timeless classics.</p>
+                
+                <div class="tabs">
+                    <ul id="genreTabs">
+                        <li><button class="tab-link active" onclick="filterBooks('All', this)">All</button></li>
+                        <!-- Genres injected via JS -->
+                    </ul>
                 </div>
 
-                <div class="flex items-center gap-4">
-                    <div id="adminControls" class="hidden">
-                        <button onclick="showAdminModal()" class="px-3 py-1 bg-red-500/10 text-red-500 border border-red-500/20 rounded-full text-xs font-bold uppercase tracking-wider hover:bg-red-500 hover:text-white transition-colors btn-click">
-                            + Add Book
-                        </button>
+                <div class="portfolio-grid" id="publicGrid">
+                    <!-- Books injected here -->
+                </div>
+            </div>
+
+            <!-- View: Library (Requires Login mostly, but acts as secondary view) -->
+            <div id="view-library" class="tab-content" style="display: none;">
+                <div class="section-title">
+                    <h2>My Library</h2>
+                </div>
+                <p class="section-subtitle">Books you have favorited or started.</p>
+                <div class="portfolio-grid" id="libraryGrid">
+                    <div style="grid-column: 1/-1; text-align: center; color: #888; padding: 20px;">
+                        Log in and start reading to build your library.
                     </div>
-
-                    <button id="themeToggle" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 btn-click text-blue-500" onclick="toggleTheme()">
-                        <i class="ph-fill ph-moon text-xl" id="themeIcon"></i>
-                    </button>
-                    
-                    <div id="authButtons"></div>
                 </div>
             </div>
-        </div>
-    </nav>
 
-    <!-- Main Content -->
-    <main class="pt-20 flex-grow relative">
-        
-        <!-- View: Landing -->
-        <div id="viewLanding" class="hidden">
-            <section class="relative overflow-hidden px-4 py-20 sm:px-6 lg:px-8 flex flex-col items-center text-center">
-                <div class="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-blue-500 via-transparent to-transparent"></div>
-                <h1 class="text-5xl md:text-7xl font-serif font-bold mb-6 leading-tight">
-                    Read <span class="text-blue-500">More</span>. <br> Scroll Less.
-                </h1>
-                <p class="text-lg md:text-xl text-gray-600 dark:text-gray-400 max-w-2xl mb-10">
-                    Access a curated library of premium PDF books. Sync your progress.
-                </p>
-                <button onclick="playSound(); showAuthModal()" class="group relative inline-flex items-center justify-center px-8 py-3 text-lg font-medium text-white bg-blue-600 rounded-full overflow-hidden shadow-lg shadow-blue-500/40 btn-click hover:bg-blue-700">
-                    <span class="mr-2">Start Reading Free</span>
-                    <i class="ph-bold ph-arrow-right group-hover:translate-x-1 transition-transform"></i>
-                </button>
-            </section>
-
-            <section class="max-w-7xl mx-auto px-4 pb-20">
-                <div class="flex items-center justify-between mb-8">
-                    <h2 class="text-2xl font-bold font-serif">Trending Now</h2>
-                    <span class="text-sm text-gray-500">Login to read</span>
+             <!-- View: Continue -->
+             <div id="view-continue" class="tab-content" style="display: none;">
+                <div class="section-title">
+                    <h2>Continue Reading</h2>
                 </div>
-                <div id="publicGrid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6"></div>
-            </section>
-        </div>
-
-        <!-- View: Dashboard -->
-        <div id="viewDashboard" class="hidden max-w-7xl mx-auto px-4 py-8">
-            <div id="continueRow" class="mb-12 hidden">
-                <h2 class="text-2xl font-bold font-serif mb-4 flex items-center gap-2">
-                    <i class="ph-fill ph-clock-counter-clockwise text-blue-500"></i> Continue Reading
-                </h2>
-                <div class="flex overflow-x-auto gap-6 pb-4 snap-x scrollbar-hide" id="continueContainer"></div>
-            </div>
-
-            <div class="flex flex-wrap gap-2 mb-8" id="genreTags"></div>
-
-            <h2 class="text-2xl font-bold font-serif mb-6">Library</h2>
-            <div id="libraryGrid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6"></div>
-        </div>
-    </main>
-
-    <!-- Modal: Auth -->
-    <div id="authModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm hidden opacity-0 transition-opacity duration-300">
-        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-8 w-full max-w-md transform scale-95 transition-transform duration-300 relative border border-gray-200 dark:border-gray-700">
-            <button onclick="hideAuthModal()" class="absolute top-4 right-4 p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full btn-click">
-                <i class="ph-bold ph-x"></i>
-            </button>
-            <div class="text-center mb-8">
-                <h3 class="text-2xl font-bold font-serif mb-2">Welcome Back</h3>
-            </div>
-            <div class="space-y-4">
-                <button onclick="handleGoogleLogin()" class="w-full py-3 px-4 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl flex items-center justify-center gap-3 hover:bg-gray-50 dark:hover:bg-gray-600 btn-click transition-colors text-sm font-medium">
-                    <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-5 h-5" alt="Google">
-                    Continue with Google
-                </button>
-                <div class="relative flex py-2 items-center">
-                    <div class="flex-grow border-t border-gray-300 dark:border-gray-600"></div>
-                    <span class="flex-shrink-0 mx-4 text-gray-400 text-xs">OR</span>
-                    <div class="flex-grow border-t border-gray-300 dark:border-gray-600"></div>
+                <p class="section-subtitle">Pick up where you left off.</p>
+                <div class="portfolio-grid" id="continueGrid">
+                    <!-- Injected -->
                 </div>
-                <form id="emailForm" class="space-y-4" onsubmit="handleEmailAuth(event)">
-                    <input type="email" id="emailInput" placeholder="Email address" class="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 outline-none transition-all">
-                    <input type="password" id="passInput" placeholder="Password" class="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 outline-none transition-all">
-                    <button type="submit" class="w-full py-3 bg-blue-600 text-white rounded-xl font-medium shadow-lg shadow-blue-500/30 hover:bg-blue-700 btn-click">Sign In / Sign Up</button>
-                </form>
             </div>
-        </div>
+        </main>
     </div>
 
-    <!-- Modal: Admin Add Book -->
-    <div id="adminModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm hidden opacity-0 transition-opacity duration-300">
-        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-6 w-full max-w-lg transform scale-95 transition-transform duration-300 relative border border-gray-200 dark:border-gray-700">
-            <button onclick="hideAdminModal()" class="absolute top-4 right-4 p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full btn-click">
-                <i class="ph-bold ph-x"></i>
+    <!-- Auth Modal -->
+    <div class="modal-overlay" id="authModal">
+        <div class="modal-box">
+            <button onclick="closeModal('authModal')" style="position: absolute; top: 15px; right: 15px; background: none; border: none; cursor: pointer; font-size: 1.2rem; color: #888;"><i class="ph-bold ph-x"></i></button>
+            <h2 class="section-title" style="justify-content: center;">Welcome</h2>
+            <p style="text-align: center; color: #888; margin-bottom: 20px;">Sign in to save your progress across devices.</p>
+            
+            <button class="btn-primary" onclick="handleGoogleLogin()" style="width: 100%; justify-content: center; background: white; color: #333; border: 1px solid #ddd; margin-bottom: 20px;">
+                <img src="https://www.svgrepo.com/show/475656/google-color.svg" style="width: 20px; margin-right: 10px;"> Continue with Google
             </button>
-            <h3 class="text-xl font-bold font-serif mb-6">Add New Book</h3>
-            <form onsubmit="submitNewBook(event)" class="space-y-3">
-                <div>
-                    <label class="block text-xs font-medium text-gray-500 mb-1">Title</label>
-                    <input type="text" id="newBookTitle" required class="w-full px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 outline-none">
+
+            <div style="text-align: center; color: #aaa; margin-bottom: 15px; font-size: 0.8rem;">OR EMAIL</div>
+
+            <form onsubmit="handleEmailAuth(event)">
+                <div class="form-group">
+                    <input type="email" id="emailInput" class="form-input" placeholder="Email Address" required>
                 </div>
-                <div>
-                    <label class="block text-xs font-medium text-gray-500 mb-1">Author</label>
-                    <input type="text" id="newBookAuthor" required class="w-full px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 outline-none">
+                <div class="form-group">
+                    <input type="password" id="passInput" class="form-input" placeholder="Password" required>
                 </div>
-                <div>
-                    <label class="block text-xs font-medium text-gray-500 mb-1">Genre</label>
-                    <input type="text" id="newBookGenre" required class="w-full px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 outline-none">
-                </div>
-                <div>
-                    <label class="block text-xs font-medium text-gray-500 mb-1">Cover Image URL</label>
-                    <input type="url" id="newBookCover" required class="w-full px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 outline-none">
-                </div>
-                <div>
-                    <label class="block text-xs font-medium text-gray-500 mb-1">PDF URL (OneDrive/Direct)</label>
-                    <input type="url" id="newBookPdf" required class="w-full px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 outline-none">
-                </div>
-                <button type="submit" class="w-full mt-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 btn-click">
-                    Add to Library
-                </button>
+                <button type="submit" class="btn-primary" style="width: 100%; justify-content: center;">Sign In</button>
             </form>
         </div>
     </div>
 
-    <!-- Modal: PDF Reader -->
-    <div id="readerModal" class="fixed inset-0 z-50 bg-gray-900 hidden flex flex-col">
-        <div class="h-14 bg-gray-800 flex items-center justify-between px-4 shadow-lg">
-            <button onclick="closeReader()" class="text-gray-300 hover:text-white flex items-center gap-2 btn-click">
-                <i class="ph-bold ph-arrow-left"></i> Back
-            </button>
-            <h4 id="readerTitle" class="text-white font-medium truncate max-w-[200px]">Book Title</h4>
-            <div class="flex items-center gap-3">
-                <button id="readerFavBtn" onclick="toggleReaderFav()" class="text-gray-400 hover:text-red-500 btn-click">
-                    <i class="ph-fill ph-heart text-xl"></i>
-                </button>
-                <span class="text-xs text-gray-400 px-2 py-1 border border-gray-600 rounded">View Only</span>
-            </div>
+    <!-- Admin Modal -->
+    <div class="modal-overlay" id="adminModal">
+        <div class="modal-box">
+            <button onclick="closeModal('adminModal')" style="position: absolute; top: 15px; right: 15px; background: none; border: none; cursor: pointer; font-size: 1.2rem; color: #888;"><i class="ph-bold ph-x"></i></button>
+            <h2 class="section-title">Add Book</h2>
+            <form onsubmit="submitNewBook(event)">
+                <div class="form-group"><input type="text" id="nbTitle" class="form-input" placeholder="Title" required></div>
+                <div class="form-group"><input type="text" id="nbAuthor" class="form-input" placeholder="Author" required></div>
+                <div class="form-group"><input type="text" id="nbGenre" class="form-input" placeholder="Genre" required></div>
+                <div class="form-group"><input type="url" id="nbCover" class="form-input" placeholder="Cover Image URL" required></div>
+                <div class="form-group"><input type="url" id="nbPdf" class="form-input" placeholder="PDF Link (Embed)" required></div>
+                <button type="submit" class="btn-primary" style="width: 100%; justify-content: center;">Add to Library</button>
+            </form>
         </div>
-        <div class="flex-grow bg-gray-500 relative overflow-hidden flex justify-center">
-            <div class="w-full max-w-5xl h-full bg-white shadow-2xl relative">
-                <iframe id="pdfFrame" class="w-full h-full" src=""></iframe>
-                <div class="absolute bottom-6 left-1/2 transform -translate-x-1/2 bg-gray-900/90 text-white px-6 py-3 rounded-full flex items-center gap-4 backdrop-blur-md shadow-xl">
-                    <span class="text-sm font-medium">Page Tracker</span>
-                    <input type="number" id="pageInput" class="w-16 bg-gray-700 border-none rounded text-center text-sm" value="1" min="1">
-                    <button onclick="saveCurrentPage()" class="text-blue-400 text-xs uppercase font-bold tracking-wider hover:text-blue-300 btn-click">Save</button>
-                </div>
+    </div>
+
+    <!-- PDF Reader -->
+    <div id="readerModal">
+        <div class="reader-header">
+            <button onclick="closeReader()" style="background: none; border: none; color: white; cursor: pointer; display: flex; align-items: center; gap: 5px;"><i class="ph-bold ph-arrow-left"></i> Back</button>
+            <span id="readerTitle" style="font-weight: 600;">Book Title</span>
+            <button id="readerFavBtn" onclick="toggleReaderFav()" style="background: none; border: none; color: white; cursor: pointer; font-size: 1.2rem;"><i class="ph-heart"></i></button>
+        </div>
+        <div class="reader-body">
+            <iframe id="pdfFrame" style="width: 100%; height: 100%; border: none;" src=""></iframe>
+            <div class="reader-controls">
+                <span>Page</span>
+                <input type="number" id="pageInput" style="width: 50px; background: #333; border: none; color: white; text-align: center; border-radius: 5px; padding: 5px;" value="1">
+                <button onclick="saveCurrentPage()" style="background: var(--primary-color); color: white; border: none; padding: 5px 15px; border-radius: 15px; cursor: pointer; font-size: 0.8rem;">SAVE</button>
             </div>
         </div>
     </div>
 
+    <!-- Simple Particle Script (Mimic) -->
     <script>
-        // --- CONFIG ---
-        // REPLACE THIS WITH YOUR EMAIL TO SEE ADMIN PANEL
-        const adminEmails = ["tanvirrshuvro@gmail.com"]; 
+        // Very simple particle effect to respect the CSS ID request without heavy lib
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        document.getElementById('particles-js').appendChild(canvas);
+        
+        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        window.addEventListener('resize', resize);
+        resize();
+
+        const particles = [];
+        for(let i=0; i<50; i++) particles.push({
+            x: Math.random() * canvas.width, 
+            y: Math.random() * canvas.height, 
+            vx: (Math.random() - 0.5) * 0.5, 
+            vy: (Math.random() - 0.5) * 0.5,
+            s: Math.random() * 3
+        });
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = document.body.classList.contains('dark-mode') ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
+            particles.forEach(p => {
+                p.x += p.vx; p.y += p.vy;
+                if(p.x < 0) p.x = canvas.width; if(p.x > canvas.width) p.x = 0;
+                if(p.y < 0) p.y = canvas.height; if(p.y > canvas.height) p.y = 0;
+                ctx.beginPath(); ctx.arc(p.x, p.y, p.s, 0, Math.PI*2); ctx.fill();
+            });
+            requestAnimationFrame(animate);
+        }
+        animate();
+    </script>
+
+    <script>
+        // --- APP LOGIC ---
+        const adminEmails = ["your-email@gmail.com"]; 
 
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         function playSound() {
@@ -345,76 +413,38 @@
             o.start(); o.stop(audioCtx.currentTime + 0.05);
         }
 
-        // --- DATA: BOOKS ---
-        // Initial static books for demo + will merge with Firestore books
         const staticBooks = [
-            {
-                id: 'b1', title: 'The Great Gatsby', author: 'F. Scott Fitzgerald', genre: 'Classic',
-                cover: 'https://upload.wikimedia.org/wikipedia/commons/7/7a/The_Great_Gatsby_Cover_1925_Retouched.jpg',
-                pdfUrl: 'https://mozilla.github.io/pdf.js/web/compressed.tracemonkey-pldi-09.pdf'
-            },
-            {
-                id: 'b2', title: 'Pride and Prejudice', author: 'Jane Austen', genre: 'Romance',
-                cover: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/17/PrideAndPrejudiceTitlePage.jpg/800px-PrideAndPrejudiceTitlePage.jpg',
-                pdfUrl: 'https://mozilla.github.io/pdf.js/web/compressed.tracemonkey-pldi-09.pdf'
-            }
+            { id: 'b1', title: 'The Great Gatsby', author: 'F. Scott Fitzgerald', genre: 'Classic', cover: 'https://upload.wikimedia.org/wikipedia/commons/7/7a/The_Great_Gatsby_Cover_1925_Retouched.jpg', pdfUrl: 'https://mozilla.github.io/pdf.js/web/compressed.tracemonkey-pldi-09.pdf' },
+            { id: 'b2', title: 'Pride and Prejudice', author: 'Jane Austen', genre: 'Romance', cover: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/17/PrideAndPrejudiceTitlePage.jpg/800px-PrideAndPrejudiceTitlePage.jpg', pdfUrl: 'https://mozilla.github.io/pdf.js/web/compressed.tracemonkey-pldi-09.pdf' }
         ];
 
-        // --- STATE ---
         let appState = {
             user: null,
-            view: 'landing',
             theme: 'light',
             progress: {},
             favorites: [],
             currentBook: null,
-            books: [...staticBooks] // Combined list
+            books: [...staticBooks],
+            filter: 'All'
         };
 
-        // --- DOM ---
-        const els = {
-            loading: document.getElementById('loadingScreen'),
-            themeIcon: document.getElementById('themeIcon'),
-            authButtons: document.getElementById('authButtons'),
-            adminControls: document.getElementById('adminControls'),
-            viewLanding: document.getElementById('viewLanding'),
-            viewDashboard: document.getElementById('viewDashboard'),
-            authModal: document.getElementById('authModal'),
-            adminModal: document.getElementById('adminModal'),
-            publicGrid: document.getElementById('publicGrid'),
-            libraryGrid: document.getElementById('libraryGrid'),
-            continueRow: document.getElementById('continueRow'),
-            continueContainer: document.getElementById('continueContainer'),
-            genreTags: document.getElementById('genreTags'),
-            readerModal: document.getElementById('readerModal'),
-            pdfFrame: document.getElementById('pdfFrame'),
-            readerTitle: document.getElementById('readerTitle'),
-            pageInput: document.getElementById('pageInput'),
-            readerFavBtn: document.getElementById('readerFavBtn')
-        };
-
-        // --- INIT ---
+        // Init
         window.onload = () => {
-            setTimeout(() => {
-                els.loading.classList.add('opacity-0');
-                setTimeout(() => els.loading.classList.add('hidden'), 500);
-            }, 1500);
-
-            if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            setTimeout(() => document.getElementById('loadingScreen').style.display = 'none', 1500);
+            if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.body.classList.add('dark-mode');
                 appState.theme = 'dark';
-                document.documentElement.classList.add('dark');
+                document.getElementById('themeIcon').className = 'ph-fill ph-sun';
             }
-            updateThemeIcon();
         };
 
-        // Subscribe to Dynamic Books immediately
+        // Listeners
         const bookInterval = setInterval(() => {
             if (window.subscribeToBooks) {
                 clearInterval(bookInterval);
                 window.subscribeToBooks((firestoreBooks) => {
-                    // Merge static and firestore books
                     appState.books = [...staticBooks, ...firestoreBooks];
-                    render(); // Re-render whenever books change
+                    render();
                 });
             }
         }, 500);
@@ -424,248 +454,186 @@
                 clearInterval(authInterval);
                 window.auth.onAuthStateChanged(async (user) => {
                     appState.user = user;
-                    // We now distinguish between Anonymous (Guest) and Registered users
                     if (user && !user.isAnonymous) {
-                        appState.view = 'dashboard';
-                        await loadUserData();
+                        // Load real data if needed
+                        document.getElementById('userAvatar').src = user.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`;
+                        document.getElementById('userName').innerText = user.displayName || user.email.split('@')[0];
+                        document.getElementById('userStatus').innerText = "Reader";
+                        document.getElementById('authBtn').innerText = "Sign Out";
                     } else {
-                        appState.view = 'landing';
-                        appState.progress = {};
+                        document.getElementById('userAvatar').src = `https://api.dicebear.com/7.x/avataaars/svg?seed=Guest`;
+                        document.getElementById('userName').innerText = "Guest User";
+                        document.getElementById('userStatus').innerText = "Sign in to sync";
+                        document.getElementById('authBtn').innerText = "Sign In";
                     }
                     render();
                 });
             }
         }, 100);
 
-        // --- FUNCTIONS ---
-
+        // UI Functions
         function toggleTheme() {
             playSound();
-            appState.theme = appState.theme === 'light' ? 'dark' : 'light';
-            document.documentElement.classList.toggle('dark');
+            document.body.classList.toggle('dark-mode');
+            appState.theme = document.body.classList.contains('dark-mode') ? 'dark' : 'light';
             localStorage.setItem('theme', appState.theme);
-            updateThemeIcon();
+            document.getElementById('themeIcon').className = appState.theme === 'dark' ? 'ph-fill ph-sun' : 'ph-fill ph-moon';
         }
-        function updateThemeIcon() {
-            els.themeIcon.className = appState.theme === 'dark' ? 'ph-fill ph-sun text-xl' : 'ph-fill ph-moon text-xl';
+
+        function switchTab(tabName, btn) {
+            playSound();
+            // Hide all tabs
+            ['home', 'library', 'continue'].forEach(t => document.getElementById('view-'+t).style.display = 'none');
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            
+            // Show selected
+            document.getElementById('view-'+tabName).style.display = 'block';
+            btn.classList.add('active');
+        }
+
+        function filterBooks(genre, btn) {
+            playSound();
+            appState.filter = genre;
+            document.querySelectorAll('.tab-link').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            render();
         }
 
         function render() {
-            // Admin Check (Only for real users)
+            // Admin
             if (appState.user && !appState.user.isAnonymous && adminEmails.includes(appState.user.email)) {
-                els.adminControls.classList.remove('hidden');
+                document.getElementById('adminBtn').style.display = 'block';
             } else {
-                els.adminControls.classList.add('hidden');
+                document.getElementById('adminBtn').style.display = 'none';
             }
 
-            // Auth State (Show UI based on Real user, not anonymous)
-            if (appState.user && !appState.user.isAnonymous) {
-                els.authButtons.innerHTML = `
-                    <div class="flex items-center gap-3">
-                        <img src="${appState.user.photoURL || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + appState.user.email}" class="w-8 h-8 rounded-full border border-gray-300">
-                        <button onclick="playSound(); window.logout()" class="text-sm font-medium text-red-500 hover:text-red-600 btn-click">Logout</button>
-                    </div>
-                `;
-                els.viewLanding.classList.add('hidden');
-                els.viewDashboard.classList.remove('hidden');
-                renderDashboard();
+            // Filters
+            const genres = ['All', ...new Set(appState.books.map(b => b.genre))];
+            document.getElementById('genreTabs').innerHTML = genres.map(g => `
+                <li><button class="tab-link ${appState.filter === g ? 'active' : ''}" onclick="filterBooks('${g}', this)">${g}</button></li>
+            `).join('');
+
+            // Main Grid
+            const filtered = appState.filter === 'All' ? appState.books : appState.books.filter(b => b.genre === appState.filter);
+            document.getElementById('publicGrid').innerHTML = filtered.map(b => getBookCard(b)).join('');
+
+            // Library Grid (Favs + Started) -- Simplified for demo, normally check appState.favorites
+            // We will just show everything for now in library view but with progress bars
+            const started = appState.books.filter(b => appState.progress[b.id]);
+            if(started.length > 0) {
+                document.getElementById('libraryGrid').innerHTML = started.map(b => getBookCard(b)).join('');
+                document.getElementById('continueGrid').innerHTML = started.map(b => getBookCard(b)).join('');
             } else {
-                els.authButtons.innerHTML = `
-                    <button onclick="playSound(); showAuthModal()" class="px-4 py-2 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 btn-click shadow-md shadow-blue-500/20">Login</button>
-                `;
-                els.viewLanding.classList.remove('hidden');
-                els.viewDashboard.classList.add('hidden');
-                renderPublicGrid(); // Render public grid if logged out (uses anon auth for data)
+                document.getElementById('continueGrid').innerHTML = '<p style="color:#888;">No reading history yet.</p>';
             }
         }
 
-        function getBookCardHTML(book, isPublic = false) {
-            const onclick = isPublic ? `playSound(); openBook('${book.id}')` : `openBook('${book.id}')`;
-            // Safety check for properties
-            const cover = book.cover || 'https://placehold.co/200x300?text=No+Cover';
-            const title = book.title || 'Untitled';
-            const author = book.author || 'Unknown';
-
+        function getBookCard(book) {
+            const progress = appState.progress[book.id];
+            const progressPercent = progress ? (progress.page / 200 * 100) : 0; // Mock total pages
+            
             return `
-                <div onclick="${onclick}" class="group cursor-pointer btn-click">
-                    <div class="aspect-[2/3] rounded-xl overflow-hidden shadow-lg mb-3 relative bg-gray-200 dark:bg-gray-700">
-                        <img src="${cover}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onerror="this.src='https://placehold.co/200x300?text=Error'">
-                        <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors"></div>
-                        ${!isPublic && appState.progress[book.id] ? `
-                            <div class="absolute bottom-0 left-0 w-full h-1 bg-gray-700">
-                                <div class="h-full bg-blue-500" style="width: ${Math.min(100, (appState.progress[book.id].page / 200) * 100)}%"></div>
-                            </div>
-                        ` : ''}
-                    </div>
-                    <h3 class="font-bold text-gray-900 dark:text-white leading-tight truncate">${title}</h3>
-                    <p class="text-sm text-gray-500 truncate">${author}</p>
+                <div class="project-card" onclick="openBook('${book.id}')">
+                    <img src="${book.cover}" class="book-cover" onerror="this.src='https://placehold.co/200x300'">
+                    <h5>${book.title}</h5>
+                    <p>${book.author}</p>
+                    ${progress ? `
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${progressPercent}%"></div>
+                        </div>
+                        <p style="font-size: 0.7rem; margin-top: 5px;">Pg ${progress.page}</p>
+                    ` : ''}
                 </div>
             `;
         }
 
-        function renderPublicGrid() {
-            els.publicGrid.innerHTML = appState.books.map(b => getBookCardHTML(b, true)).join('');
-        }
-
-        function renderDashboard() {
-            // Genres
-            const genres = ['All', ...new Set(appState.books.map(b => b.genre || 'Misc'))];
-            els.genreTags.innerHTML = genres.map(g => `
-                <button class="px-4 py-1 rounded-full border border-gray-200 dark:border-gray-700 text-sm hover:bg-blue-50 dark:hover:bg-gray-800 hover:text-blue-500 btn-click transition-colors">${g}</button>
-            `).join('');
-
-            // Continue Reading
-            const continueBooks = appState.books.filter(b => appState.progress[b.id]);
-            if (continueBooks.length > 0) {
-                els.continueRow.classList.remove('hidden');
-                els.continueContainer.innerHTML = continueBooks.map(book => `
-                    <div onclick="openBook('${book.id}')" class="min-w-[140px] w-[140px] snap-start cursor-pointer btn-click flex-shrink-0">
-                        <div class="aspect-[2/3] rounded-lg overflow-hidden shadow-md relative mb-2">
-                            <img src="${book.cover}" class="w-full h-full object-cover">
-                            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-3">
-                                <div class="text-white text-xs font-medium">Pg ${appState.progress[book.id].page}</div>
-                            </div>
-                        </div>
-                        <h4 class="text-sm font-medium truncate dark:text-gray-200">${book.title}</h4>
-                    </div>
-                `).join('');
+        // Modal Functions
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+        function openAdmin() { document.getElementById('adminModal').classList.add('active'); }
+        
+        function handleAuthClick() {
+            if(appState.user && !appState.user.isAnonymous) {
+                window.logout();
             } else {
-                els.continueRow.classList.add('hidden');
+                document.getElementById('authModal').classList.add('active');
             }
-
-            // Library
-            els.libraryGrid.innerHTML = appState.books.map(b => getBookCardHTML(b, false)).join('');
-        }
-
-        // --- MODALS & AUTH ---
-        function showAuthModal() {
-            els.authModal.classList.remove('hidden');
-            requestAnimationFrame(() => {
-                els.authModal.classList.remove('opacity-0');
-                els.authModal.children[0].classList.remove('scale-95');
-                els.authModal.children[0].classList.add('scale-100');
-            });
-        }
-        function hideAuthModal() {
-            els.authModal.classList.add('opacity-0');
-            els.authModal.children[0].classList.add('scale-95');
-            setTimeout(() => els.authModal.classList.add('hidden'), 300);
-        }
-        function showAdminModal() {
-            els.adminModal.classList.remove('hidden');
-            requestAnimationFrame(() => {
-                els.adminModal.classList.remove('opacity-0');
-                els.adminModal.children[0].classList.remove('scale-95');
-                els.adminModal.children[0].classList.add('scale-100');
-            });
-        }
-        function hideAdminModal() {
-            els.adminModal.classList.add('opacity-0');
-            els.adminModal.children[0].classList.add('scale-95');
-            setTimeout(() => els.adminModal.classList.add('hidden'), 300);
         }
 
         async function handleGoogleLogin() {
-            try { await window.loginGoogle(); hideAuthModal(); } 
-            catch (err) { alert(err.message); }
+            try { await window.loginGoogle(); closeModal('authModal'); } catch(e) { alert(e.message); }
         }
+
         async function handleEmailAuth(e) {
             e.preventDefault();
-            const email = document.getElementById('emailInput').value;
-            const pass = document.getElementById('passInput').value;
-            try { await window.loginEmail(email, pass); hideAuthModal(); } 
-            catch (err) {
-                if (err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential') {
-                    try { await window.signupEmail(email, pass); hideAuthModal(); } 
-                    catch (signupErr) { alert("Error: " + signupErr.message); }
-                } else { alert(err.message); }
+            const em = document.getElementById('emailInput').value;
+            const pw = document.getElementById('passInput').value;
+            try { await window.loginEmail(em, pw); closeModal('authModal'); }
+            catch(err) {
+                if(err.code.includes('not-found') || err.code.includes('invalid')) {
+                    try { await window.signupEmail(em, pw); closeModal('authModal'); }
+                    catch(e2) { alert(e2.message); }
+                }
             }
         }
 
         async function submitNewBook(e) {
             e.preventDefault();
-            const title = document.getElementById('newBookTitle').value;
-            const author = document.getElementById('newBookAuthor').value;
-            const genre = document.getElementById('newBookGenre').value;
-            const cover = document.getElementById('newBookCover').value;
-            let pdf = document.getElementById('newBookPdf').value;
-
-            // Basic OneDrive Link cleaner
-            if(pdf.includes("onedrive") && !pdf.includes("embed")) {
-                alert("Tip: For OneDrive, please use the 'Embed' link, not the 'Share' link.");
-            }
-
-            const newBook = { title, author, genre, cover, pdfUrl: pdf, createdAt: new Date().toISOString() };
-            
-            try {
-                await window.addBookToDB(newBook);
-                hideAdminModal();
-                e.target.reset();
-                alert("Book Added!");
-            } catch(err) {
-                alert("Failed to add book: " + err.message);
-            }
+            const book = {
+                title: document.getElementById('nbTitle').value,
+                author: document.getElementById('nbAuthor').value,
+                genre: document.getElementById('nbGenre').value,
+                cover: document.getElementById('nbCover').value,
+                pdfUrl: document.getElementById('nbPdf').value,
+                createdAt: new Date().toISOString()
+            };
+            await window.addBookToDB(book);
+            closeModal('adminModal');
+            e.target.reset();
         }
 
-        async function loadUserData() {
-            if (!appState.user) return;
-            try {
-                const q = window.db.collection(window.db.getFirestore(window.app), 'artifacts', window.appId, 'users', appState.user.uid, 'progress');
-                // Mock loading logic for demo
-            } catch(e) { console.log("Firestore init needed"); }
-        }
-
-        // --- READER ---
-        function openBook(bookId) {
-            playSound();
-
-            // Check for anonymous (Guest) user
-            // If user is not logged in or is anonymous, we prompt login
-            if (!appState.user || appState.user.isAnonymous) {
-                showAuthModal();
+        // Reader Logic
+        function openBook(id) {
+            if(!appState.user || appState.user.isAnonymous) {
+                document.getElementById('authModal').classList.add('active');
                 return;
             }
-
-            const book = appState.books.find(b => b.id === bookId);
-            if (!book) return;
-            appState.currentBook = book;
-            els.readerTitle.innerText = book.title;
-            els.pdfFrame.src = book.pdfUrl + "#toolbar=0&navpanes=0&scrollbar=0";
-            const progress = appState.progress[bookId];
-            els.pageInput.value = progress ? progress.page : 1;
-            const isFav = appState.favorites.includes(bookId);
-            els.readerFavBtn.innerHTML = isFav ? '<i class="ph-fill ph-heart text-red-500 text-xl"></i>' : '<i class="ph-fill ph-heart text-xl"></i>';
-            els.readerModal.classList.remove('hidden');
-        }
-        function closeReader() {
             playSound();
-            els.readerModal.classList.add('hidden');
-            els.pdfFrame.src = "";
-            appState.currentBook = null;
+            const book = appState.books.find(b => b.id === id);
+            appState.currentBook = book;
+            document.getElementById('readerTitle').innerText = book.title;
+            document.getElementById('pdfFrame').src = book.pdfUrl + "#toolbar=0";
+            document.getElementById('readerModal').classList.add('active');
+            
+            if(appState.progress[id]) document.getElementById('pageInput').value = appState.progress[id].page;
+            
+            // Update heart
+            const isFav = appState.favorites.includes(id);
+            document.getElementById('readerFavBtn').innerHTML = isFav ? '<i class="ph-fill ph-heart" style="color: red;"></i>' : '<i class="ph-heart"></i>';
+        }
+
+        function closeReader() {
+            document.getElementById('readerModal').classList.remove('active');
+            document.getElementById('pdfFrame').src = "";
             render();
         }
+
         async function saveCurrentPage() {
-            playSound();
-            const page = parseInt(els.pageInput.value);
-            const bookId = appState.currentBook.id;
-            appState.progress[bookId] = { page: page, lastRead: new Date() };
-            await window.saveBookProgress(bookId, page);
-            const btn = event.target;
-            const originalText = btn.innerText;
-            btn.innerText = "SAVED";
-            setTimeout(() => btn.innerText = originalText, 1500);
-        }
-        async function toggleReaderFav() {
-            playSound();
-            if(!appState.currentBook) return;
+            const page = parseInt(document.getElementById('pageInput').value);
             const id = appState.currentBook.id;
-            if (appState.favorites.includes(id)) {
-                appState.favorites = appState.favorites.filter(fid => fid !== id);
-                els.readerFavBtn.innerHTML = '<i class="ph-fill ph-heart text-xl"></i>';
+            appState.progress[id] = { page, lastRead: new Date() };
+            await window.saveBookProgress(id, page);
+            alert("Progress Saved!");
+        }
+
+        async function toggleReaderFav() {
+            const id = appState.currentBook.id;
+            if(appState.favorites.includes(id)) {
+                appState.favorites = appState.favorites.filter(x => x!==id);
             } else {
                 appState.favorites.push(id);
-                els.readerFavBtn.innerHTML = '<i class="ph-fill ph-heart text-red-500 text-xl"></i>';
             }
+            const isFav = appState.favorites.includes(id);
+            document.getElementById('readerFavBtn').innerHTML = isFav ? '<i class="ph-fill ph-heart" style="color: red;"></i>' : '<i class="ph-heart"></i>';
             await window.toggleFav(id);
         }
     </script>
