@@ -136,67 +136,82 @@
         :root {
             --primary-color: #0d6efd;
             --primary-color-light: #3b8aff;
-            --text-light: #f0f0f0;
             --text-dark: #333;
-            --sidebar-bg-light: #f8f9fa; 
-            --content-bg-light: #ffffff;
-            --border-color-light: #e9ecef;
-            --bg-dark: #121212;
+            --text-light-mode: #222;
             --text-dark-theme: #e0e0e0;
-            --sidebar-bg-dark: #1e1e1e;
-            --content-bg-dark: #2a2a2a;
+            --bg-light: #f0f2f5; 
+            --bg-dark: #121212;
+            --card-bg-light: rgba(255, 255, 255, 0.9);
+            --card-bg-dark: rgba(42, 42, 42, 0.9);
+            --sidebar-bg-light: rgba(255, 255, 255, 0.85);
+            --sidebar-bg-dark: rgba(30, 30, 30, 0.85);
+            --border-color-light: #e9ecef;
             --border-color-dark: #444;
-            --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-            --card-shadow: 0 8px 25px rgba(0, 0, 0, 0.15); 
+            --shadow-light: 0 6px 20px rgba(0, 0, 0, 0.08);
+            --shadow-dark: 0 6px 20px rgba(0, 0, 0, 0.3);
         }
 
         /* Base Styles */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
         body { 
-            background-color: #f0f2f5; 
-            color: var(--text-dark); 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            min-height: 100vh; 
-            padding: 2rem; /* Padding for desktop */
-            transition: background-color 0.3s, color 0.3s; 
-            overflow-x: hidden; 
+            background-color: var(--bg-light); 
+            color: var(--text-light-mode); 
+            transition: all 0.3s; 
+            min-height: 100vh;
+            overflow-x: hidden;
+            padding-left: 300px; /* Space for fixed sidebar on desktop */
         }
         #particles-js { position: fixed; width: 100%; height: 100%; top: 0; left: 0; z-index: -1; }
 
-        /* Main Container - The central, defined box */
-        .portfolio-container { 
-            width: 100%; 
-            max-width: 1200px; 
-            background: var(--content-bg-light); 
-            border-radius: 20px; 
-            box-shadow: var(--box-shadow); 
-            display: flex; 
-            overflow: hidden; 
-            min-height: 80vh; 
-            z-index: 10;
+        /* Dark Mode */
+        body.dark-mode { 
+            background-color: var(--bg-dark); 
+            color: var(--text-dark-theme); 
         }
 
-        /* Sidebar - Fixed width panel */
+        /* Sidebar - Fixed, Floating Panel (Desktop) */
         .sidebar { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
             width: 300px; 
-            background-color: var(--sidebar-bg-light); 
+            height: 100vh; 
+            background: var(--sidebar-bg-light); 
             padding: 30px 20px; 
-            text-align: center; 
             border-right: 1px solid var(--border-color-light); 
-            flex-shrink: 0; 
-            display: flex; 
-            flex-direction: column;
+            box-shadow: var(--shadow-light);
+            z-index: 100;
+            backdrop-filter: blur(5px);
+            transition: background 0.3s, border-color 0.3s, box-shadow 0.3s;
         }
-        .sidebar-content { position: sticky; top: 30px; width: 100%; }
-        .profile-photo { width: 100px; height: 100px; border-radius: 50%; border: 3px solid var(--primary-color); object-fit: cover; margin-bottom: 15px; margin-left: auto; margin-right: auto; display: block; background: #ddd; }
-        .name { font-size: 1.3rem; font-weight: 600; margin-bottom: 5px; }
-        .title { font-size: 0.8rem; font-weight: 400; color: var(--text-dark); background: var(--border-color-light); display: inline-block; padding: 4px 10px; border-radius: 12px; margin-bottom: 15px; }
+        .dark-mode .sidebar { 
+            background: var(--sidebar-bg-dark); 
+            border-right-color: var(--border-color-dark);
+            box-shadow: var(--shadow-dark);
+        }
+        .sidebar-content { 
+            display: flex; 
+            flex-direction: column; 
+            height: 100%; 
+        }
+
+        /* Sidebar Elements */
+        .profile-photo { 
+            width: 80px; height: 80px; 
+            border-radius: 50%; 
+            border: 3px solid var(--primary-color); 
+            object-fit: cover; 
+            margin: 0 auto 15px; 
+            display: block; 
+            background: #ddd; 
+        }
+        .name { font-size: 1.2rem; font-weight: 600; margin-bottom: 2px; text-align: center; }
+        .title { font-size: 0.75rem; color: #888; text-align: center; display: block; margin-bottom: 20px; }
         .separator { border: 0; height: 1px; background: var(--border-color-light); margin: 15px 0; }
+        .dark-mode .separator { background: var(--border-color-dark); }
         
-        .nav-menu { list-style: none; text-align: left; margin-top: 15px; }
-        .nav-menu li { margin-bottom: 10px; }
+        .nav-menu { list-style: none; flex-grow: 1; }
+        .nav-menu li { margin-bottom: 8px; }
         .nav-btn { 
             width: 100%; 
             text-align: left; 
@@ -204,89 +219,137 @@
             background: transparent; 
             border: none; 
             border-radius: 8px; 
-            color: #666;
+            color: var(--text-dark);
             font-weight: 500; 
             cursor: pointer; 
             display: flex; 
             align-items: center; 
             gap: 10px; 
-            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: all 0.2s; 
             font-size: 1rem; 
         }
+        .dark-mode .nav-btn { color: var(--text-dark-theme); }
+
         .nav-btn:hover {
             background: rgba(13, 110, 253, 0.1); 
             color: var(--primary-color);
-            transform: scale(1.02);
         }
         .nav-btn.active { 
             background: var(--primary-color); 
-            color: white; 
-            transform: translateX(0);
+            color: white !important; 
             box-shadow: 0 4px 10px rgba(13, 110, 253, 0.4); 
+        }
+        .nav-btn.active:hover {
+             background: var(--primary-color-light); 
         }
         .nav-btn i { font-size: 1.2rem; }
 
-        /* Main Content - Takes remaining space */
+        /* Main Content - Full width space to the right of the sidebar */
         .main-content { 
-            flex-grow: 1; 
             padding: 40px; 
-            position: relative; 
-            overflow-y: auto; 
-            max-height: 80vh; /* Controlled scrolling within the main box */
+            max-width: 100%; 
+            min-height: 100vh;
         }
-        
-        /* Tabs & Filters */
-        .tabs ul { list-style: none; display: flex; gap: 15px; border-bottom: 1px solid var(--border-color-light); margin-bottom: 30px; flex-wrap: wrap;}
-        .tab-link { 
-            background: none; 
-            border: none; 
-            cursor: pointer; 
-            color: #888; 
-            padding: 10px 5px; 
-            display: block; 
-            font-weight: 500; 
-            position: relative; 
-            border-bottom: 3px solid transparent; 
-            transition: color 0.3s, border-color 0.3s; 
-            font-size: 1rem; 
-        }
-        .tab-link.active { color: var(--primary-color); border-bottom-color: var(--primary-color); }
-        
-        .section-title { font-size: 1.8rem; margin-bottom: 5px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
-        .section-subtitle { font-size: 1rem; color: #666; margin-bottom: 30px; font-weight: 400; }
 
-        /* Book Grid - Responsive Fix */
+        /* Global Header/Toggle */
+        .header-controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 101;
+            display: flex;
+            gap: 10px;
+        }
+        .toggle-btn { 
+            background: var(--card-bg-light); 
+            color: var(--text-dark); 
+            width: 40px; 
+            height: 40px; 
+            border-radius: 50%; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            border: 1px solid var(--border-color-light); 
+            cursor: pointer; 
+            font-size: 1.1rem; 
+            transition: all 0.3s;
+            box-shadow: var(--shadow-light);
+        }
+        .dark-mode .toggle-btn {
+             background: var(--card-bg-dark); 
+             color: var(--text-dark-theme);
+             border-color: var(--border-color-dark);
+             box-shadow: var(--shadow-dark);
+        }
+        .toggle-btn:hover { background: var(--primary-color); color: white; border-color: var(--primary-color); }
+        .dark-mode .toggle-btn:hover { background: var(--primary-color); color: white; border-color: var(--primary-color); }
+
+        /* Section Styling */
+        .section-title { font-size: 2rem; margin-bottom: 5px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
+        .section-subtitle { font-size: 1rem; color: #888; margin-bottom: 30px; }
+
+        /* Tabs & Filters */
+        .tabs ul { list-style: none; display: flex; gap: 10px; margin-bottom: 30px; flex-wrap: wrap;}
+        .tab-link { 
+            background: var(--card-bg-light); 
+            border: 1px solid var(--border-color-light); 
+            cursor: pointer; 
+            color: #666; 
+            padding: 8px 18px; 
+            border-radius: 20px; 
+            font-weight: 500; 
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+        .dark-mode .tab-link { background: var(--card-bg-dark); border-color: var(--border-color-dark); color: #ccc; }
+
+        .tab-link.active { 
+            background: var(--primary-color); 
+            color: white; 
+            border-color: var(--primary-color);
+        }
+        .tab-link:hover:not(.active) {
+            border-color: var(--primary-color-light);
+            color: var(--primary-color);
+        }
+
+        /* Book Grid - Clean and Responsive */
         .portfolio-grid { 
             display: grid; 
             grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); 
-            gap: 25px; 
+            gap: 30px; 
             margin-bottom: 40px;
         }
 
-        /* Book Card - Bookish Aesthetic with 3D Hover */
+        /* Book Card - Simple, Clean, Interactive */
         .project-card { 
-            background: var(--sidebar-bg-light); 
+            background: var(--card-bg-light); 
             border-radius: 12px; 
             padding: 15px; 
             transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             position: relative; 
             cursor: pointer; 
-            border: 1px solid var(--border-color-light);
-            box-shadow: var(--card-shadow); 
-            transform-style: preserve-3d;
-            transform: perspective(1000px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); 
+        }
+        .dark-mode .project-card { 
+            background: var(--card-bg-dark); 
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4); 
         }
         .project-card:hover { 
-            transform: translateY(-10px) rotateX(1deg) perspective(1000px); 
-            box-shadow: 0 25px 50px rgba(0,0,0,0.25); 
+            transform: translateY(-5px); 
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15); 
         }
+        .dark-mode .project-card:hover { 
+            box-shadow: 0 15px 30px rgba(0,0,0,0.6); 
+        }
+        
         .book-cover { 
             width: 100%; 
             aspect-ratio: 2/3; 
             border-radius: 8px; 
             object-fit: cover; 
             margin-bottom: 10px; 
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3); 
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2); 
         }
         .project-card h5 { font-size: 1rem; font-weight: 600; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .project-card p { font-size: 0.8rem; color: #888; margin-bottom: 5px; }
@@ -295,7 +358,7 @@
         .progress-bar { height: 4px; background: var(--border-color-light); border-radius: 2px; overflow: hidden; margin-top: 10px; }
         .progress-fill { height: 100%; background: var(--primary-color); width: 0%; transition: width 0.5s; }
 
-        /* Buttons and Modals - Retained styles for function/look */
+        /* Buttons and Modals - Retained interaction styles */
         .btn-primary { 
             padding: 12px 25px; 
             background: var(--primary-color); 
@@ -314,111 +377,89 @@
         .btn-primary:hover { background: #0056b3; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(13, 110, 253, 0.3); }
         .btn-primary:active { transform: translateY(0); box-shadow: none; }
         
-        .toggle-btn { 
-            position: absolute; 
-            top: 30px; 
-            right: 30px; 
-            background: var(--content-bg-light); 
-            color: var(--text-dark); 
-            width: 45px; 
-            height: 45px; 
-            border-radius: 50%; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
+        .modal-box { 
+            background: var(--card-bg-light); 
+            padding: 30px; 
+            border-radius: 20px; 
+            width: 100%; 
+            max-width: 400px; 
+            position: relative; 
+            box-shadow: var(--shadow-dark); 
+        }
+        .dark-mode .modal-box { background: var(--card-bg-dark); }
+        .form-input { 
+            background: var(--sidebar-bg-light); 
             border: 1px solid var(--border-color-light); 
-            cursor: pointer; 
-            font-size: 1.2rem; 
-            z-index: 11;
-            transition: all 0.3s; 
+        }
+        .dark-mode .form-input { 
+            background: var(--sidebar-bg-dark); 
+            border-color: var(--border-color-dark); 
+            color: var(--text-dark-theme);
         }
 
-        /* Dark Mode adjustments for contained look */
-        body.dark-mode { background-color: var(--bg-dark); color: var(--text-dark-theme); }
-        .dark-mode .portfolio-container { 
-            background: var(--content-bg-dark); 
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-        }
-        .dark-mode .sidebar { 
-            background: var(--sidebar-bg-dark);
-            border-right-color: var(--border-color-dark);
-        }
-        .dark-mode .title { background: var(--content-bg-dark); color: var(--text-dark-theme); }
-        .dark-mode .nav-btn { color: var(--text-dark-theme); }
-        .dark-mode .nav-btn:hover { background: rgba(13, 110, 253, 0.2); color: white; }
-
-        .dark-mode .separator, .dark-mode .tabs ul, .dark-mode .toggle-btn { border-color: var(--border-color-dark); }
-        .dark-mode .toggle-btn { background: var(--content-bg-dark); color: var(--text-dark-theme); }
-        
-        .dark-mode .project-card { 
-            background: var(--sidebar-bg-dark);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-        .dark-mode .project-card:hover { 
-            box-shadow: 0 25px 50px rgba(0,0,0,0.7);
-        }
-        .dark-mode .section-subtitle { color: #aaa; }
-        .dark-mode .form-input { background: var(--sidebar-bg-dark); border-color: var(--border-color-dark); color: white; }
-        .dark-mode .modal-box { background: var(--content-bg-dark); }
-
-
-        /* Responsive Styles (Mobile - Full screen, stacked, two-column grid) */
+        /* Responsive Styles (Mobile - Sidebar Hidden, Bottom Nav) */
         @media (max-width: 900px) {
-            body { padding: 0; align-items: flex-start; }
-            .portfolio-container { 
-                flex-direction: column; 
-                min-height: 100vh;
-                border-radius: 0;
+            body { 
+                padding-left: 0; 
+                padding-bottom: 60px; /* Space for bottom nav */
             }
             .sidebar { 
-                width: 100%; 
-                height: auto;
-                position: static; 
-                padding: 20px;
-                border-right: none;
-                border-bottom: 1px solid var(--border-color-light);
+                display: none; /* Hide fixed sidebar entirely */
             }
-            .dark-mode .sidebar { border-bottom-color: var(--border-color-dark); }
-
-            .sidebar-content { 
-                position: static;
-                display: flex; 
-                flex-direction: column;
-            }
-            .sidebar .auth-info { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-            .sidebar .branding { margin-bottom: 20px; }
-            .sidebar .auth-info .profile-photo { margin: 0; width: 60px; height: 60px; }
-            .sidebar .auth-info .name, .sidebar .auth-info .title { text-align: left; margin: 0; }
-            .sidebar .auth-info .name { font-size: 1.2rem; }
-            .sidebar .auth-info .title { display: none; } /* Hide status text on small screen */
-
-            .nav-menu { 
-                display: flex; 
-                overflow-x: auto; 
-                gap: 5px; 
-                padding: 10px 0;
-                white-space: nowrap; 
-                margin: 0;
-            }
-            .nav-menu li { margin: 0; flex-shrink: 0; }
-            .nav-btn { 
-                padding: 8px 12px; 
-                font-size: 0.8rem; 
-                justify-content: center; 
-            }
-            .nav-btn i { display: none; }
-            .nav-btn.active { color: white; background: var(--primary-color); }
-            
             .main-content { 
                 padding: 20px 15px;
-                overflow-y: visible;
-                max-height: none;
             }
-            .section-title { font-size: 1.6rem; }
-            .section-subtitle { margin-bottom: 15px; font-size: 0.9rem; }
+            .header-controls { 
+                position: static; 
+                display: flex; 
+                justify-content: flex-end; 
+                margin-bottom: 20px;
+            }
             
-            /* Crucial fix for book grid visibility on mobile */
+            /* Mobile Bottom Nav */
+            .mobile-nav {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                width: 100%;
+                height: 60px;
+                background: var(--card-bg-light);
+                border-top: 1px solid var(--border-color-light);
+                z-index: 1000;
+                display: flex;
+                justify-content: space-around;
+                align-items: center;
+                box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.1);
+            }
+            .dark-mode .mobile-nav {
+                background: var(--sidebar-bg-dark);
+                border-top-color: var(--border-color-dark);
+                box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.4);
+            }
+
+            .mobile-nav button {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                background: none;
+                border: none;
+                color: #888;
+                font-size: 0.75rem;
+                font-weight: 500;
+                padding: 5px;
+                transition: color 0.2s;
+            }
+            .dark-mode .mobile-nav button { color: #ccc; }
+            .mobile-nav button i { font-size: 1.5rem; margin-bottom: 2px; }
+
+            .mobile-nav button.active {
+                color: var(--primary-color);
+            }
+            .mobile-nav button:hover {
+                color: var(--primary-color-light);
+            }
+            
+            /* Book Grid Mobile Fix */
             .portfolio-grid { 
                 grid-template-columns: repeat(2, 1fr); 
                 gap: 15px;
@@ -426,9 +467,6 @@
             .project-card { padding: 10px; }
             .project-card h5 { font-size: 0.9rem; }
             .project-card p { font-size: 0.75rem; }
-            
-            .toggle-btn { top: 15px; right: 15px; }
-            .sidebar #authBtn { display: none; } /* Hide auth button in main flow, use the modal */
         }
     </style>
 </head>
@@ -443,91 +481,97 @@
     <div id="loadingScreen">
         L<span class="loading-o"></span>ADING
     </div>
+    
+    <!-- Theme Toggle and Auth Button (Desktop position) -->
+    <div class="header-controls">
+        <button class="toggle-btn" onclick="toggleTheme()">
+            <i class="ph-fill ph-moon" id="themeIcon"></i>
+        </button>
+         <button id="desktopAuthBtn" class="btn-primary" style="padding: 10px 20px; font-size: 0.9rem; margin-right: 50px;" onclick="handleAuthClick()">
+            <i class="ph-bold ph-sign-in"></i> Sign In
+        </button>
+    </div>
 
-    <!-- Theme Toggle -->
-    <button class="toggle-btn" onclick="toggleTheme()">
-        <i class="ph-fill ph-moon" id="themeIcon"></i>
-    </button>
+    <!-- Sidebar (Desktop Fixed Nav) -->
+    <aside class="sidebar">
+        <div class="sidebar-content">
+            <!-- Branding / Logo -->
+            <div class="branding" style="margin-bottom: 30px; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                <i class="ph-fill ph-book-open-text" style="font-size: 2rem; color: var(--primary-color);"></i>
+                <h2 style="font-size: 1.8rem; font-weight: 700; margin: 0;">Blue<span style="color: var(--primary-color);">Reader</span></h2>
+            </div>
 
-    <div class="portfolio-container">
-        <!-- Sidebar -->
-        <aside class="sidebar">
-            <div class="sidebar-content">
-                <!-- Branding / Logo -->
-                <div class="branding" style="margin-bottom: 30px; display: flex; align-items: center; justify-content: center; gap: 10px;">
-                    <i class="ph-fill ph-book-open-text" style="font-size: 2rem; color: var(--primary-color);"></i>
-                    <h2 style="font-size: 1.8rem; font-weight: 700; margin: 0;">Blue<span style="color: var(--primary-color);">Reader</span></h2>
-                </div>
+            <!-- User Info -->
+            <div class="auth-info">
+                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Guest" id="userAvatar" class="profile-photo" alt="Profile">
+                <h1 class="name" id="userName">Guest Reader</h1>
+                <span class="title" id="userStatus">Log in to sync</span>
+            </div>
 
-                <div class="auth-info">
-                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Guest" id="userAvatar" class="profile-photo" alt="Profile">
-                    <div style="flex-grow: 1; text-align: center;">
-                        <h1 class="name" id="userName">Guest Reader</h1>
-                        <span class="title" id="userStatus">Log in to sync</span>
-                    </div>
-                    <div class="separator"></div>
-                </div>
+            <div class="separator"></div>
 
-                <ul class="nav-menu">
-                    <li><button id="nav-home" class="nav-btn active" onclick="switchTab('home', this)"><i class="ph-bold ph-house"></i> Discover</button></li>
-                    <li><button id="nav-library" class="nav-btn" onclick="switchTab('library', this)"><i class="ph-bold ph-books"></i> My Library</button></li>
-                    <li><button id="nav-continue" class="nav-btn" onclick="switchTab('continue', this)"><i class="ph-bold ph-clock-counter-clockwise"></i> Continue</button></li>
-                    <li id="adminBtn" style="display: none;"><button class="nav-btn" onclick="openAdmin()"><i class="ph-bold ph-plus-circle"></i> Add Book</button></li>
+            <!-- Navigation Links -->
+            <ul class="nav-menu">
+                <li><button id="nav-home" class="nav-btn active" onclick="switchTab('home', this)"><i class="ph-bold ph-compass"></i> Discover</button></li>
+                <li><button id="nav-library" class="nav-btn" onclick="switchTab('library', this)"><i class="ph-bold ph-books"></i> My Library</button></li>
+                <li><button id="nav-continue" class="nav-btn" onclick="switchTab('continue', this)"><i class="ph-bold ph-clock-counter-clockwise"></i> Continue Reading</button></li>
+                <li id="adminBtn" style="display: none;"><button class="nav-btn" onclick="openAdmin()"><i class="ph-bold ph-plus-circle"></i> Add Book</button></li>
+            </ul>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- View: Home -->
+        <div id="view-home" class="tab-content" style="display: block;">
+            <div class="section-title">
+                <h2>Discover New Worlds</h2>
+            </div>
+            <p class="section-subtitle">Explore our curated collection of free e-books by genre.</p>
+            
+            <div class="tabs">
+                <ul id="genreTabs">
+                    <li><button class="tab-link active" onclick="filterBooks('All', this)">All</button></li>
+                    <!-- Genres injected via JS -->
                 </ul>
-
-                <div class="separator"></div>
-
-                <button id="authBtn" class="btn-primary" style="width: 100%; justify-content: center; margin-top: 10px;" onclick="handleAuthClick()">
-                    Sign In
-                </button>
-            </div>
-        </aside>
-
-        <!-- Main Content -->
-        <main class="main-content">
-            <!-- View: Home -->
-            <div id="view-home" class="tab-content" style="display: block;">
-                <div class="section-title">
-                    <h2>Discover New Worlds</h2>
-                </div>
-                <p class="section-subtitle">Explore our curated collection of free e-books by genre.</p>
-                
-                <div class="tabs">
-                    <ul id="genreTabs">
-                        <li><button class="tab-link active" onclick="filterBooks('All', this)">All</button></li>
-                        <!-- Genres injected via JS -->
-                    </ul>
-                </div>
-
-                <div class="portfolio-grid" id="publicGrid">
-                    <!-- Books injected here -->
-                </div>
             </div>
 
-            <!-- View: Library (Favs and Started) -->
-            <div id="view-library" class="tab-content" style="display: none;">
-                <div class="section-title">
-                    <h2>My Library</h2>
-                </div>
-                <p class="section-subtitle">Your personal collection of favorited and in-progress books.</p>
-                <div class="portfolio-grid" id="libraryGrid">
-                    <div style="grid-column: 1/-1; text-align: center; color: #888; padding: 20px;">
-                        Log in and start reading to build your library.
-                    </div>
-                </div>
+            <div class="portfolio-grid" id="publicGrid">
+                <!-- Books injected here -->
             </div>
+        </div>
 
-             <!-- View: Continue -->
-             <div id="view-continue" class="tab-content" style="display: none;">
-                <div class="section-title">
-                    <h2>Continue Reading</h2>
-                </div>
-                <p class="section-subtitle">Pick up exactly where you left off on your latest reads.</p>
-                <div class="portfolio-grid" id="continueGrid">
-                    <p style="color:#888; grid-column: 1/-1; text-align:center;">Start reading a book to see it here.</p>
+        <!-- View: Library (Favs and Started) -->
+        <div id="view-library" class="tab-content" style="display: none;">
+            <div class="section-title">
+                <h2>My Library</h2>
+            </div>
+            <p class="section-subtitle">Your personal collection of favorited and in-progress books.</p>
+            <div class="portfolio-grid" id="libraryGrid">
+                <div style="grid-column: 1/-1; text-align: center; color: #888; padding: 20px;">
+                    Log in and start reading to build your library.
                 </div>
             </div>
-        </main>
+        </div>
+
+         <!-- View: Continue -->
+         <div id="view-continue" class="tab-content" style="display: none;">
+            <div class="section-title">
+                <h2>Continue Reading</h2>
+            </div>
+            <p class="section-subtitle">Pick up exactly where you left off on your latest reads.</p>
+            <div class="portfolio-grid" id="continueGrid">
+                <p style="color:#888; grid-column: 1/-1; text-align:center;">You haven't started any books yet. Get reading!</p>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Mobile Bottom Navigation -->
+    <div class="mobile-nav" style="display: none;">
+        <button id="nav-home-mobile" class="active" onclick="switchTab('home', this)"><i class="ph-bold ph-compass"></i> Discover</button>
+        <button id="nav-library-mobile" onclick="switchTab('library', this)"><i class="ph-bold ph-books"></i> Library</button>
+        <button id="nav-continue-mobile" onclick="switchTab('continue', this)"><i class="ph-bold ph-clock-counter-clockwise"></i> Continue</button>
+        <button onclick="handleAuthClick()"><i class="ph-bold ph-user-circle" id="mobileAuthIcon"></i> <span id="mobileAuthText">Sign In</span></button>
     </div>
 
     <!-- Auth Modal -->
@@ -696,7 +740,7 @@
         
         // !!! IMPORTANT !!!
         // REPLACE "your-email@gmail.com" WITH YOUR ACTUAL GOOGLE EMAIL BELOW
-        const adminEmails = ["tanvirrshuvro@gmail.com"]; 
+        const adminEmails = ["your-email@gmail.com"]; 
 
         function playSound() {
             // This is a short, high-frequency sound for a 'click' feel
@@ -742,7 +786,27 @@
                 appState.theme = 'dark';
                 document.getElementById('themeIcon').className = 'ph-fill ph-sun';
             }
+            
+            // Check screen width to determine mobile nav visibility
+            if (window.innerWidth <= 900) {
+                document.querySelector('.mobile-nav').style.display = 'flex';
+                document.getElementById('desktopAuthBtn').style.display = 'none';
+            } else {
+                document.querySelector('.mobile-nav').style.display = 'none';
+                document.getElementById('desktopAuthBtn').style.display = 'inline-flex';
+            }
         };
+
+        window.addEventListener('resize', () => {
+            if (window.innerWidth <= 900) {
+                document.querySelector('.mobile-nav').style.display = 'flex';
+                document.getElementById('desktopAuthBtn').style.display = 'none';
+            } else {
+                document.querySelector('.mobile-nav').style.display = 'none';
+                document.getElementById('desktopAuthBtn').style.display = 'inline-flex';
+            }
+        });
+
 
         // Book Listener: Merges static books with dynamic Firestore books
         const bookInterval = setInterval(() => {
@@ -772,7 +836,11 @@
                         document.getElementById('userAvatar').src = user.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`;
                         document.getElementById('userName').innerText = user.displayName || user.email.split('@')[0];
                         document.getElementById('userStatus').innerText = "Premium Reader";
-                        document.getElementById('authBtn').innerHTML = '<i class="ph-bold ph-sign-out"></i> Sign Out';
+                        
+                        // Update Auth Buttons
+                        document.getElementById('desktopAuthBtn').innerHTML = '<i class="ph-bold ph-sign-out"></i> Sign Out';
+                        document.getElementById('mobileAuthIcon').className = 'ph-bold ph-sign-out';
+                        document.getElementById('mobileAuthText').innerText = 'Sign Out';
                         
                         // Fetch user specific data
                         await window.fetchUserData(user); 
@@ -786,7 +854,12 @@
                         document.getElementById('userAvatar').src = `https://api.dicebear.com/7.x/avataaars/svg?seed=Guest`;
                         document.getElementById('userName').innerText = "Guest Reader";
                         document.getElementById('userStatus').innerText = "Log in to sync";
-                        document.getElementById('authBtn').innerHTML = '<i class="ph-bold ph-sign-in"></i> Sign In';
+                        
+                        // Update Auth Buttons
+                        document.getElementById('desktopAuthBtn').innerHTML = '<i class="ph-bold ph-sign-in"></i> Sign In';
+                        document.getElementById('mobileAuthIcon').className = 'ph-bold ph-user-circle';
+                        document.getElementById('mobileAuthText').innerText = 'Sign In';
+
                         // Clear private data
                         appState.progress = {};
                         appState.favorites = [];
@@ -809,13 +882,22 @@
             playSound();
             // Hide all tabs
             document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
             
-            // Show selected
+            // Clear desktop and mobile active states
+            document.querySelectorAll('.nav-btn, .mobile-nav button').forEach(b => b.classList.remove('active'));
+            
+            // Show selected view
             document.getElementById('view-'+tabName).style.display = 'block';
-            if (btn) btn.classList.add('active'); // Check if button is passed (e.g., from initial login)
+
+            // Set active class for the corresponding buttons
+            if (btn) {
+                btn.classList.add('active');
+            } else if (window.innerWidth > 900) {
+                document.getElementById('nav-' + tabName).classList.add('active');
+            } else {
+                document.getElementById('nav-' + tabName + '-mobile').classList.add('active');
+            }
             
-            // Re-render to ensure current tab data is fresh
             render(); 
         }
 
