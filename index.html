@@ -103,24 +103,24 @@
             --primary-color-light: #3b8aff;
             --text-light: #f0f0f0;
             --text-dark: #333;
-            --sidebar-bg-light: #f8f9fa;
-            --content-bg-light: #ffffff;
+            --sidebar-bg-light: rgba(248, 249, 250, 0.95); /* Slight transparency for glass effect */
+            --content-bg-light: rgba(255, 255, 255, 0.95);
             --border-color-light: #e9ecef;
             --bg-dark: #121212;
             --text-dark-theme: #e0e0e0;
-            --sidebar-bg-dark: #1e1e1e;
-            --content-bg-dark: #2a2a2a;
+            --sidebar-bg-dark: rgba(30, 30, 30, 0.95);
+            --content-bg-dark: rgba(42, 42, 42, 0.95);
             --border-color-dark: #444;
-            --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         }
 
         /* Base Styles */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
-        body { background-color: var(--sidebar-bg-light); color: var(--text-dark); display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 2rem; transition: background-color 0.3s, color 0.3s; }
-        #particles-js { position: fixed; width: 100%; height: 100%; top: 0; left: 0; z-index: -1; opacity: 0.5; pointer-events: none; }
+        body { background-color: #f0f2f5; color: var(--text-dark); display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 2rem; transition: background-color 0.3s, color 0.3s; overflow-x: hidden; }
+        #particles-js { position: fixed; width: 100%; height: 100%; top: 0; left: 0; z-index: -1; }
 
         /* Main Container */
-        .portfolio-container { width: 100%; max-width: 1200px; background: var(--content-bg-light); border-radius: 20px; box-shadow: var(--box-shadow); display: flex; overflow: hidden; min-height: 80vh; }
+        .portfolio-container { width: 100%; max-width: 1200px; background: var(--content-bg-light); border-radius: 20px; box-shadow: var(--box-shadow); display: flex; overflow: hidden; min-height: 80vh; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); }
 
         /* Sidebar */
         .sidebar { width: 300px; background-color: var(--sidebar-bg-light); padding: 40px 30px; text-align: center; border-right: 1px solid var(--border-color-light); flex-shrink: 0; display: flex; flex-direction: column; }
@@ -133,7 +133,7 @@
         .nav-menu { list-style: none; text-align: left; margin-top: 20px; }
         .nav-menu li { margin-bottom: 15px; }
         .nav-btn { width: 100%; text-align: left; padding: 12px 15px; background: transparent; border: none; border-radius: 10px; color: #666; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: all 0.3s; font-size: 1rem; }
-        .nav-btn:hover, .nav-btn.active { background: var(--primary-color); color: white; transform: translateX(5px); }
+        .nav-btn:hover, .nav-btn.active { background: var(--primary-color); color: white; transform: translateX(5px); box-shadow: 0 4px 10px rgba(13, 110, 253, 0.2); }
         .nav-btn i { font-size: 1.2rem; }
 
         /* Main Content */
@@ -167,8 +167,8 @@
         .toggle-btn:hover { background: var(--primary-color); color: white; border-color: var(--primary-color); }
 
         /* Dark Mode */
-        body.dark-mode { background-color: var(--bg-dark); color: var(--text-dark-theme); }
-        .dark-mode .portfolio-container { background: var(--content-bg-dark); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4); }
+        body.dark-mode { background-color: #050505; color: var(--text-dark-theme); }
+        .dark-mode .portfolio-container { background: var(--content-bg-dark); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5); border-color: rgba(255,255,255,0.05); }
         .dark-mode .sidebar { background-color: var(--sidebar-bg-dark); border-right-color: var(--border-color-dark); }
         .dark-mode .title, .dark-mode .nav-btn, .dark-mode .project-card { background: var(--sidebar-bg-dark); color: var(--text-dark-theme); }
         .dark-mode .nav-btn:hover, .dark-mode .nav-btn.active { background: var(--primary-color); color: white; }
@@ -176,6 +176,7 @@
         .dark-mode .toggle-btn { background: var(--sidebar-bg-dark); color: var(--text-dark-theme); border-color: var(--border-color-dark); }
         .dark-mode .toggle-btn:hover { background: var(--primary-color); color: white; }
         .dark-mode .project-card p { color: #aaa; }
+        .dark-mode .progress-bar { background: #444; }
         
         /* Loading & Modals */
         #loadingScreen { position: fixed; inset: 0; background: var(--content-bg-light); z-index: 9999; display: flex; justify-content: center; align-items: center; font-size: 2rem; font-weight: 700; }
@@ -220,7 +221,7 @@
     <audio id="clickSound" src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA="></audio> 
 
     <!-- Particles Background -->
-    <div id="particles-js"></div>
+    <canvas id="particles-js"></canvas>
 
     <!-- Loading -->
     <div id="loadingScreen">
@@ -362,38 +363,122 @@
         </div>
     </div>
 
-    <!-- Simple Particle Script (Mimic) -->
+    <!-- Advanced Constellation Particles Script -->
     <script>
-        // Very simple particle effect to respect the CSS ID request without heavy lib
-        const canvas = document.createElement('canvas');
+        const canvas = document.getElementById('particles-js');
         const ctx = canvas.getContext('2d');
-        document.getElementById('particles-js').appendChild(canvas);
         
-        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-        window.addEventListener('resize', resize);
-        resize();
+        let width, height;
+        let particles = [];
+        let mouse = { x: null, y: null, radius: 150 };
 
-        const particles = [];
-        for(let i=0; i<50; i++) particles.push({
-            x: Math.random() * canvas.width, 
-            y: Math.random() * canvas.height, 
-            vx: (Math.random() - 0.5) * 0.5, 
-            vy: (Math.random() - 0.5) * 0.5,
-            s: Math.random() * 3
+        function initCanvas() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+            
+            // Create particles
+            particles = [];
+            const numParticles = (width * height) / 9000; // Responsive density
+            for (let i = 0; i < numParticles; i++) {
+                particles.push({
+                    x: Math.random() * width,
+                    y: Math.random() * height,
+                    vx: (Math.random() - 0.5) * 1, // Velocity X
+                    vy: (Math.random() - 0.5) * 1, // Velocity Y
+                    size: Math.random() * 3 + 1
+                });
+            }
+        }
+
+        window.addEventListener('resize', initCanvas);
+        window.addEventListener('mousemove', (e) => {
+            mouse.x = e.x;
+            mouse.y = e.y;
+        });
+        window.addEventListener('mouseout', () => {
+            mouse.x = null;
+            mouse.y = null;
         });
 
-        function animate() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = document.body.classList.contains('dark-mode') ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
+        function animateParticles() {
+            ctx.clearRect(0, 0, width, height);
+            
+            const isDark = document.body.classList.contains('dark-mode');
+            const dotColor = isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(13, 110, 253, 0.5)';
+            const lineColor = isDark ? '255, 255, 255' : '13, 110, 253'; // rgb string for opacity manip
+
+            // Update & Draw Particles
             particles.forEach(p => {
-                p.x += p.vx; p.y += p.vy;
-                if(p.x < 0) p.x = canvas.width; if(p.x > canvas.width) p.x = 0;
-                if(p.y < 0) p.y = canvas.height; if(p.y > canvas.height) p.y = 0;
-                ctx.beginPath(); ctx.arc(p.x, p.y, p.s, 0, Math.PI*2); ctx.fill();
+                p.x += p.vx;
+                p.y += p.vy;
+
+                // Bounce off edges
+                if (p.x < 0 || p.x > width) p.vx *= -1;
+                if (p.y < 0 || p.y > height) p.vy *= -1;
+
+                // Mouse Interaction: repulse slightly
+                if(mouse.x) {
+                    let dx = mouse.x - p.x;
+                    let dy = mouse.y - p.y;
+                    let distance = Math.sqrt(dx*dx + dy*dy);
+                    if (distance < mouse.radius) {
+                        const forceDirectionX = dx / distance;
+                        const forceDirectionY = dy / distance;
+                        const force = (mouse.radius - distance) / mouse.radius;
+                        const directionX = forceDirectionX * force * 3;
+                        const directionY = forceDirectionY * force * 3;
+                        p.x -= directionX;
+                        p.y -= directionY;
+                    }
+                }
+
+                // Draw Dot
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fillStyle = dotColor;
+                ctx.fill();
             });
-            requestAnimationFrame(animate);
+
+            // Draw Connections
+            for (let a = 0; a < particles.length; a++) {
+                for (let b = a; b < particles.length; b++) {
+                    let dx = particles[a].x - particles[b].x;
+                    let dy = particles[a].y - particles[b].y;
+                    let distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < 120) {
+                        ctx.beginPath();
+                        ctx.strokeStyle = `rgba(${lineColor}, ${1 - distance / 120})`;
+                        ctx.lineWidth = 1;
+                        ctx.moveTo(particles[a].x, particles[a].y);
+                        ctx.lineTo(particles[b].x, particles[b].y);
+                        ctx.stroke();
+                    }
+                }
+                
+                // Connect to mouse
+                if(mouse.x) {
+                    let dx = particles[a].x - mouse.x;
+                    let dy = particles[a].y - mouse.y;
+                    let distance = Math.sqrt(dx*dx + dy*dy);
+                    if(distance < 150) {
+                         ctx.beginPath();
+                        ctx.strokeStyle = `rgba(${lineColor}, ${1 - distance / 150})`;
+                        ctx.lineWidth = 1;
+                        ctx.moveTo(particles[a].x, particles[a].y);
+                        ctx.lineTo(mouse.x, mouse.y);
+                        ctx.stroke();
+                    }
+                }
+            }
+
+            requestAnimationFrame(animateParticles);
         }
-        animate();
+
+        initCanvas();
+        animateParticles();
     </script>
 
     <script>
