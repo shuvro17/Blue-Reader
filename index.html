@@ -340,7 +340,7 @@
                 <div class="form-group"><input type="text" id="nbAuthor" class="form-input" placeholder="Author" required></div>
                 <div class="form-group"><input type="text" id="nbGenre" class="form-input" placeholder="Genre" required></div>
                 <div class="form-group"><input type="url" id="nbCover" class="form-input" placeholder="Cover Image URL" required></div>
-                <div class="form-group"><input type="url" id="nbPdf" class="form-input" placeholder="PDF Link (Embed)" required></div>
+                <div class="form-group"><input type="url" id="nbPdf" class="form-input" placeholder="PDF Link (Google Drive/OneDrive/Direct)" required></div>
                 <button type="submit" class="btn-primary" style="width: 100%; justify-content: center;">Add to Library</button>
             </form>
         </div>
@@ -663,12 +663,34 @@
 
         async function submitNewBook(e) {
             e.preventDefault();
+            
+            let pdf = document.getElementById('nbPdf').value;
+            
+            // --- AUTO-FIX LINK LOGIC ---
+            // 1. Google Drive (Standard View -> Preview)
+            if (pdf.includes("drive.google.com") && pdf.includes("/view")) {
+                pdf = pdf.replace("/view", "/preview");
+            }
+            
+            // 2. Dropbox (Download -> Raw)
+            if (pdf.includes("dropbox.com") && (pdf.includes("dl=0") || pdf.includes("?dl=0"))) {
+                pdf = pdf.replace("dl=0", "raw=1");
+            }
+
+            // 3. OneDrive (Basic Open URL hack)
+            // If user pastes a direct browser URL from OneDrive business
+            // We try to append embedview, though this is hit or miss without the official embed button
+            if (pdf.includes("sharepoint.com") || pdf.includes("1drv.ms")) {
+                // Try to ensure we are not downloading
+                if(pdf.includes("download=1")) pdf = pdf.replace("download=1", "action=embedview");
+            }
+
             const book = {
                 title: document.getElementById('nbTitle').value,
                 author: document.getElementById('nbAuthor').value,
                 genre: document.getElementById('nbGenre').value,
                 cover: document.getElementById('nbCover').value,
-                pdfUrl: document.getElementById('nbPdf').value,
+                pdfUrl: pdf,
                 createdAt: new Date().toISOString()
             };
             await window.addBookToDB(book);
