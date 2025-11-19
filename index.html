@@ -138,78 +138,80 @@
             --primary-color-light: #3b8aff;
             --text-light: #f0f0f0;
             --text-dark: #333;
-            --sidebar-bg-light: rgba(248, 249, 250, 0.95);
+            --sidebar-bg-light: rgba(255, 255, 255, 0.2); /* Highly transparent white */
             --content-bg-light: rgba(255, 255, 255, 0.95);
-            --border-color-light: #e9ecef;
+            --border-color-light: rgba(13, 110, 253, 0.3); /* Subtle blue border */
             --bg-dark: #050505; 
             --text-dark-theme: #e0e0e0;
-            --sidebar-bg-dark: rgba(30, 30, 30, 0.95);
+            --sidebar-bg-dark: rgba(30, 30, 30, 0.4); /* Highly transparent dark */
             --content-bg-dark: rgba(42, 42, 42, 0.95);
             --border-color-dark: #444;
-            --box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25); /* Deeper main shadow */
-            --card-shadow: 0 4px 15px rgba(0, 0, 0, 0.08); /* Card specific shadow */
+            --box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25); 
+            --card-shadow: 0 4px 15px rgba(0, 0, 0, 0.08); 
         }
 
-        /* Base Styles */
+        /* Base Styles - Full-Screen, Borderless Look */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
         body { 
             background-color: #f0f2f5; 
             color: var(--text-dark); 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
             min-height: 100vh; 
-            padding: 2rem; /* Restore desktop padding */
+            padding: 0;
+            margin: 0;
+            display: flex; /* Ensure container fills viewport */
             transition: background-color 0.3s, color 0.3s; 
             overflow-x: hidden; 
         }
         #particles-js { position: fixed; width: 100%; height: 100%; top: 0; left: 0; z-index: -1; }
 
-        /* Main Container - App Shell */
+        /* Main Container - App Shell (Now full-screen and fluid) */
         .portfolio-container { 
             width: 100%; 
-            max-width: 1200px; 
-            background: var(--content-bg-light); 
-            border-radius: 25px; /* Slightly more rounded */
-            box-shadow: var(--box-shadow); 
+            height: 100vh;
             display: flex; 
             overflow: hidden; 
-            min-height: 85vh; 
-            max-height: 90vh; 
-            backdrop-filter: blur(10px); 
-            border: 1px solid rgba(255,255,255,0.2);
-            transition: all 0.3s ease-in-out;
+            /* Remove fixed radius and strong background/shadow */
+            background: transparent;
+            box-shadow: none;
+            border-radius: 0;
         }
 
-        /* Sidebar - Navigation Panel */
+        /* Sidebar - Floating Glassmorphism Panel */
         .sidebar { 
             width: 300px; 
-            /* Subtle gradient background for app feel */
-            background: linear-gradient(180deg, var(--sidebar-bg-light) 95%, rgba(0,0,0,0.05));
-            padding: 40px 30px; 
+            padding: 30px 20px; 
             text-align: center; 
-            border-right: 1px solid var(--border-color-light); 
             flex-shrink: 0; 
             display: flex; 
             flex-direction: column;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            
+            /* Glassmorphism effect */
+            background: var(--sidebar-bg-light);
+            backdrop-filter: blur(15px);
+            border-right: 1px solid var(--border-color-light); 
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
             transition: all 0.3s ease-in-out;
+            z-index: 100;
         }
-        .sidebar-content { position: sticky; top: 40px; width: 100%; }
-        .profile-photo { width: 120px; height: 120px; border-radius: 50%; border: 4px solid var(--primary-color); object-fit: cover; margin-bottom: 20px; margin-left: auto; margin-right: auto; display: block; background: #ddd; }
-        .name { font-size: 1.5rem; font-weight: 600; margin-bottom: 5px; }
-        .title { font-size: 0.9rem; font-weight: 400; color: var(--text-dark); background: var(--border-color-light); display: inline-block; padding: 5px 15px; border-radius: 15px; margin-bottom: 20px; }
-        .separator { border: 0; height: 1px; background: var(--border-color-light); margin: 20px 0; }
+        .sidebar-content { position: static; width: 100%; }
+        .profile-photo { width: 100px; height: 100px; border-radius: 50%; border: 3px solid var(--primary-color); object-fit: cover; margin-bottom: 15px; margin-left: auto; margin-right: auto; display: block; background: #ddd; }
+        .name { font-size: 1.3rem; font-weight: 600; margin-bottom: 5px; }
+        .title { font-size: 0.8rem; font-weight: 400; color: var(--text-dark); background: var(--border-color-light); display: inline-block; padding: 4px 10px; border-radius: 12px; margin-bottom: 15px; }
+        .separator { border: 0; height: 1px; background: var(--border-color-light); margin: 15px 0; }
         
-        .nav-menu { list-style: none; text-align: left; margin-top: 20px; }
-        .nav-menu li { margin-bottom: 15px; }
+        .nav-menu { list-style: none; text-align: left; margin-top: 15px; }
+        .nav-menu li { margin-bottom: 10px; }
         .nav-btn { 
             width: 100%; 
             text-align: left; 
-            padding: 12px 15px; 
+            padding: 10px 15px; 
             background: transparent; 
             border: none; 
-            border-radius: 10px; 
-            color: #666; 
+            border-radius: 8px; 
+            color: var(--text-dark); /* Use dark color for better contrast on light glass */
             font-weight: 500; 
             cursor: pointer; 
             display: flex; 
@@ -219,26 +221,25 @@
             font-size: 1rem; 
         }
         .nav-btn:hover {
-            transform: scale(1.05); /* Enhance hover */
-        }
-        .nav-btn:active {
-            transform: scale(0.98);
+            background: rgba(13, 110, 253, 0.1); /* Subtle hover effect */
+            transform: scale(1.02);
         }
         .nav-btn.active { 
             background: var(--primary-color); 
             color: white; 
-            transform: translateX(0); /* Clean active state */
+            transform: translateX(0);
             box-shadow: 0 4px 10px rgba(13, 110, 253, 0.4); 
         }
         .nav-btn i { font-size: 1.2rem; }
 
-        /* Main Content - Dashboard View */
+        /* Main Content - Fluid Dashboard */
         .main-content { 
             flex-grow: 1; 
-            padding: 40px; 
+            padding: 50px 40px; 
             position: relative; 
             overflow-y: auto; 
-            height: 100%; 
+            height: 100vh; /* Match viewport height */
+            background: rgba(255, 255, 255, 0.05); /* Very light, transparent overlay */
         }
         
         /* Tabs & Filters */
@@ -258,53 +259,50 @@
         }
         .tab-link.active { color: var(--primary-color); border-bottom-color: var(--primary-color); }
         
-        .section-title { font-size: 1.8rem; margin-bottom: 10px; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
-        .section-subtitle { font-size: 1rem; color: #888; margin-bottom: 30px; }
+        .section-title { font-size: 2rem; margin-bottom: 5px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
+        .section-subtitle { font-size: 1.1rem; color: #666; margin-bottom: 30px; font-weight: 300; }
 
         /* Book Grid - Responsive Fix */
         .portfolio-grid { 
             display: grid; 
             grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); 
-            gap: 25px; 
+            gap: 30px; /* Increased spacing for fluid look */
+            margin-bottom: 40px;
         }
 
         /* Book Card - Bookish Aesthetic with 3D Hover */
         .project-card { 
             background: var(--content-bg-light); 
-            border-radius: 15px; 
+            border-radius: 12px; 
             padding: 15px; 
             transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             position: relative; 
             cursor: pointer; 
-            border: 1px solid transparent; 
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            transform-style: preserve-3d; /* Enable 3D transforms */
+            border: 1px solid rgba(255,255,255,0.8); /* Lighter border for light mode */
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15); /* Sleek shadow */
+            transform-style: preserve-3d;
             transform: perspective(1000px);
         }
         .project-card:hover { 
-            transform: translateY(-8px) rotateX(2deg) perspective(1000px); /* Add a slight 3D tilt */
-            box-shadow: 0 20px 40px rgba(0,0,0,0.15); /* More pronounced shadow on hover */
-            border-color: transparent; 
-        }
-        .project-card:active {
-            transform: scale(0.98);
+            transform: translateY(-10px) rotateX(1deg) perspective(1000px); 
+            box-shadow: 0 25px 50px rgba(0,0,0,0.25); 
         }
         .book-cover { 
             width: 100%; 
             aspect-ratio: 2/3; 
-            border-radius: 10px; 
+            border-radius: 8px; 
             object-fit: cover; 
-            margin-bottom: 15px; 
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2); 
+            margin-bottom: 10px; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3); 
         }
-        .project-card h5 { font-size: 1rem; font-weight: 600; margin-bottom: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .project-card p { font-size: 0.85rem; color: #888; margin-bottom: 10px; }
+        .project-card h5 { font-size: 1rem; font-weight: 600; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .project-card p { font-size: 0.8rem; color: #888; margin-bottom: 5px; }
         
         /* Progress Bar */
         .progress-bar { height: 4px; background: var(--border-color-light); border-radius: 2px; overflow: hidden; margin-top: 10px; }
         .progress-fill { height: 100%; background: var(--primary-color); width: 0%; transition: width 0.5s; }
 
-        /* Buttons */
+        /* Buttons and Modals - Retained styles for function/look */
         .btn-primary { 
             padding: 12px 25px; 
             background: var(--primary-color); 
@@ -324,7 +322,7 @@
         .btn-primary:active { transform: translateY(0); box-shadow: none; }
         
         .toggle-btn { 
-            position: absolute; 
+            position: fixed; /* Fixed position outside main container */
             top: 30px; 
             right: 40px; 
             background: var(--sidebar-bg-light); 
@@ -338,173 +336,110 @@
             border: 1px solid var(--border-color-light); 
             cursor: pointer; 
             font-size: 1.2rem; 
-            z-index: 10; 
+            z-index: 200; /* Higher Z-index to float over sidebar */
             transition: all 0.3s; 
+            backdrop-filter: blur(5px);
         }
-        .toggle-btn:hover { background: var(--primary-color); color: white; border-color: var(--primary-color); }
 
-        /* Dark Mode */
+        /* Dark Mode adjustments for new look */
         body.dark-mode { background-color: var(--bg-dark); color: var(--text-dark-theme); }
-        .dark-mode .portfolio-container { background: var(--content-bg-dark); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5); border-color: rgba(255,255,255,0.05); }
         .dark-mode .sidebar { 
-            background: linear-gradient(180deg, var(--sidebar-bg-dark) 95%, rgba(0,0,0,0.3));
-            border-right-color: var(--border-color-dark); 
+            background: var(--sidebar-bg-dark);
+            border-right-color: var(--border-color-dark);
+            box-shadow: 2px 0 10px rgba(255, 255, 255, 0.05);
         }
-        .dark-mode .title, .dark-mode .nav-btn { background: var(--sidebar-bg-dark); color: var(--text-dark-theme); }
-        .dark-mode .nav-btn:hover, .dark-mode .nav-btn.active { background: var(--primary-color); color: white; }
+        .dark-mode .main-content {
+            background: rgba(0, 0, 0, 0.15); /* More visible overlay in dark mode */
+        }
+        .dark-mode .title { background: var(--content-bg-dark); color: var(--text-dark-theme); }
+        .dark-mode .nav-btn { color: var(--text-dark-theme); }
         .dark-mode .separator, .dark-mode .tabs ul { border-color: var(--border-color-dark); }
         .dark-mode .toggle-btn { background: var(--sidebar-bg-dark); color: var(--text-dark-theme); border-color: var(--border-color-dark); }
-        .dark-mode .toggle-btn:hover { background: var(--primary-color); color: white; }
         .dark-mode .project-card { 
-            background: var(--sidebar-bg-dark); 
-            box-shadow: 0 5px 15px rgba(255, 255, 255, 0.05);
+            background: rgba(30, 30, 30, 0.8);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255,255,255,0.1);
         }
         .dark-mode .project-card:hover { 
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.7);
         }
-        .dark-mode .project-card p { color: #aaa; }
-        .dark-mode .progress-bar { background: #444; }
-        
-        /* Loading & Modals */
-        #loadingScreen { position: fixed; inset: 0; background: var(--content-bg-light); z-index: 9999; display: flex; justify-content: center; align-items: center; font-size: 2rem; font-weight: 700; }
-        .dark-mode #loadingScreen { background: var(--bg-dark); color: white; }
-        .modal-overlay { 
-            position: fixed; 
-            top: 0; 
-            left: 0; 
-            width: 100%; 
-            height: 100%; 
-            background: rgba(0,0,0,0.8); 
-            z-index: 2000; 
-            display: none; 
-            justify-content: center; 
-            align-items: center; 
-            padding: 20px; 
-            opacity: 0; 
-            transition: opacity 0.3s; 
-        }
-        .modal-overlay.active { display: flex; opacity: 1; }
-        .modal-box { 
-            background: var(--content-bg-light); 
-            padding: 30px; 
-            border-radius: 20px; 
-            width: 100%; 
-            max-width: 400px; 
-            position: relative; 
-            transform: translateY(20px); 
-            transition: transform 0.3s;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-        }
-        .modal-overlay.active .modal-box { transform: translateY(0); }
-        .dark-mode .modal-box { background: var(--content-bg-dark); color: var(--text-dark-theme); }
-        
-        .form-group { margin-bottom: 15px; }
-        .form-input { 
-            width: 100%; 
-            padding: 12px; 
-            border-radius: 10px; 
-            border: 1px solid var(--border-color-light); 
-            background: var(--sidebar-bg-light); 
-            color: var(--text-dark); 
-            outline: none; 
-        }
+        .dark-mode .section-subtitle { color: #aaa; }
         .dark-mode .form-input { background: var(--sidebar-bg-dark); border-color: var(--border-color-dark); color: white; }
+        .dark-mode .modal-box { background: rgba(30, 30, 30, 0.95); }
 
-        /* PDF Reader specific */
-        #readerModal { position: fixed; inset: 0; z-index: 3000; background: #1a1a1a; display: none; flex-direction: column; }
-        #readerModal.active { display: flex; }
-        .reader-header { height: 60px; background: #000; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; color: white; }
-        .reader-body { flex-grow: 1; position: relative; }
-        .reader-controls { 
-            position: absolute; 
-            bottom: 20px; 
-            left: 50%; 
-            transform: translateX(-50%); 
-            background: rgba(0,0,0,0.8); 
-            padding: 10px 20px; 
-            border-radius: 30px; 
-            display: flex; 
-            gap: 10px; 
-            align-items: center; 
-            color: white; 
-            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
-        }
 
-        /* Animations */
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .loading-o { display: inline-block; width: 20px; height: 20px; border: 3px solid var(--primary-color); border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite; }
-
-        /* Responsive Styles */
-        @media (min-width: 1201px) {
-            .portfolio-container { 
-                border-radius: 25px;
-            }
-        }
-        
-        @media (max-width: 1200px) {
-            .portfolio-container { max-height: 100vh; }
-        }
-
+        /* Responsive Styles (Mobile-First Dashboard) */
         @media (max-width: 900px) {
-            body { padding: 0; align-items: flex-start; }
+            body { padding: 0; }
             .portfolio-container { 
                 flex-direction: column; 
-                height: auto; 
-                min-height: 100vh; 
-                max-height: unset;
-                border-radius: 0; 
-                width: 100%; 
-                border: none;
-                box-shadow: none;
+                height: 100vh;
             }
+            .toggle-btn { top: 15px; right: 15px; z-index: 2000; }
+            
+            /* Sidebar becomes fixed header/nav */
             .sidebar { 
                 width: 100%; 
-                border-right: none; 
-                border-bottom: 1px solid var(--border-color-light); 
-                padding: 15px 10px; /* Reduced padding */
-                order: -1; 
+                height: auto;
+                position: fixed; 
+                bottom: 0;
+                top: auto;
+                padding: 10px 0;
+                border: none;
+                border-top: 1px solid var(--border-color-light);
+                z-index: 1000;
+                background: var(--sidebar-bg-light);
             }
-            .sidebar-content { position: static; }
-            .profile-photo { width: 80px; height: 80px; }
+            .dark-mode .sidebar { border-top: 1px solid var(--border-color-dark); }
+
+            .sidebar-content { 
+                display: flex; 
+                flex-direction: column;
+            }
+            .sidebar .auth-info { display: none; } /* Hide user info block on mobile */
             
             /* Horizontal scrolling nav bar */
             .nav-menu { 
                 display: flex; 
                 overflow-x: auto; 
                 gap: 10px; 
-                padding-bottom: 5px; 
+                padding: 0 10px;
                 white-space: nowrap; 
-                margin-top: 15px;
+                margin: 0;
             }
-            .nav-menu li { margin-bottom: 0; flex-shrink: 0; }
+            .nav-menu li { margin: 0; flex-shrink: 0; }
             .nav-btn { 
-                padding: 8px 15px; 
-                font-size: 0.9rem; 
-                background: var(--border-color-light); 
-                border-radius: 20px; 
+                padding: 8px 12px; 
+                font-size: 0.8rem; 
                 justify-content: center; 
+                background: rgba(0,0,0,0.05); /* Mobile background */
+                color: #666;
             }
-            .dark-mode .nav-btn { background: var(--border-color-dark); color: var(--text-dark-theme); }
-            .nav-btn:hover { transform: none; }
-            .nav-btn.active { transform: none; box-shadow: none; }
-            .nav-btn i { display: none; } /* Hide icons in mobile nav for space */
+            .dark-mode .nav-btn { background: rgba(255,255,255,0.05); color: #aaa; }
+            .nav-btn i { display: none; }
+            .nav-btn.active { color: white; background: var(--primary-color); }
             
-            .main-content { padding: 20px; overflow-y: visible; }
-            .section-title { font-size: 1.5rem; }
-            .section-subtitle { font-size: 0.9rem; margin-bottom: 20px; }
-            .toggle-btn { top: 15px; right: 15px; width: 35px; height: 35px; font-size: 1rem; }
-
-            /* Mobile Grid: Force 2 columns */
+            /* Main Content takes over full screen above the fixed nav */
+            .main-content { 
+                padding: 20px 15px 70px 15px; /* Add bottom padding to clear the fixed nav bar */
+                overflow-y: auto; 
+                height: 100%;
+            }
+            .section-title { font-size: 1.6rem; }
+            .section-subtitle { margin-bottom: 15px; font-size: 0.9rem; }
             .portfolio-grid { 
                 grid-template-columns: repeat(2, 1fr); 
                 gap: 15px;
             }
-            .project-card { 
-                padding: 10px;
-                border-radius: 10px;
-            }
+            .project-card { padding: 10px; }
             .project-card h5 { font-size: 0.9rem; }
-            .project-card p { font-size: 0.75rem; margin-bottom: 5px; }
+            .project-card p { font-size: 0.75rem; }
+            
+            /* Branding adjustment */
+            .sidebar .branding {
+                display: none; /* Hide branding on mobile to save space, relies on toggle-btn */
+            }
+            .sidebar #authBtn { display: none; } /* Handle auth via mobile header or dedicated modal */
         }
     </style>
 </head>
@@ -530,20 +465,21 @@
         <aside class="sidebar">
             <div class="sidebar-content">
                 <!-- Branding / Logo -->
-                <div style="margin-bottom: 30px; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                <div class="branding" style="margin-bottom: 30px; display: flex; align-items: center; justify-content: center; gap: 10px;">
                     <i class="ph-fill ph-book-open-text" style="font-size: 2rem; color: var(--primary-color);"></i>
                     <h2 style="font-size: 1.8rem; font-weight: 700; margin: 0;">Blue<span style="color: var(--primary-color);">Reader</span></h2>
                 </div>
 
-                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Guest" id="userAvatar" class="profile-photo" alt="Profile">
-                <h1 class="name" id="userName">Guest Reader</h1>
-                <span class="title" id="userStatus">Log in to sync</span>
-                
-                <div class="separator"></div>
+                <div class="auth-info">
+                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Guest" id="userAvatar" class="profile-photo" alt="Profile">
+                    <h1 class="name" id="userName">Guest Reader</h1>
+                    <span class="title" id="userStatus">Log in to sync</span>
+                    <div class="separator"></div>
+                </div>
 
                 <ul class="nav-menu">
-                    <li><button id="nav-home" class="nav-btn active" onclick="switchTab('home', this)"><i class="ph-bold ph-house"></i> Home</button></li>
-                    <li><button id="nav-library" class="nav-btn" onclick="switchTab('library', this)"><i class="ph-bold ph-books"></i> Library</button></li>
+                    <li><button id="nav-home" class="nav-btn active" onclick="switchTab('home', this)"><i class="ph-bold ph-house"></i> Discover</button></li>
+                    <li><button id="nav-library" class="nav-btn" onclick="switchTab('library', this)"><i class="ph-bold ph-books"></i> My Library</button></li>
                     <li><button id="nav-continue" class="nav-btn" onclick="switchTab('continue', this)"><i class="ph-bold ph-clock-counter-clockwise"></i> Continue</button></li>
                     <li id="adminBtn" style="display: none;"><button class="nav-btn" onclick="openAdmin()"><i class="ph-bold ph-plus-circle"></i> Add Book</button></li>
                 </ul>
@@ -561,9 +497,9 @@
             <!-- View: Home -->
             <div id="view-home" class="tab-content" style="display: block;">
                 <div class="section-title">
-                    <h2>Discover</h2>
+                    <h2>Discover New Worlds</h2>
                 </div>
-                <p class="section-subtitle">Explore our curated collection of timeless classics.</p>
+                <p class="section-subtitle">Explore our curated collection of free e-books by genre.</p>
                 
                 <div class="tabs">
                     <ul id="genreTabs">
@@ -582,7 +518,7 @@
                 <div class="section-title">
                     <h2>My Library</h2>
                 </div>
-                <p class="section-subtitle">Books you have favorited or started.</p>
+                <p class="section-subtitle">Your personal collection of favorited and in-progress books.</p>
                 <div class="portfolio-grid" id="libraryGrid">
                     <div style="grid-column: 1/-1; text-align: center; color: #888; padding: 20px;">
                         Log in and start reading to build your library.
@@ -595,7 +531,7 @@
                 <div class="section-title">
                     <h2>Continue Reading</h2>
                 </div>
-                <p class="section-subtitle">Pick up where you left off.</p>
+                <p class="section-subtitle">Pick up exactly where you left off on your latest reads.</p>
                 <div class="portfolio-grid" id="continueGrid">
                     <p style="color:#888; grid-column: 1/-1; text-align:center;">Start reading a book to see it here.</p>
                 </div>
@@ -886,7 +822,7 @@
             
             // Show selected
             document.getElementById('view-'+tabName).style.display = 'block';
-            btn.classList.add('active');
+            if (btn) btn.classList.add('active'); // Check if button is passed (e.g., from initial login)
             
             // Re-render to ensure current tab data is fresh
             render(); 
@@ -925,7 +861,7 @@
                 if(libraryBooks.length > 0) {
                      document.getElementById('libraryGrid').innerHTML = libraryBooks.map(b => getBookCard(b, false)).join('');
                 } else {
-                     document.getElementById('libraryGrid').innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #888; padding: 20px;">Your library is empty. Go to the Home tab and start reading or add favorites!</div>';
+                     document.getElementById('libraryGrid').innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #888; padding: 20px;">Your library is empty. Go to the Discover tab and start reading or add favorites!</div>';
                 }
             } else {
                 document.getElementById('libraryGrid').innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #888; padding: 20px;">Log in to build your personal library.</div>';
@@ -1082,15 +1018,13 @@
 
             appState.currentBook = book;
             document.getElementById('readerTitle').innerText = book.title;
-            // Append #toolbar=0 to hide the download/print buttons where possible
-            document.getElementById('pdfFrame').src = book.pdfUrl + (book.pdfUrl.includes('#') ? '&' : '#') + "toolbar=0"; 
-            document.getElementById('readerModal').classList.add('active');
             
             // Set initial page number
             const initialPage = appState.progress[id] ? appState.progress[id].page : 1;
             document.getElementById('pageInput').value = initialPage;
-            // Jump PDF to specific page (if supported by iframe source)
+            // Jump PDF to specific page and hide toolbar
             document.getElementById('pdfFrame').src = book.pdfUrl + (book.pdfUrl.includes('#') ? '&' : '#') + `page=${initialPage}&toolbar=0`;
+            document.getElementById('readerModal').classList.add('active');
 
 
             // Update heart
