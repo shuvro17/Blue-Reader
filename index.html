@@ -3,197 +3,239 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>BlueReader | Modern Library</title>
+    <title>BlueReader | Fluid UI</title>
 
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
 
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Plus+Jakarta+Sans:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+
     <style>
-      /* --- Fonts & Variables --- */
-      @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
-
       :root {
-        /* Light Mode (Default) */
-        --bg-body: #f8fafc; /* Slate 50 */
-        --bg-surface: #ffffff;
-        --bg-subtle: #f1f5f9; /* Slate 100 */
+        --primary: #6366f1;
+        --secondary: #a855f7;
+        --accent: #ec4899;
 
-        --text-main: #0f172a; /* Slate 900 */
-        --text-muted: #64748b; /* Slate 500 */
-        --text-on-primary: #ffffff;
+        /* Glass Vars */
+        --glass-bg: rgba(255, 255, 255, 0.65);
+        --glass-border: rgba(255, 255, 255, 0.5);
+        --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
 
-        --primary: #6366f1; /* Indigo 500 */
-        --primary-hover: #4f46e5; /* Indigo 600 */
+        /* Text Vars */
+        --text-main: #0f172a;
+        --text-muted: #475569;
 
-        --border: #e2e8f0; /* Slate 200 */
-        --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-        --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1),
-          0 2px 4px -2px rgb(0 0 0 / 0.1);
-        --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+        /* Input Vars (Light Mode Default) */
+        --input-bg: rgba(255, 255, 255, 0.9);
+        --input-text: #1e293b;
+        --input-border: #cbd5e1;
 
-        --radius: 8px;
-        --header-height: 64px;
+        --radius-lg: 24px;
+        --radius-md: 16px;
       }
 
-      /* Dark Mode Override */
       .dark-mode {
-        --bg-body: #0f172a; /* Slate 900 */
-        --bg-surface: #1e293b; /* Slate 800 */
-        --bg-subtle: #334155; /* Slate 700 */
-
+        --glass-bg: rgba(15, 23, 42, 0.6);
+        --glass-border: rgba(255, 255, 255, 0.1);
         --text-main: #f8fafc;
-        --text-muted: #94a3b8;
+        --text-muted: #cbd5e1;
+        --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
 
-        --primary: #818cf8; /* Indigo 400 */
-        --primary-hover: #6366f1;
-
-        --border: #334155;
-        --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
-        --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.3);
+        /* Input Vars (Dark Mode) */
+        --input-bg: rgba(2, 6, 23, 0.6);
+        --input-text: #f1f5f9;
+        --input-border: #334155;
       }
 
-      /* --- Reset & Base --- */
       * {
         margin: 0;
         padding: 0;
         box-sizing: border-box;
-        font-family: "Inter", sans-serif;
-        -webkit-font-smoothing: antialiased;
+        font-family: "Plus Jakarta Sans", sans-serif;
       }
 
       body {
-        background-color: var(--bg-body);
+        background: #f0f2f5;
         color: var(--text-main);
-        transition: background-color 0.3s ease, color 0.3s ease;
-        padding-top: var(--header-height);
         min-height: 100vh;
-        display: flex;
-        flex-direction: column;
+        overflow-x: hidden;
+        transition: color 0.3s ease, background 0.3s ease;
+      }
+      .dark-mode body {
+        background: #020617;
       }
 
-      /* --- Navigation Bar (Desktop) --- */
-      .navbar {
+      /* --- 🌊 FLUID BACKGROUND ANIMATION --- */
+      .background-fluid {
         position: fixed;
         top: 0;
         left: 0;
         width: 100%;
-        height: var(--header-height);
-        background-color: rgba(255, 255, 255, 0.8); /* Glass effect base */
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        border-bottom: 1px solid var(--border);
-        z-index: 100;
+        height: 100%;
+        z-index: -1;
+        overflow: hidden;
+        background: linear-gradient(145deg, #e0e7ff, #f3e8ff);
+      }
+      .dark-mode .background-fluid {
+        background: #020617;
+      }
+
+      .blob {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(80px);
+        opacity: 0.6;
+        animation: float 20s infinite ease-in-out alternate;
+      }
+      .blob-1 {
+        width: 500px;
+        height: 500px;
+        background: var(--primary);
+        top: -10%;
+        left: -10%;
+        animation-delay: 0s;
+      }
+      .blob-2 {
+        width: 400px;
+        height: 400px;
+        background: var(--secondary);
+        bottom: 10%;
+        right: -5%;
+        animation-delay: -5s;
+      }
+      .blob-3 {
+        width: 300px;
+        height: 300px;
+        background: var(--accent);
+        top: 40%;
+        left: 40%;
+        animation-delay: -10s;
+      }
+
+      @keyframes float {
+        0% {
+          transform: translate(0, 0) scale(1);
+        }
+        33% {
+          transform: translate(30px, -50px) scale(1.1);
+        }
+        66% {
+          transform: translate(-20px, 20px) scale(0.9);
+        }
+        100% {
+          transform: translate(0, 0) scale(1);
+        }
+      }
+
+      /* --- Navbar --- */
+      .navbar {
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 90%;
+        max-width: 1200px;
+        height: 70px;
+        background: var(--glass-bg);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid var(--glass-border);
+        border-radius: 100px;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 0 24px;
-      }
-      .dark-mode .navbar {
-        background-color: rgba(15, 23, 42, 0.8);
+        padding: 0 30px;
+        z-index: 100;
+        box-shadow: var(--glass-shadow);
+        transition: all 0.3s ease;
       }
 
-      .nav-brand {
+      .logo {
+        font-family: "Outfit", sans-serif;
+        font-weight: 800;
+        font-size: 1.4rem;
         display: flex;
         align-items: center;
-        gap: 10px;
-        font-weight: 700;
-        font-size: 1.25rem;
+        gap: 8px;
         color: var(--text-main);
         text-decoration: none;
       }
-      .nav-brand i {
+      .logo i {
         color: var(--primary);
-        font-size: 1.5rem;
       }
 
       .nav-links {
         display: flex;
-        gap: 8px;
-        height: 100%;
-        align-items: center;
+        gap: 10px;
       }
-      .nav-item {
+      .nav-btn {
+        padding: 10px 20px;
+        border-radius: 100px;
         text-decoration: none;
         color: var(--text-muted);
+        font-weight: 600;
         font-size: 0.9rem;
-        font-weight: 500;
-        padding: 8px 16px;
-        border-radius: 99px; /* Pill shape */
-        transition: all 0.2s;
+        transition: all 0.3s ease;
       }
-      .nav-item:hover {
+      .nav-btn:hover {
         color: var(--primary);
-        background-color: var(--bg-subtle);
+        background: rgba(255, 255, 255, 0.2);
       }
-      .nav-item.active {
-        color: var(--text-on-primary);
-        background-color: var(--primary);
+      .nav-btn.active {
+        background: var(--text-main);
+        color: #fff !important;
+      }
+      .dark-mode .nav-btn.active {
+        background: #fff;
+        color: #000 !important;
       }
 
       .nav-actions {
         display: flex;
-        gap: 12px;
+        gap: 10px;
         align-items: center;
       }
 
-      /* Theme Toggle */
       .icon-btn {
-        background: transparent;
-        border: 1px solid var(--border);
-        color: var(--text-muted);
-        width: 36px;
-        height: 36px;
-        border-radius: var(--radius);
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        border: 1px solid var(--glass-border);
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--text-main);
+        cursor: pointer;
         display: flex;
         align-items: center;
         justify-content: center;
-        cursor: pointer;
-        transition: all 0.2s;
+        font-size: 1.2rem;
+        transition: 0.3s;
       }
       .icon-btn:hover {
-        border-color: var(--primary);
-        color: var(--primary);
+        background: var(--primary);
+        color: white;
+        transform: rotate(15deg);
       }
 
-      /* Primary Button */
-      .btn-primary {
-        background-color: var(--primary);
-        color: var(--text-on-primary);
-        border: none;
-        padding: 8px 16px;
-        border-radius: var(--radius);
-        font-weight: 500;
-        font-size: 0.9rem;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        transition: background-color 0.2s;
-      }
-      .btn-primary:hover {
-        background-color: var(--primary-hover);
-      }
-
-      /* --- Page Container --- */
-      .container {
-        width: 100%;
+      /* --- Main Layout --- */
+      .main-container {
         max-width: 1200px;
-        margin: 0 auto;
-        padding: 32px 24px;
-        flex: 1;
+        margin: 120px auto 40px;
+        padding: 0 20px;
       }
-
-      /* Page Transitions */
       .page-view {
         display: none;
-        animation: fadeUp 0.3s ease-out;
+        animation: slideUp 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
       }
       .page-view.active {
         display: block;
       }
-      @keyframes fadeUp {
+
+      @keyframes slideUp {
         from {
           opacity: 0;
-          transform: translateY(10px);
+          transform: translateY(40px);
         }
         to {
           opacity: 1;
@@ -201,197 +243,233 @@
         }
       }
 
-      /* --- Hero Section (Home) --- */
-      .hero {
-        text-align: center;
-        margin-bottom: 48px;
-        padding: 40px 20px;
-        background: linear-gradient(
-          135deg,
-          var(--bg-subtle) 0%,
-          var(--bg-surface) 100%
-        );
-        border-radius: 16px;
-        border: 1px solid var(--border);
+      /* --- Hero Banner --- */
+      .hero-banner {
+        width: 100%;
+        border-radius: var(--radius-lg);
+        background: rgba(255, 255, 255, 0.3);
+        border: 1px solid var(--glass-border);
+        padding: 40px;
+        margin-bottom: 50px;
+        display: flex;
+        align-items: center;
+        gap: 40px;
+        backdrop-filter: blur(10px);
+        position: relative;
+        overflow: hidden;
       }
-      .hero h1 {
-        font-size: 2.5rem;
+      .dark-mode .hero-banner {
+        background: rgba(0, 0, 0, 0.3);
+      }
+
+      .hero-content {
+        flex: 1;
+        z-index: 2;
+      }
+      .hero-badge {
+        display: inline-block;
+        padding: 6px 12px;
+        background: var(--primary);
+        color: white;
+        border-radius: 100px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        margin-bottom: 15px;
+      }
+      .hero-title {
+        font-family: "Outfit", sans-serif;
+        font-size: 3rem;
         font-weight: 800;
-        letter-spacing: -0.02em;
-        margin-bottom: 12px;
-        color: var(--text-main);
+        line-height: 1.1;
+        margin-bottom: 15px;
       }
-      .hero p {
+      .hero-desc {
         font-size: 1.1rem;
         color: var(--text-muted);
-        max-width: 600px;
-        margin: 0 auto 24px;
+        margin-bottom: 25px;
+        max-width: 500px;
+      }
+      .hero-img {
+        width: 200px;
+        height: 300px;
+        object-fit: cover;
+        border-radius: var(--radius-md);
+        transform: rotate(-5deg);
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+        z-index: 2;
+        transition: 0.3s;
+      }
+      .hero-img:hover {
+        transform: rotate(0deg) scale(1.05);
       }
 
-      /* --- Filters (Modern Tags) --- */
-      .filter-container {
+      /* --- Filters --- */
+      .filters {
         display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
-        margin-bottom: 32px;
-        justify-content: center;
+        gap: 12px;
+        margin-bottom: 30px;
+        overflow-x: auto;
+        padding-bottom: 10px;
       }
-      .filter-tag {
-        background: var(--bg-surface);
-        border: 1px solid var(--border);
+      .filter-pill {
+        padding: 8px 20px;
+        border-radius: 100px;
+        border: 1px solid var(--glass-border);
+        background: var(--glass-bg);
         color: var(--text-muted);
-        padding: 6px 16px;
-        border-radius: 6px;
-        font-size: 0.85rem;
-        font-weight: 500;
         cursor: pointer;
-        transition: all 0.2s;
-      }
-      .filter-tag:hover {
-        border-color: var(--primary);
-        color: var(--primary);
-      }
-      .filter-tag.active {
-        background: var(--bg-subtle);
-        border-color: var(--primary);
-        color: var(--primary);
         font-weight: 600;
+        white-space: nowrap;
+        transition: 0.3s;
+      }
+      .filter-pill.active {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
       }
 
-      /* --- Book Grid --- */
+      /* --- Grid --- */
       .grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-        gap: 24px;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 30px;
       }
+
       .book-card {
-        background: var(--bg-surface);
-        border: 1px solid var(--border);
-        border-radius: var(--radius);
-        overflow: hidden;
-        transition: all 0.2s ease;
-        cursor: pointer;
-        display: flex;
-        flex-direction: column;
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-md);
+        padding: 15px;
         position: relative;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        cursor: pointer;
       }
       .book-card:hover {
-        transform: translateY(-4px);
-        box-shadow: var(--shadow-lg);
+        transform: translateY(-10px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
         border-color: var(--primary);
       }
-      .book-cover-wrap {
+
+      .card-img {
         width: 100%;
         aspect-ratio: 2/3;
-        overflow: hidden;
-        background: var(--bg-subtle);
-      }
-      .book-cover {
-        width: 100%;
-        height: 100%;
         object-fit: cover;
-        transition: transform 0.3s;
+        border-radius: 12px;
+        margin-bottom: 15px;
       }
-      .book-card:hover .book-cover {
-        transform: scale(1.05);
-      }
-
-      .book-info {
-        padding: 16px;
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-      }
-      .book-title {
-        font-weight: 600;
-        font-size: 1rem;
-        margin-bottom: 4px;
-        color: var(--text-main);
-        line-height: 1.4;
-      }
-      .book-author {
-        font-size: 0.85rem;
-        color: var(--text-muted);
-        margin-bottom: 12px;
-      }
-
-      .progress-track {
-        width: 100%;
-        height: 4px;
-        background: var(--bg-subtle);
-        border-radius: 2px;
-        margin-top: auto;
+      .card-title {
+        font-family: "Outfit", sans-serif;
+        font-weight: 700;
+        font-size: 1.1rem;
+        margin-bottom: 5px;
+        white-space: nowrap;
         overflow: hidden;
+        text-overflow: ellipsis;
       }
-      .progress-bar {
-        height: 100%;
-        background: var(--primary);
-        width: 0%;
+      .card-author {
+        font-size: 0.9rem;
+        color: var(--text-muted);
       }
-      .fav-badge {
+
+      .fav-btn-card {
         position: absolute;
-        top: 10px;
-        right: 10px;
-        background: rgba(255, 255, 255, 0.9);
-        width: 28px;
-        height: 28px;
+        top: 25px;
+        right: 25px;
+        background: white;
+        width: 35px;
+        height: 35px;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
         color: #ef4444;
-        box-shadow: var(--shadow-sm);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
       }
 
-      /* --- Empty States --- */
-      .empty-state {
-        text-align: center;
-        padding: 60px 20px;
-        background: var(--bg-subtle);
-        border-radius: 16px;
-        border: 1px dashed var(--border);
+      /* --- Inputs --- */
+      .input-group {
+        margin-bottom: 20px;
       }
-      .empty-icon {
-        font-size: 3rem;
-        color: var(--text-muted);
-        margin-bottom: 16px;
+      .glass-input {
+        width: 100%;
+        padding: 14px;
+        border-radius: 12px;
+        background: var(--input-bg);
+        color: var(--input-text);
+        border: 1px solid var(--input-border);
+        outline: none;
+        transition: 0.3s;
+        font-size: 0.95rem;
       }
-      .empty-text {
-        color: var(--text-muted);
-        font-size: 1rem;
+      .glass-input:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
       }
 
-      /* --- Modals --- */
-      .modal-backdrop {
+      .btn-main {
+        width: 100%;
+        padding: 14px;
+        border-radius: 12px;
+        border: none;
+        background: var(--text-main);
+        color: var(--input-bg);
+        font-weight: 700;
+        cursor: pointer;
+        transition: 0.3s;
+      }
+      .btn-main:hover {
+        transform: scale(1.02);
+        opacity: 0.9;
+      }
+
+      /* --- Admin Panel --- */
+      .admin-panel {
+        background: var(--glass-bg);
+        padding: 40px;
+        border-radius: var(--radius-lg);
+        border: 1px solid var(--glass-border);
+        max-width: 600px;
+        margin: 0 auto;
+      }
+
+      /* --- Modern Auth Modal (Fixed) --- */
+      .modal-overlay {
         position: fixed;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
-        background: rgba(0, 0, 0, 0.5);
-        backdrop-filter: blur(4px);
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(10px);
         z-index: 200;
         display: none;
         align-items: center;
         justify-content: center;
+        /* FIX: Makes background clickable */
+        cursor: pointer;
       }
-      .modal-backdrop.active {
+      .modal-overlay.active {
         display: flex;
       }
-      .modal {
-        background: var(--bg-surface);
+
+      .auth-card {
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
         width: 100%;
         max-width: 420px;
-        border-radius: 12px;
-        padding: 32px;
-        margin: 20px;
-        box-shadow: var(--shadow-lg);
+        padding: 40px;
+        border-radius: 24px;
+        box-shadow: var(--glass-shadow);
         position: relative;
-        animation: scaleIn 0.2s ease;
+        text-align: center;
+        animation: popIn 0.3s ease;
+        /* FIX: Prevents background clicks from affecting the card */
+        cursor: default;
       }
-      @keyframes scaleIn {
+
+      @keyframes popIn {
         from {
-          transform: scale(0.95);
+          transform: scale(0.9);
           opacity: 0;
         }
         to {
@@ -400,359 +478,382 @@
         }
       }
 
-      .modal-title {
-        font-size: 1.5rem;
+      .auth-title {
+        font-family: "Outfit", sans-serif;
+        font-size: 2rem;
         font-weight: 700;
         margin-bottom: 8px;
-        text-align: center;
       }
-      .modal-desc {
-        text-align: center;
+      .auth-subtitle {
         color: var(--text-muted);
-        margin-bottom: 24px;
-      }
-      .form-group {
-        margin-bottom: 16px;
-      }
-      .input-field {
-        width: 100%;
-        padding: 10px 12px;
-        border: 1px solid var(--border);
-        border-radius: var(--radius);
-        background: var(--bg-body);
-        color: var(--text-main);
-        outline: none;
+        margin-bottom: 30px;
         font-size: 0.95rem;
-        transition: border-color 0.2s;
       }
-      .input-field:focus {
-        border-color: var(--primary);
-        ring: 2px solid var(--primary);
-      }
-      .close-modal {
-        position: absolute;
-        top: 16px;
-        right: 16px;
-        background: none;
-        border: none;
-        color: var(--text-muted);
+
+      .btn-google {
+        width: 100%;
+        padding: 12px;
+        border-radius: 12px;
+        border: 1px solid var(--input-border);
+        background: #ffffff;
+        color: #1f2937;
+        font-weight: 600;
         cursor: pointer;
-        font-size: 1.2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 20px;
+        transition: 0.2s;
+      }
+      .btn-google:hover {
+        background: #f9fafb;
+        border-color: #9ca3af;
+      }
+      .dark-mode .btn-google {
+        background: #1e293b;
+        color: white;
+        border-color: #334155;
+      }
+      .dark-mode .btn-google:hover {
+        background: #334155;
+      }
+
+      .divider {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        color: var(--text-muted);
+        font-size: 0.8rem;
+        margin-bottom: 20px;
+      }
+      .divider::before,
+      .divider::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: var(--glass-border);
+      }
+
+      .btn-primary {
+        width: 100%;
+        padding: 12px;
+        background: var(--primary);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: 0.2s;
+      }
+      .btn-primary:hover {
+        background: #4f46e5;
       }
 
       /* --- Reader View --- */
-      .reader-overlay {
+      .reader-view {
         position: fixed;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
-        background: var(--bg-surface);
+        background: var(--glass-bg);
         z-index: 300;
         display: none;
         flex-direction: column;
       }
-      .reader-toolbar {
-        height: 60px;
-        border-bottom: 1px solid var(--border);
+      .reader-top {
+        height: 70px;
+        padding: 0 30px;
+        border-bottom: 1px solid var(--glass-border);
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 0 20px;
-        background: var(--bg-surface);
-      }
-      .reader-frame {
-        flex: 1;
-        border: none;
-        width: 100%;
+        background: var(--glass-bg);
+        backdrop-filter: blur(10px);
       }
 
-      /* --- Mobile Nav --- */
+      /* --- Mobile Tweaks --- */
       .mobile-nav {
         display: none;
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        height: 64px;
-        background: rgba(255, 255, 255, 0.95);
-        border-top: 1px solid var(--border);
-        backdrop-filter: blur(10px);
-        z-index: 150;
-        justify-content: space-around;
-        align-items: center;
       }
-      .dark-mode .mobile-nav {
-        background: rgba(30, 41, 59, 0.95);
-      }
-      .mobile-link {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 4px;
-        color: var(--text-muted);
-        text-decoration: none;
-        font-size: 0.75rem;
-        font-weight: 500;
-        background: none;
-        border: none;
-        cursor: pointer;
-        width: 100%;
-      }
-      .mobile-link i {
-        font-size: 1.4rem;
-      }
-      .mobile-link.active {
-        color: var(--primary);
-      }
-
-      /* --- Responsive --- */
       @media (max-width: 768px) {
-        .nav-links {
-          display: none;
-        } /* Hide desktop links */
         .navbar {
-          justify-content: space-between;
+          top: auto;
+          bottom: 20px;
+          padding: 0 20px;
+          justify-content: space-around;
+          height: 65px;
+        }
+        .nav-links,
+        .logo span,
+        .nav-actions {
+          display: none;
         }
         .mobile-nav {
-          display: flex;
+          display: contents;
         }
-        .container {
-          padding-bottom: 80px;
-        } /* Space for bottom nav */
-        .hero h1 {
-          font-size: 1.8rem;
+        .mobile-icon {
+          font-size: 1.5rem;
+          color: var(--text-muted);
+          cursor: pointer;
+        }
+        .mobile-icon.active {
+          color: var(--primary);
+        }
+        .main-container {
+          margin-top: 40px;
+          padding-bottom: 100px;
+        }
+        .hero-banner {
+          flex-direction: column-reverse;
+          text-align: center;
+          padding: 25px;
+        }
+        .hero-img {
+          margin-bottom: 20px;
+          width: 140px;
+          height: 210px;
         }
       }
     </style>
   </head>
   <body>
+    <div class="background-fluid">
+      <div class="blob blob-1"></div>
+      <div class="blob blob-2"></div>
+      <div class="blob blob-3"></div>
+    </div>
+
     <nav class="navbar">
-      <a href="#home" class="nav-brand">
-        <i class="ph-fill ph-books"></i> BlueReader
-      </a>
+      <a href="#home" class="logo"
+        ><i class="ph-fill ph-flying-saucer"></i> <span>BlueReader</span></a
+      >
 
       <div class="nav-links">
-        <a href="#home" class="nav-item active">Discover</a>
-        <a href="#library" class="nav-item">Library</a>
-        <a href="#continue" class="nav-item">Continue</a>
-        <a href="#admin" class="nav-item" id="nav-admin" style="display: none"
+        <a href="#home" class="nav-btn active">Discover</a>
+        <a href="#library" class="nav-btn">Library</a>
+        <a href="#continue" class="nav-btn">Continue</a>
+        <a href="#admin" class="nav-btn" id="nav-admin" style="display: none"
           >Admin</a
         >
       </div>
 
       <div class="nav-actions">
-        <button
-          class="icon-btn"
-          onclick="window.app.toggleTheme()"
-          aria-label="Toggle Theme"
-        >
+        <button class="icon-btn" onclick="app.toggleTheme()">
           <i class="ph-fill ph-moon" id="themeIcon"></i>
         </button>
         <button
-          class="btn-primary"
-          id="desktopAuthBtn"
-          onclick="window.app.handleAuthClick()"
+          class="nav-btn"
+          style="background: var(--primary); color: white"
+          id="authBtn"
+          onclick="app.handleAuth()"
         >
           Sign In
         </button>
       </div>
+
+      <i
+        class="ph-bold ph-compass mobile-icon active"
+        onclick="location.hash='#home'"
+      ></i>
+      <i
+        class="ph-bold ph-books mobile-icon"
+        onclick="location.hash='#library'"
+      ></i>
+      <i
+        class="ph-bold ph-clock-counter-clockwise mobile-icon"
+        onclick="location.hash='#continue'"
+      ></i>
+      <i
+        class="ph-bold ph-user-circle mobile-icon"
+        onclick="app.handleAuth()"
+      ></i>
     </nav>
 
-    <div class="container">
+    <div class="main-container">
       <div id="page-home" class="page-view active">
-        <div class="hero">
-          <h1>Explore a World of Knowledge</h1>
-          <p>
-            Access a curated collection of classic literature and modern
-            insights. Free, fast, and accessible anywhere.
-          </p>
+        <div class="hero-banner" id="homeBanner">
+          <div class="hero-content">
+            <span class="hero-badge">FEATURED READ</span>
+            <h1 class="hero-title">The Great Gatsby</h1>
+            <p class="hero-desc">
+              Immerse yourself in the roaring twenties with F. Scott
+              Fitzgerald's timeless masterpiece of obsession and dreams.
+            </p>
+            <button
+              class="nav-btn"
+              style="background: var(--text-main); color: var(--glass-bg)"
+              onclick="app.openReader('b1')"
+            >
+              Read Now
+            </button>
+          </div>
+          <img
+            src="https://upload.wikimedia.org/wikipedia/commons/7/7a/The_Great_Gatsby_Cover_1925_Retouched.jpg"
+            class="hero-img"
+            alt="Featured"
+          />
         </div>
 
-        <div class="filter-container" id="genreTabs"></div>
+        <div class="filters" id="genreFilters"></div>
 
         <div class="grid" id="publicGrid"></div>
       </div>
 
       <div id="page-library" class="page-view">
-        <div style="margin-bottom: 24px">
-          <h2 style="font-size: 1.8rem; color: var(--text-main)">My Library</h2>
-          <p style="color: var(--text-muted)">
-            Your personal collection of saved books.
-          </p>
-        </div>
+        <h1 style="font-family: 'Outfit'; font-size: 2rem; margin-bottom: 20px">
+          My Collection
+        </h1>
         <div class="grid" id="libraryGrid"></div>
       </div>
 
       <div id="page-continue" class="page-view">
-        <div style="margin-bottom: 24px">
-          <h2 style="font-size: 1.8rem; color: var(--text-main)">
-            Continue Reading
-          </h2>
-          <p style="color: var(--text-muted)">
-            Jump back in right where you left off.
-          </p>
-        </div>
+        <h1 style="font-family: 'Outfit'; font-size: 2rem; margin-bottom: 20px">
+          Jump Back In
+        </h1>
         <div class="grid" id="continueGrid"></div>
       </div>
 
       <div id="page-admin" class="page-view">
-        <div style="margin-bottom: 24px">
-          <h2 style="font-size: 1.8rem; color: var(--text-main)">
-            Admin Dashboard
+        <div class="admin-panel">
+          <h2 style="margin-bottom: 20px; font-family: 'Outfit'">
+            Add New Book
           </h2>
-          <p style="color: var(--text-muted)">
-            Manage the public book catalogue.
-          </p>
+          <form onsubmit="app.addBook(event)">
+            <div class="input-group">
+              <input
+                id="nTitle"
+                class="glass-input"
+                placeholder="Book Title"
+                required
+              />
+            </div>
+            <div class="input-group">
+              <input
+                id="nAuthor"
+                class="glass-input"
+                placeholder="Author"
+                required
+              />
+            </div>
+            <div class="input-group">
+              <input
+                id="nGenre"
+                class="glass-input"
+                placeholder="Genre"
+                required
+              />
+            </div>
+            <div class="input-group">
+              <input
+                id="nCover"
+                class="glass-input"
+                placeholder="Cover Image URL"
+                required
+              />
+            </div>
+            <div class="input-group">
+              <input
+                id="nPdf"
+                class="glass-input"
+                placeholder="PDF URL"
+                required
+              />
+            </div>
+            <button type="submit" class="btn-main">Publish to Library</button>
+          </form>
         </div>
-        <div
-          id="adminFormContainer"
-          style="max-width: 600px; margin: 0 auto"
-        ></div>
       </div>
     </div>
 
-    <div class="mobile-nav">
-      <button
-        class="mobile-link active"
-        data-hash="home"
-        onclick="window.location.hash='#home'"
-      >
-        <i class="ph-bold ph-compass"></i> Discover
-      </button>
-      <button
-        class="mobile-link"
-        data-hash="library"
-        onclick="window.location.hash='#library'"
-      >
-        <i class="ph-bold ph-books"></i> Library
-      </button>
-      <button
-        class="mobile-link"
-        data-hash="continue"
-        onclick="window.location.hash='#continue'"
-      >
-        <i class="ph-bold ph-clock-counter-clockwise"></i> Continue
-      </button>
-      <button class="mobile-link" onclick="window.app.handleAuthClick()">
-        <i class="ph-bold ph-user-circle"></i> Account
-      </button>
-    </div>
-
-    <div class="modal-backdrop" id="authModal">
-      <div class="modal">
-        <button
-          class="close-modal"
-          onclick="window.app.closeModal('authModal')"
-        >
-          <i class="ph-bold ph-x"></i>
-        </button>
-        <h3 class="modal-title">Welcome Back</h3>
-        <p class="modal-desc">Sign in to sync your library across devices.</p>
-
-        <button
-          class="btn-primary"
-          style="
-            width: 100%;
-            justify-content: center;
-            background: #fff;
-            color: #333;
-            border: 1px solid var(--border);
-            margin-bottom: 20px;
-          "
-          onclick="window.api.loginGoogle().then(() => window.app.closeModal('authModal'))"
-        >
-          <img
-            src="https://www.svgrepo.com/show/475656/google-color.svg"
-            style="width: 18px"
-          />
-          Continue with Google
-        </button>
-
-        <div
-          style="
-            text-align: center;
-            border-top: 1px solid var(--border);
-            padding-top: 15px;
-            margin-top: 15px;
-            color: var(--text-muted);
-            font-size: 0.8rem;
-          "
-        >
-          OR USE EMAIL
-        </div>
-
-        <form
-          onsubmit="window.app.handleEmailAuth(event)"
-          style="margin-top: 15px"
-        >
-          <div class="form-group">
-            <input
-              type="email"
-              id="emailInput"
-              class="input-field"
-              placeholder="Email address"
-              required
-            />
-          </div>
-          <div class="form-group">
-            <input
-              type="password"
-              id="passInput"
-              class="input-field"
-              placeholder="Password"
-              required
-            />
-          </div>
-          <button
-            type="submit"
-            class="btn-primary"
-            style="width: 100%; justify-content: center"
-          >
-            Sign In
-          </button>
-        </form>
-      </div>
-    </div>
-
-    <div class="reader-overlay" id="readerView">
-      <div class="reader-toolbar">
-        <button class="icon-btn" onclick="window.app.closeReader()">
+    <div class="reader-view" id="readerView">
+      <div class="reader-top">
+        <button class="icon-btn" onclick="app.closeReader()">
           <i class="ph-bold ph-arrow-left"></i>
         </button>
-        <span
-          style="
-            font-weight: 600;
-            overflow: hidden;
-            white-space: nowrap;
-            text-overflow: ellipsis;
-            max-width: 200px;
-          "
-          id="readerTitle"
-          >Book Title</span
-        >
-        <div style="display: flex; gap: 10px; align-items: center">
-          <button
-            class="icon-btn"
-            id="readerFavBtn"
-            onclick="window.app.toggleReaderFav()"
-          >
+        <span style="font-weight: 700" id="readerTitle">Book</span>
+        <div style="display: flex; gap: 10px">
+          <button class="icon-btn" id="readerFav" onclick="app.toggleFav()">
             <i class="ph-heart"></i>
           </button>
           <input
             type="number"
             id="pageInput"
-            class="input-field"
-            style="width: 60px; padding: 4px 8px"
+            class="glass-input"
+            style="width: 70px; padding: 8px"
             value="1"
-            onchange="window.app.updateReaderPage()"
+            onchange="app.updatePage()"
           />
-          <button class="btn-primary" onclick="window.app.saveCurrentPage()">
+          <button
+            class="nav-btn"
+            style="background: var(--primary); color: white; padding: 8px 20px"
+            onclick="app.saveProgress()"
+          >
             Save
           </button>
         </div>
       </div>
-      <iframe id="pdfFrame" class="reader-frame" src=""></iframe>
+      <iframe id="pdfFrame" style="flex: 1; border: none" src=""></iframe>
+    </div>
+
+    <div
+      class="modal-overlay"
+      id="authModal"
+      onclick="app.closeModal('authModal')"
+    >
+      <div class="auth-card" onclick="event.stopPropagation()">
+        <button
+          style="
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-muted);
+          "
+          onclick="app.closeModal('authModal')"
+        >
+          <i class="ph-x" style="font-size: 1.5rem; padding: 5px"></i>
+        </button>
+
+        <h1 class="auth-title">Welcome Back</h1>
+        <p class="auth-subtitle">Sign in to access your personal library.</p>
+
+        <button class="btn-google" onclick="api.loginGoogle()">
+          <img
+            src="https://www.svgrepo.com/show/475656/google-color.svg"
+            alt="Google"
+            style="width: 20px"
+          />
+          Continue with Google
+        </button>
+
+        <div class="divider">OR LOGIN WITH EMAIL</div>
+
+        <form onsubmit="app.emailLogin(event)">
+          <div class="input-group">
+            <input
+              id="emailIn"
+              class="glass-input"
+              type="email"
+              placeholder="Email Address"
+              required
+            />
+          </div>
+          <div class="input-group">
+            <input
+              id="passIn"
+              class="glass-input"
+              type="password"
+              placeholder="Password"
+              required
+            />
+          </div>
+          <button class="btn-primary" style="width: 100%">Sign In</button>
+        </form>
+      </div>
     </div>
 
     <script type="module">
@@ -761,8 +862,8 @@
         getAuth,
         signInWithPopup,
         GoogleAuthProvider,
-        createUserWithEmailAndPassword,
         signInWithEmailAndPassword,
+        createUserWithEmailAndPassword,
         signOut,
         onAuthStateChanged,
         signInAnonymously,
@@ -777,11 +878,13 @@
         arrayRemove,
         collection,
         onSnapshot,
-        query,
         addDoc,
       } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-firestore.js";
 
       // --- CONFIG ---
+      // !!! REPLACE WITH YOUR EMAIL FOR ADMIN ACCESS !!!
+      const ADMIN_EMAILS = ["tanvirrshuvro@gmail.com"];
+
       const firebaseConfig = {
         apiKey: "AIzaSyCh6YZVCawcGfyPz6s1K9DJqBeIC-c7Hsw",
         authDomain: "readersparadize-85e8e.firebaseapp.com",
@@ -790,26 +893,24 @@
         messagingSenderId: "168539796198",
         appId: "1:168539796198:web:d01f9b7915292e6c5fc127",
       };
-      const ADMIN_EMAILS = ["tanvirrshuvro@gmail.com"]; // UPDATE THIS
 
-      const app = initializeApp(firebaseConfig);
-      const auth = getAuth(app);
-      const db = getFirestore(app);
-      const googleProvider = new GoogleAuthProvider();
-      const APP_ID = "blue-reader-prod";
+      const fb = initializeApp(firebaseConfig);
+      const auth = getAuth(fb);
+      const db = getFirestore(fb);
+      const APP_ID = "blue-fluid-v2";
 
-      // --- API WRAPPER ---
       window.api = {
-        loginGoogle: () => signInWithPopup(auth, googleProvider),
-        logout: () => signOut(auth),
+        loginGoogle: () =>
+          signInWithPopup(auth, new GoogleAuthProvider()).then(() =>
+            app.closeModal("authModal")
+          ),
         loginEmail: (e, p) => signInWithEmailAndPassword(auth, e, p),
         signupEmail: (e, p) => createUserWithEmailAndPassword(auth, e, p),
+        logout: () => signOut(auth),
       };
 
-      // --- STATE ---
       const state = {
         user: null,
-        theme: localStorage.getItem("theme") || "light",
         books: [
           {
             id: "b1",
@@ -843,320 +944,223 @@
           },
         ],
         progress: {},
-        favorites: [],
+        favs: [],
         filter: "All",
         currentBook: null,
-        unsub: null,
       };
 
-      // --- UI CONTROLLER ---
       window.app = {
         init: () => {
-          window.app.applyTheme();
-
-          // Listeners
-          window.addEventListener("hashchange", window.app.renderPage);
-          if (!window.location.hash) window.location.hash = "#home";
-
-          // Auth Listener
-          onAuthStateChanged(auth, (user) => {
-            if (!user) signInAnonymously(auth);
-            state.user = user;
-
-            if (state.unsub) state.unsub(); // Clear old listener
-
-            if (user && !user.isAnonymous) {
-              // Subscribe to User Data
-              const q = collection(
-                db,
-                "artifacts",
-                APP_ID,
-                "users",
-                user.uid,
-                "progress"
+          window.addEventListener("hashchange", app.router);
+          onAuthStateChanged(auth, (u) => {
+            state.user = u;
+            if (!u) signInAnonymously(auth);
+            else if (!u.isAnonymous) {
+              // Sync Data
+              onSnapshot(
+                collection(db, "artifacts", APP_ID, "users", u.uid, "progress"),
+                (s) => {
+                  s.docs.forEach((d) => (state.progress[d.id] = d.data()));
+                  app.render();
+                }
               );
-              state.unsub = onSnapshot(q, (snap) => {
-                snap.docs.forEach((d) => (state.progress[d.id] = d.data()));
-                // Fetch Favs separately for simplicity in this demo
-                getDoc(
-                  doc(
-                    db,
-                    "artifacts",
-                    APP_ID,
-                    "users",
-                    user.uid,
-                    "prefs",
-                    "favs"
-                  )
-                ).then((s) => {
-                  state.favorites = s.exists() ? s.data().ids : [];
-                  window.app.renderPage(); // Re-render current view
-                });
+              getDoc(
+                doc(db, "artifacts", APP_ID, "users", u.uid, "prefs", "favs")
+              ).then((s) => {
+                if (s.exists()) state.favs = s.data().ids;
+                app.render();
               });
-              document.getElementById("desktopAuthBtn").innerText = "Sign Out";
-            } else {
-              state.progress = {};
-              state.favorites = [];
-              document.getElementById("desktopAuthBtn").innerText = "Sign In";
             }
-            window.app.renderPage(); // Initial Render
+            app.updateUI();
           });
 
-          // Firestore Books Listener
+          // Live Books
           onSnapshot(
             collection(db, "artifacts", APP_ID, "public", "books"),
-            (snap) => {
-              const newBooks = snap.docs.map((d) => ({
-                id: d.id,
-                ...d.data(),
-              }));
-              // Merge uniqueness
-              const ids = new Set(newBooks.map((b) => b.id));
+            (s) => {
+              const live = s.docs.map((d) => ({ id: d.id, ...d.data() }));
+              const ids = new Set(live.map((b) => b.id));
               state.books = [
                 ...state.books.filter((b) => !ids.has(b.id)),
-                ...newBooks,
+                ...live,
               ];
-              window.app.renderPage();
+              app.render();
             }
           );
 
-          window.app.renderPage();
+          if (!location.hash) location.hash = "#home";
+          app.router();
+
+          // Close modals on Esc
+          document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape") app.closeModal("authModal");
+          });
         },
 
-        renderPage: () => {
-          const hash = window.location.hash.substring(1) || "home";
-          const user = state.user && !state.user.isAnonymous;
-
-          // Admin Protection
-          if (
-            hash === "admin" &&
-            (!user || !ADMIN_EMAILS.includes(state.user.email))
-          ) {
-            window.location.hash = "#home";
-            return;
-          }
-          document.getElementById("nav-admin").style.display =
-            user && ADMIN_EMAILS.includes(state.user.email) ? "block" : "none";
-
-          // View Toggle
+        router: () => {
+          const hash = location.hash.slice(1) || "home";
           document
             .querySelectorAll(".page-view")
-            .forEach((el) => el.classList.remove("active"));
-          const activePage = document.getElementById(`page-${hash}`);
-          if (activePage) activePage.classList.add("active");
+            .forEach((e) => e.classList.remove("active"));
+          document.getElementById(`page-${hash}`).classList.add("active");
 
-          // Nav State
-          document
-            .querySelectorAll(".nav-item")
-            .forEach((el) =>
-              el.classList.toggle(
-                "active",
-                el.getAttribute("href") === `#${hash}`
-              )
-            );
-          document
-            .querySelectorAll(".mobile-link")
-            .forEach((el) =>
-              el.classList.toggle("active", el.dataset.hash === hash)
-            );
+          // Update Nav
+          document.querySelectorAll(".nav-btn").forEach((b) => {
+            b.classList.toggle("active", b.getAttribute("href") === `#${hash}`);
+          });
 
-          // Content Rendering
-          if (hash === "home") window.app.renderHome();
-          else if (hash === "library") window.app.renderLibrary();
-          else if (hash === "continue") window.app.renderContinue();
-          else if (hash === "admin") window.app.renderAdmin();
+          // Mobile icons
+          const icons = document.querySelectorAll(".mobile-icon");
+          icons.forEach((i) => i.classList.remove("active"));
+          if (hash === "home") icons[0].classList.add("active");
+          if (hash === "library") icons[1].classList.add("active");
+          if (hash === "continue") icons[2].classList.add("active");
+
+          app.render();
         },
 
-        renderHome: () => {
+        updateUI: () => {
+          const u = state.user && !state.user.isAnonymous;
+          document.getElementById("authBtn").innerText = u
+            ? "Sign Out"
+            : "Sign In";
+          document.getElementById("nav-admin").style.display =
+            u && ADMIN_EMAILS.includes(state.user.email) ? "block" : "none";
+        },
+
+        render: () => {
           // Filters
           const genres = ["All", ...new Set(state.books.map((b) => b.genre))];
-          document.getElementById("genreTabs").innerHTML = genres
+          document.getElementById("genreFilters").innerHTML = genres
             .map(
               (g) =>
-                `<button class="filter-tag ${
+                `<div class="filter-pill ${
                   state.filter === g ? "active" : ""
-                }" onclick="window.app.setFilter('${g}')">${g}</button>`
+                }" onclick="app.setFilter('${g}')">${g}</div>`
             )
             .join("");
 
-          const books =
+          // Home Grid
+          const visible =
             state.filter === "All"
               ? state.books
               : state.books.filter((b) => b.genre === state.filter);
-          document.getElementById("publicGrid").innerHTML = books
-            .map((b) => window.app.bookCard(b))
+          document.getElementById("publicGrid").innerHTML = visible
+            .map((b) => app.card(b))
             .join("");
+
+          // Library
+          const lib = state.books.filter((b) => state.favs.includes(b.id));
+          document.getElementById("libraryGrid").innerHTML = lib.length
+            ? lib.map((b) => app.card(b)).join("")
+            : `<div style="grid-column:1/-1; text-align:center; color:var(--text-muted);">No favorites yet.</div>`;
+
+          // Continue
+          const cont = state.books.filter((b) => state.progress[b.id]);
+          document.getElementById("continueGrid").innerHTML = cont.length
+            ? cont.map((b) => app.card(b)).join("")
+            : `<div style="grid-column:1/-1; text-align:center; color:var(--text-muted);">No active reads.</div>`;
         },
 
-        renderLibrary: () => {
-          if (!state.user || state.user.isAnonymous) {
-            document.getElementById("libraryGrid").innerHTML =
-              window.app.emptyState(
-                "lock-key",
-                "Sign in to access your library"
-              );
-            return;
-          }
-          const books = state.books.filter((b) =>
-            state.favorites.includes(b.id)
-          );
-          document.getElementById("libraryGrid").innerHTML = books.length
-            ? books.map((b) => window.app.bookCard(b)).join("")
-            : window.app.emptyState("books", "No favorites yet");
-        },
-
-        renderContinue: () => {
-          if (!state.user || state.user.isAnonymous) {
-            document.getElementById("continueGrid").innerHTML =
-              window.app.emptyState("lock-key", "Sign in to track progress");
-            return;
-          }
-          const books = state.books.filter((b) => state.progress[b.id]);
-          document.getElementById("continueGrid").innerHTML = books.length
-            ? books.map((b) => window.app.bookCard(b)).join("")
-            : window.app.emptyState("clock", "No active readings");
-        },
-
-        renderAdmin: () => {
-          document.getElementById("adminFormContainer").innerHTML = `
-                    <form onsubmit="window.app.addBook(event)" style="background:var(--bg-surface); padding:24px; border-radius:12px; border:1px solid var(--border);">
-                        <div class="form-group"><input id="nTitle" class="input-field" placeholder="Title" required></div>
-                        <div class="form-group"><input id="nAuthor" class="input-field" placeholder="Author" required></div>
-                        <div class="form-group"><input id="nGenre" class="input-field" placeholder="Genre" required></div>
-                        <div class="form-group"><input id="nCover" class="input-field" placeholder="Cover URL" required></div>
-                        <div class="form-group"><input id="nPdf" class="input-field" placeholder="PDF URL" required></div>
-                        <button class="btn-primary" style="width:100%; justify-content:center;">Add Book</button>
-                    </form>
-                 `;
-        },
-
-        bookCard: (b) => {
-          const prog = state.progress[b.id];
-          const pct = prog
-            ? Math.min(100, (prog.page / 200) * 100).toFixed(0)
-            : 0;
+        card: (b) => {
+          const isFav = state.favs.includes(b.id);
           return `
-                <div class="book-card" onclick="window.app.openReader('${
-                  b.id
-                }')">
-                    <div class="book-cover-wrap"><img src="${
-                      b.cover
-                    }" class="book-cover" onerror="this.src='https://placehold.co/200x300?text=Book'"></div>
+                <div class="book-card" onclick="app.openReader('${b.id}')">
+                    <img src="${b.cover}" class="card-img">
                     ${
-                      state.favorites.includes(b.id)
-                        ? `<div class="fav-badge"><i class="ph-fill ph-heart"></i></div>`
+                      isFav
+                        ? '<div class="fav-btn-card"><i class="ph-fill ph-heart"></i></div>'
                         : ""
                     }
-                    <div class="book-info">
-                        <div class="book-title">${b.title}</div>
-                        <div class="book-author">${b.author}</div>
-                        ${
-                          prog
-                            ? `<div class="progress-track"><div class="progress-bar" style="width:${pct}%"></div></div>`
-                            : ""
-                        }
-                    </div>
+                    <div class="card-title">${b.title}</div>
+                    <div class="card-author">${b.author}</div>
                 </div>`;
         },
 
-        emptyState: (icon, text) => `
-                <div class="empty-state" style="grid-column:1/-1;">
-                    <i class="ph-${icon} empty-icon"></i>
-                    <div class="empty-text">${text}</div>
-                </div>`,
-
-        // --- ACTIONS ---
         setFilter: (g) => {
           state.filter = g;
-          window.app.renderHome();
+          app.render();
         },
-        toggleTheme: () => {
-          state.theme = state.theme === "light" ? "dark" : "light";
-          localStorage.setItem("theme", state.theme);
-          window.app.applyTheme();
-        },
-        applyTheme: () => {
-          document.body.className = state.theme === "dark" ? "dark-mode" : "";
-          document.getElementById("themeIcon").className =
-            state.theme === "dark" ? "ph-fill ph-sun" : "ph-fill ph-moon";
-        },
-        handleAuthClick: () => {
-          if (state.user && !state.user.isAnonymous) window.api.logout();
+
+        handleAuth: () => {
+          if (state.user && !state.user.isAnonymous) api.logout();
           else document.getElementById("authModal").classList.add("active");
         },
-        closeModal: (id) =>
-          document.getElementById(id).classList.remove("active"),
-        handleEmailAuth: async (e) => {
+
+        emailLogin: async (e) => {
           e.preventDefault();
+          const em = document.getElementById("emailIn").value;
+          const pw = document.getElementById("passIn").value;
           try {
-            await window.api.loginEmail(
-              document.getElementById("emailInput").value,
-              document.getElementById("passInput").value
-            );
-            window.app.closeModal("authModal");
-          } catch (err) {
+            await api.loginEmail(em, pw);
+            app.closeModal("authModal");
+          } catch {
             try {
-              await window.api.signupEmail(
-                document.getElementById("emailInput").value,
-                document.getElementById("passInput").value
-              );
-              window.app.closeModal("authModal");
-            } catch (err2) {
-              alert(err2.message);
+              await api.signupEmail(em, pw);
+              app.closeModal("authModal");
+            } catch (err) {
+              alert(err.message);
             }
           }
         },
+
+        closeModal: (id) =>
+          document.getElementById(id).classList.remove("active"),
+
         addBook: async (e) => {
           e.preventDefault();
-          const book = {
-            title: document.getElementById("nTitle").value,
-            author: document.getElementById("nAuthor").value,
-            genre: document.getElementById("nGenre").value,
-            cover: document.getElementById("nCover").value,
-            pdfUrl: document.getElementById("nPdf").value,
-          };
-          await addDoc(
-            collection(db, "artifacts", APP_ID, "public", "books"),
-            book
-          );
-          alert("Book Added");
-          e.target.reset();
-        },
-
-        // --- READER ---
-        openReader: (id) => {
-          if (
-            window.location.hash !== "#home" &&
-            (!state.user || state.user.isAnonymous)
-          ) {
-            window.app.handleAuthClick();
+          if (!state.user || !ADMIN_EMAILS.includes(state.user.email)) {
+            alert(
+              "Access Denied: You are not authorized to add books. Please check the ADMIN_EMAILS list in the code."
+            );
             return;
           }
+
+          try {
+            await addDoc(
+              collection(db, "artifacts", APP_ID, "public", "books"),
+              {
+                title: document.getElementById("nTitle").value,
+                author: document.getElementById("nAuthor").value,
+                genre: document.getElementById("nGenre").value,
+                cover: document.getElementById("nCover").value,
+                pdfUrl: document.getElementById("nPdf").value,
+              }
+            );
+            alert("Book successfully added to database!");
+            e.target.reset();
+          } catch (err) {
+            alert(
+              "Error adding book: " + err.message + "\nCheck Firestore rules."
+            );
+          }
+        },
+
+        openReader: (id) => {
           state.currentBook = state.books.find((b) => b.id === id);
           document.getElementById("readerTitle").innerText =
             state.currentBook.title;
           document.getElementById("readerView").style.display = "flex";
-          document.getElementById("pageInput").value = state.progress[id]
-            ? state.progress[id].page
-            : 1;
-          window.app.updateReaderPage();
-          window.app.updateFavBtn();
+          document.getElementById("pdfFrame").src =
+            state.currentBook.pdfUrl +
+            (state.progress[id] ? `#page=${state.progress[id].page}` : "");
+          app.updateFavBtn();
         },
+
         closeReader: () => {
           document.getElementById("readerView").style.display = "none";
           document.getElementById("pdfFrame").src = "";
         },
-        updateReaderPage: () => {
+
+        updatePage: () => {
           const pg = document.getElementById("pageInput").value;
-          const url = state.currentBook.pdfUrl;
-          // Basic PDF.js params logic
-          document.getElementById("pdfFrame").src = url + `#page=${pg}`;
+          document.getElementById("pdfFrame").src =
+            state.currentBook.pdfUrl + `#page=${pg}`;
         },
-        saveCurrentPage: async () => {
-          if (!state.user || state.user.isAnonymous) {
-            alert("Sign in to save");
-            return;
-          }
+
+        saveProgress: async () => {
+          if (!state.user || state.user.isAnonymous)
+            return alert("Please sign in to save.");
           const pg = document.getElementById("pageInput").value;
           await setDoc(
             doc(
@@ -1171,12 +1175,12 @@
             { page: pg, lastRead: new Date().toISOString() },
             { merge: true }
           );
+          alert("Saved!");
         },
-        toggleReaderFav: async () => {
-          if (!state.user || state.user.isAnonymous) {
-            alert("Sign in to favorite");
-            return;
-          }
+
+        toggleFav: async () => {
+          if (!state.user || state.user.isAnonymous)
+            return alert("Please sign in.");
           const ref = doc(
             db,
             "artifacts",
@@ -1186,7 +1190,7 @@
             "prefs",
             "favs"
           );
-          const isFav = state.favorites.includes(state.currentBook.id);
+          const isFav = state.favs.includes(state.currentBook.id);
           await setDoc(
             ref,
             {
@@ -1196,21 +1200,31 @@
             },
             { merge: true }
           );
-          // Optimistic UI
-          state.favorites = isFav
-            ? state.favorites.filter((id) => id !== state.currentBook.id)
-            : [...state.favorites, state.currentBook.id];
-          window.app.updateFavBtn();
+          // Local update for speed
+          if (isFav)
+            state.favs = state.favs.filter((id) => id !== state.currentBook.id);
+          else state.favs.push(state.currentBook.id);
+          app.updateFavBtn();
+          app.render();
         },
+
         updateFavBtn: () => {
-          const isFav = state.favorites.includes(state.currentBook.id);
-          document.getElementById("readerFavBtn").innerHTML = isFav
-            ? '<i class="ph-fill ph-heart" style="color:#ef4444"></i>'
+          const isFav = state.favs.includes(state.currentBook.id);
+          document.getElementById("readerFav").innerHTML = isFav
+            ? '<i class="ph-fill ph-heart" style="color:#ec4899"></i>'
             : '<i class="ph-heart"></i>';
+        },
+
+        toggleTheme: () => {
+          document.body.classList.toggle("dark-mode");
+          document.getElementById("themeIcon").className =
+            document.body.classList.contains("dark-mode")
+              ? "ph-fill ph-sun"
+              : "ph-fill ph-moon";
         },
       };
 
-      window.onload = window.app.init;
+      window.onload = app.init;
     </script>
   </body>
 </html>
