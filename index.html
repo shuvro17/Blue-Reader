@@ -1,886 +1,1216 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BlueReader | Gradient Library</title>
-    
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BlueReader | Modern Library</title>
+
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    
+
     <style>
-        /* --- Global Reset & Fonts --- */
-        @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap');
-        :root {
-            --primary: #5a76fd; /* Soft Blue */
-            --primary-hover: #4863e0;
-            --text-dark: #2c3e50;
-            --text-light: #7f8c8d;
-            --bg-start: #f5f7fa;
-            --bg-end: #e3e8f0;
-            --card-light: rgba(255, 255, 255, 0.7); /* Translucent White */
-            --glass-border: rgba(255, 255, 255, 0.4);
-            --main-font: 'Quicksand', sans-serif;
-            --radius-large: 15px;
-            --shadow-soft: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
-        }
-        .dark-mode {
-            --primary: #4cc9f0; /* Cyan */
-            --primary-hover: #3a97b2;
-            --text-dark: #f0f4f8;
-            --text-light: #bdc3c7;
-            --bg-start: #1c2a48;
-            --bg-end: #0a1128;
-            --card-light: rgba(30, 40, 60, 0.6); /* Translucent Dark */
-            --glass-border: rgba(255, 255, 255, 0.1);
-            --shadow-soft: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: var(--main-font); }
-        body { 
-            background: linear-gradient(135deg, var(--bg-start) 0%, var(--bg-end) 100%);
-            background-attachment: fixed;
-            color: var(--text-dark); 
-            transition: all 0.5s; 
-            min-height: 100vh;
-            padding-left: 300px; 
-            overflow-x: hidden;
-        }
-        /* Background Animation (Subtle) */
-        body::before {
-            content: '';
-            position: fixed;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle at top left, var(--primary) 0%, transparent 40%),
-                        radial-gradient(circle at bottom right, var(--primary-hover) 0%, transparent 40%);
-            opacity: 0.1;
-            z-index: -1;
-            animation: bg-move 60s infinite alternate;
-        }
-        @keyframes bg-move {
-            0% { transform: translate(0, 0); }
-            100% { transform: translate(-50%, -50%); }
-        }
-        
-        /* --- Utility Classes --- */
-        .separator { border: 0; height: 1px; background: var(--glass-border); margin: 20px 0; }
+      /* --- Fonts & Variables --- */
+      @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
 
-        /* --- Sidebar (Glass Panel) --- */
-        .sidebar { 
-            position: fixed; top: 0; left: 0; width: 300px; height: 100vh; 
-            background: var(--card-light);
-            backdrop-filter: blur(10px);
-            border-right: 1px solid var(--glass-border); 
-            display: flex; flex-direction: column; 
-            z-index: 100;
-            box-shadow: var(--shadow-soft);
-            padding: 30px 25px; 
-        }
-        .branding { display: flex; align-items: center; gap: 10px; margin-bottom: 30px; }
-        .logo-icon { font-size: 2.2rem; color: var(--primary); }
-        .branding h2 { font-size: 1.8rem; font-weight: 700; margin: 0; }
-        .logo-accent { color: var(--primary); }
+      :root {
+        /* Light Mode (Default) */
+        --bg-body: #f8fafc; /* Slate 50 */
+        --bg-surface: #ffffff;
+        --bg-subtle: #f1f5f9; /* Slate 100 */
 
-        .auth-info { text-align: center; margin-bottom: 20px; }
-        .profile-photo { width: 90px; height: 90px; border-radius: 50%; border: 4px solid var(--primary); object-fit: cover; margin: 0 auto 10px; background: #ddd; }
-        .name { font-size: 1.2rem; font-weight: 700; }
-        .status { font-size: 0.8rem; color: var(--text-light); display: block; }
+        --text-main: #0f172a; /* Slate 900 */
+        --text-muted: #64748b; /* Slate 500 */
+        --text-on-primary: #ffffff;
 
-        .nav-menu { list-style: none; flex-grow: 1; display: flex; flex-direction: column;}
-        .nav-btn { 
-            display: flex; align-items: center; gap: 12px; 
-            width: 100%; text-align: left; 
-            padding: 14px 15px; margin-bottom: 10px;
-            background: transparent; border: none;
-            border-radius: var(--radius-large); 
-            color: var(--text-dark); font-weight: 600; 
-            cursor: pointer; transition: all 0.3s;
-            text-decoration: none;
-        }
-        .nav-btn:hover { background: rgba(0, 0, 0, 0.05); }
-        .nav-btn.active { 
-            background: linear-gradient(45deg, var(--primary), var(--primary-hover));
-            color: white; 
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        }
-        .nav-btn i { font-size: 1.3rem; }
+        --primary: #6366f1; /* Indigo 500 */
+        --primary-hover: #4f46e5; /* Indigo 600 */
 
-        /* --- Main Content & Header --- */
-        .main-content { padding: 40px; max-width: 100%; min-height: 100vh; position: relative; }
-        .header-controls { 
-            position: absolute; top: 30px; right: 30px; 
-            z-index: 101; 
-            display: flex; gap: 15px;
-        }
-        .toggle-btn { 
-            background: var(--card-light);
-            backdrop-filter: blur(5px);
-            color: var(--text-dark); 
-            width: 45px; height: 45px; 
-            border-radius: 50%; 
-            border: 1px solid var(--glass-border); 
-            cursor: pointer; font-size: 1.2rem; 
-            transition: all 0.3s;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-        .toggle-btn:hover { background: var(--primary); color: white; }
+        --border: #e2e8f0; /* Slate 200 */
+        --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+        --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1),
+          0 2px 4px -2px rgb(0 0 0 / 0.1);
+        --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
 
-        .section-title { font-size: 2.2rem; margin-bottom: 5px; font-weight: 700; }
-        .section-subtitle { font-size: 1rem; color: var(--text-light); margin-bottom: 30px; }
+        --radius: 8px;
+        --header-height: 64px;
+      }
 
-        /* --- Tabs/Filters (Pills) --- */
-        .tabs ul { list-style: none; display: flex; gap: 10px; margin-bottom: 30px; flex-wrap: wrap;}
-        .tab-link { 
-            background: var(--card-light);
-            border: 1px solid var(--glass-border); 
-            cursor: pointer; color: var(--text-light); 
-            padding: 10px 20px; border-radius: 25px; 
-            font-weight: 500; transition: all 0.3s;
-            font-size: 0.9rem;
-        }
-        .tab-link.active { 
-            background: var(--primary); 
-            color: white; border-color: var(--primary);
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-        .tab-link:hover:not(.active) { color: var(--primary); border-color: var(--primary); }
+      /* Dark Mode Override */
+      .dark-mode {
+        --bg-body: #0f172a; /* Slate 900 */
+        --bg-surface: #1e293b; /* Slate 800 */
+        --bg-subtle: #334155; /* Slate 700 */
 
-        /* --- Book Grid & Card (Glassmorphism) --- */
-        .portfolio-grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); 
-            gap: 30px; 
-            margin-bottom: 40px;
-        }
-        .project-card { 
-            background: var(--card-light); 
-            backdrop-filter: blur(5px);
-            border-radius: var(--radius-large); 
-            padding: 15px; 
-            border: 1px solid var(--glass-border);
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            position: relative; 
-            cursor: pointer; 
-            box-shadow: var(--shadow-soft);
-        }
-        .project-card:hover { 
-            transform: translateY(-5px) scale(1.02); 
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15); 
-        }
-        .book-cover { 
-            width: 100%; 
-            aspect-ratio: 2/3; 
-            border-radius: 10px; 
-            object-fit: cover; 
-            margin-bottom: 10px; 
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-        .project-card h5 { font-size: 1.1rem; font-weight: 700; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .project-card p { font-size: 0.85rem; color: var(--text-light); margin-bottom: 5px; }
+        --text-main: #f8fafc;
+        --text-muted: #94a3b8;
 
-        /* Progress Bar */
-        .progress-bar { height: 6px; background: rgba(0, 0, 0, 0.1); border-radius: 3px; overflow: hidden; margin-top: 10px; }
-        .progress-fill { height: 100%; background: var(--primary); transition: width 0.5s; }
+        --primary: #818cf8; /* Indigo 400 */
+        --primary-hover: #6366f1;
 
-        /* --- Modal & Form Base --- */
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 200;
-            display: none; 
-            opacity: 0;
-            transition: opacity 0.3s;
-            overflow-y: auto;
-            justify-content: center;
-            align-items: center;
-        }
-        .modal-overlay.active { display: flex; opacity: 1; }
-        .modal-content { 
-            background: var(--card-light); 
-            backdrop-filter: blur(15px);
-            padding: 30px; 
-            border-radius: var(--radius-large); 
-            width: 100%; 
-            max-width: 450px; 
-            position: relative; 
-            border: 1px solid var(--glass-border);
-            box-shadow: var(--shadow-soft);
-        }
-        .close-btn { position: absolute; top: 15px; right: 15px; background: none; border: none; cursor: pointer; font-size: 1.2rem; color: var(--text-light); }
+        --border: #334155;
+        --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+        --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.3);
+      }
 
-        /* Fix for Admin form when rendered directly */
-        .admin-form-container {
-            background: var(--card-light);
-            backdrop-filter: blur(8px);
-            padding: 30px;
-            border-radius: var(--radius-large);
-            border: 1px solid var(--glass-border);
-            box-shadow: var(--shadow-soft);
-            max-width: 600px;
-            margin: 0 auto;
-        }
+      /* --- Reset & Base --- */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Inter", sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
 
-        /* --- Form & Buttons --- */
-        .form-group { margin-bottom: 15px; }
-        .form-input { 
-            width: 100%; padding: 12px; 
-            background: rgba(255, 255, 255, 0.5); 
-            border: 1px solid var(--glass-border); 
-            border-radius: var(--radius-large); 
-            color: var(--text-dark);
-            font-size: 1rem;
-            transition: all 0.2s;
-        }
-        .dark-mode .form-input { 
-            background: rgba(0, 0, 0, 0.2); 
-            color: var(--text-dark);
-        }
-        .form-input:focus { outline: none; border-color: var(--primary); background: var(--card-light); box-shadow: 0 0 0 3px rgba(90, 118, 253, 0.2); }
+      body {
+        background-color: var(--bg-body);
+        color: var(--text-main);
+        transition: background-color 0.3s ease, color 0.3s ease;
+        padding-top: var(--header-height);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
 
-        .btn { 
-            padding: 12px 25px; 
-            background: var(--primary); 
-            color: #fff; 
-            border: none; 
-            border-radius: var(--radius-large); 
-            font-size: 0.9rem; 
-            font-weight: 700; 
-            cursor: pointer; 
-            transition: all 0.3s;
-            display: inline-flex; 
-            align-items: center; 
-            justify-content: center;
-            gap: 8px; 
-            text-decoration: none; 
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        }
-        .btn:hover { background: var(--primary-hover); transform: translateY(-1px); box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); }
-        .btn-auth { margin-top: auto; }
+      /* --- Navigation Bar (Desktop) --- */
+      .navbar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: var(--header-height);
+        background-color: rgba(255, 255, 255, 0.8); /* Glass effect base */
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border-bottom: 1px solid var(--border);
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 24px;
+      }
+      .dark-mode .navbar {
+        background-color: rgba(15, 23, 42, 0.8);
+      }
 
-        /* --- PDF Reader Modal (Cleaned up) --- */
-        .reader-modal {
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: var(--bg-start);
-            z-index: 300;
-            display: none; 
-            flex-direction: column;
-        }
-        .reader-modal.active { display: flex; }
-        .reader-header {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 15px 20px;
-            background: var(--card-light);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid var(--glass-border);
-            color: var(--text-dark);
-            z-index: 301;
-        }
-        .reader-controls { background: var(--card-light); border-radius: 25px; padding: 5px 15px; border: 1px solid var(--glass-border);}
-        #pageInput { width: 50px; background: transparent; border: none; color: var(--text-dark); }
-        .btn-save { padding: 5px 10px; font-size: 0.75rem; border-radius: 15px; box-shadow: none; }
-        .btn-fav i { color: var(--primary); }
+      .nav-brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 700;
+        font-size: 1.25rem;
+        color: var(--text-main);
+        text-decoration: none;
+      }
+      .nav-brand i {
+        color: var(--primary);
+        font-size: 1.5rem;
+      }
 
-        /* --- Loading Screen --- */
-        .loading-screen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--bg-start); color: var(--primary);
-            z-index: 400; display: flex; justify-content: center; align-items: center;
-            font-size: 2.5rem; font-weight: 700;
-            transition: opacity 0.5s ease-out;
-        }
-        .loading-screen.hidden { opacity: 0; pointer-events: none; }
-        .loader { animation: pulse 1s infinite alternate; }
+      .nav-links {
+        display: flex;
+        gap: 8px;
+        height: 100%;
+        align-items: center;
+      }
+      .nav-item {
+        text-decoration: none;
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        font-weight: 500;
+        padding: 8px 16px;
+        border-radius: 99px; /* Pill shape */
+        transition: all 0.2s;
+      }
+      .nav-item:hover {
+        color: var(--primary);
+        background-color: var(--bg-subtle);
+      }
+      .nav-item.active {
+        color: var(--text-on-primary);
+        background-color: var(--primary);
+      }
 
-        /* --- Responsive/Mobile Styles --- */
-        @media (max-width: 900px) {
-            body { padding-left: 0; padding-bottom: 60px; }
-            .sidebar { display: none; }
-            .main-content { padding: 20px 15px; }
-            .header-controls { display: none; } 
-            .portfolio-grid { grid-template-columns: repeat(2, 1fr); gap: 15px; }
-            .project-card:hover { transform: none; box-shadow: var(--shadow-soft); } 
-            .btn-auth { display: none; }
-            .mobile-nav {
-                position: fixed; bottom: 0; left: 0; width: 100%; height: 60px;
-                background: var(--card-light); 
-                backdrop-filter: blur(10px);
-                border-top: 1px solid var(--glass-border);
-                z-index: 1000; display: flex; justify-content: space-around; align-items: center;
-                box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.1);
-            }
-            .mobile-nav button { color: var(--text-light); font-size: 0.7rem; }
-            .mobile-nav button.active { color: var(--primary); }
+      .nav-actions {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+      }
+
+      /* Theme Toggle */
+      .icon-btn {
+        background: transparent;
+        border: 1px solid var(--border);
+        color: var(--text-muted);
+        width: 36px;
+        height: 36px;
+        border-radius: var(--radius);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .icon-btn:hover {
+        border-color: var(--primary);
+        color: var(--primary);
+      }
+
+      /* Primary Button */
+      .btn-primary {
+        background-color: var(--primary);
+        color: var(--text-on-primary);
+        border: none;
+        padding: 8px 16px;
+        border-radius: var(--radius);
+        font-weight: 500;
+        font-size: 0.9rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: background-color 0.2s;
+      }
+      .btn-primary:hover {
+        background-color: var(--primary-hover);
+      }
+
+      /* --- Page Container --- */
+      .container {
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 32px 24px;
+        flex: 1;
+      }
+
+      /* Page Transitions */
+      .page-view {
+        display: none;
+        animation: fadeUp 0.3s ease-out;
+      }
+      .page-view.active {
+        display: block;
+      }
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
         }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* --- Hero Section (Home) --- */
+      .hero {
+        text-align: center;
+        margin-bottom: 48px;
+        padding: 40px 20px;
+        background: linear-gradient(
+          135deg,
+          var(--bg-subtle) 0%,
+          var(--bg-surface) 100%
+        );
+        border-radius: 16px;
+        border: 1px solid var(--border);
+      }
+      .hero h1 {
+        font-size: 2.5rem;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        margin-bottom: 12px;
+        color: var(--text-main);
+      }
+      .hero p {
+        font-size: 1.1rem;
+        color: var(--text-muted);
+        max-width: 600px;
+        margin: 0 auto 24px;
+      }
+
+      /* --- Filters (Modern Tags) --- */
+      .filter-container {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 32px;
+        justify-content: center;
+      }
+      .filter-tag {
+        background: var(--bg-surface);
+        border: 1px solid var(--border);
+        color: var(--text-muted);
+        padding: 6px 16px;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .filter-tag:hover {
+        border-color: var(--primary);
+        color: var(--primary);
+      }
+      .filter-tag.active {
+        background: var(--bg-subtle);
+        border-color: var(--primary);
+        color: var(--primary);
+        font-weight: 600;
+      }
+
+      /* --- Book Grid --- */
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 24px;
+      }
+      .book-card {
+        background: var(--bg-surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        overflow: hidden;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+      }
+      .book-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-lg);
+        border-color: var(--primary);
+      }
+      .book-cover-wrap {
+        width: 100%;
+        aspect-ratio: 2/3;
+        overflow: hidden;
+        background: var(--bg-subtle);
+      }
+      .book-cover {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s;
+      }
+      .book-card:hover .book-cover {
+        transform: scale(1.05);
+      }
+
+      .book-info {
+        padding: 16px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+      }
+      .book-title {
+        font-weight: 600;
+        font-size: 1rem;
+        margin-bottom: 4px;
+        color: var(--text-main);
+        line-height: 1.4;
+      }
+      .book-author {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        margin-bottom: 12px;
+      }
+
+      .progress-track {
+        width: 100%;
+        height: 4px;
+        background: var(--bg-subtle);
+        border-radius: 2px;
+        margin-top: auto;
+        overflow: hidden;
+      }
+      .progress-bar {
+        height: 100%;
+        background: var(--primary);
+        width: 0%;
+      }
+      .fav-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: rgba(255, 255, 255, 0.9);
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #ef4444;
+        box-shadow: var(--shadow-sm);
+      }
+
+      /* --- Empty States --- */
+      .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        background: var(--bg-subtle);
+        border-radius: 16px;
+        border: 1px dashed var(--border);
+      }
+      .empty-icon {
+        font-size: 3rem;
+        color: var(--text-muted);
+        margin-bottom: 16px;
+      }
+      .empty-text {
+        color: var(--text-muted);
+        font-size: 1rem;
+      }
+
+      /* --- Modals --- */
+      .modal-backdrop {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(4px);
+        z-index: 200;
+        display: none;
+        align-items: center;
+        justify-content: center;
+      }
+      .modal-backdrop.active {
+        display: flex;
+      }
+      .modal {
+        background: var(--bg-surface);
+        width: 100%;
+        max-width: 420px;
+        border-radius: 12px;
+        padding: 32px;
+        margin: 20px;
+        box-shadow: var(--shadow-lg);
+        position: relative;
+        animation: scaleIn 0.2s ease;
+      }
+      @keyframes scaleIn {
+        from {
+          transform: scale(0.95);
+          opacity: 0;
+        }
+        to {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+
+      .modal-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 8px;
+        text-align: center;
+      }
+      .modal-desc {
+        text-align: center;
+        color: var(--text-muted);
+        margin-bottom: 24px;
+      }
+      .form-group {
+        margin-bottom: 16px;
+      }
+      .input-field {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        background: var(--bg-body);
+        color: var(--text-main);
+        outline: none;
+        font-size: 0.95rem;
+        transition: border-color 0.2s;
+      }
+      .input-field:focus {
+        border-color: var(--primary);
+        ring: 2px solid var(--primary);
+      }
+      .close-modal {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        background: none;
+        border: none;
+        color: var(--text-muted);
+        cursor: pointer;
+        font-size: 1.2rem;
+      }
+
+      /* --- Reader View --- */
+      .reader-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: var(--bg-surface);
+        z-index: 300;
+        display: none;
+        flex-direction: column;
+      }
+      .reader-toolbar {
+        height: 60px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 20px;
+        background: var(--bg-surface);
+      }
+      .reader-frame {
+        flex: 1;
+        border: none;
+        width: 100%;
+      }
+
+      /* --- Mobile Nav --- */
+      .mobile-nav {
+        display: none;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 64px;
+        background: rgba(255, 255, 255, 0.95);
+        border-top: 1px solid var(--border);
+        backdrop-filter: blur(10px);
+        z-index: 150;
+        justify-content: space-around;
+        align-items: center;
+      }
+      .dark-mode .mobile-nav {
+        background: rgba(30, 41, 59, 0.95);
+      }
+      .mobile-link {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        color: var(--text-muted);
+        text-decoration: none;
+        font-size: 0.75rem;
+        font-weight: 500;
+        background: none;
+        border: none;
+        cursor: pointer;
+        width: 100%;
+      }
+      .mobile-link i {
+        font-size: 1.4rem;
+      }
+      .mobile-link.active {
+        color: var(--primary);
+      }
+
+      /* --- Responsive --- */
+      @media (max-width: 768px) {
+        .nav-links {
+          display: none;
+        } /* Hide desktop links */
+        .navbar {
+          justify-content: space-between;
+        }
+        .mobile-nav {
+          display: flex;
+        }
+        .container {
+          padding-bottom: 80px;
+        } /* Space for bottom nav */
+        .hero h1 {
+          font-size: 1.8rem;
+        }
+      }
     </style>
-</head>
-<body data-view="home">
-    
-    <div class="modal-overlay" id="globalModal">
-        <div class="modal-content" id="modalBox" onclick="event.stopPropagation()">
-            </div>
-    </div>
-    
-    <div id="loadingScreen" class="loading-screen">
-        <div class="loader">BlueReader</div>
-    </div>
+  </head>
+  <body>
+    <nav class="navbar">
+      <a href="#home" class="nav-brand">
+        <i class="ph-fill ph-books"></i> BlueReader
+      </a>
 
-    <aside class="sidebar">
-        <div class="branding">
-            <i class="ph-fill ph-book-open-text logo-icon"></i>
-            <h2>Blue<span class="logo-accent">Reader</span></h2>
-        </div>
-        <div class="auth-info" id="authInfoBlock">
-            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Guest" id="userAvatar" class="profile-photo" alt="Profile">
-            <span class="name" id="userName">Guest Reader</span>
-            <small class="status" id="userStatus">Log in to sync</small>
-        </div>
-        <div class="separator"></div>
-        <nav class="nav-menu">
-            <a href="#" class="nav-btn active" data-view="home"><i class="ph-bold ph-compass"></i> Discover</a>
-            <a href="#" class="nav-btn" data-view="library"><i class="ph-bold ph-books"></i> My Library</a>
-            <a href="#" class="nav-btn" data-view="continue"><i class="ph-bold ph-clock-counter-clockwise"></i> Continue</a>
-            <a href="#" class="nav-btn" data-view="admin" id="adminBtn" style="display: none;"><i class="ph-bold ph-plus-circle"></i> Add Book</a>
-        </nav>
-        <button id="desktopAuthBtn" class="btn btn-auth" data-action="auth">
-            <i class="ph-bold ph-sign-in"></i> Sign In
+      <div class="nav-links">
+        <a href="#home" class="nav-item active">Discover</a>
+        <a href="#library" class="nav-item">Library</a>
+        <a href="#continue" class="nav-item">Continue</a>
+        <a href="#admin" class="nav-item" id="nav-admin" style="display: none"
+          >Admin</a
+        >
+      </div>
+
+      <div class="nav-actions">
+        <button
+          class="icon-btn"
+          onclick="window.app.toggleTheme()"
+          aria-label="Toggle Theme"
+        >
+          <i class="ph-fill ph-moon" id="themeIcon"></i>
         </button>
-    </aside>
+        <button
+          class="btn-primary"
+          id="desktopAuthBtn"
+          onclick="window.app.handleAuthClick()"
+        >
+          Sign In
+        </button>
+      </div>
+    </nav>
 
-    <main class="main-content">
-        <div class="header-controls">
-            <button class="toggle-btn" id="themeToggleBtn" data-action="toggle-theme" onclick="window.app.toggleTheme()" aria-label="Toggle Dark Mode">
-                <i class="ph-fill ph-moon" id="themeIcon"></i>
-            </button>
+    <div class="container">
+      <div id="page-home" class="page-view active">
+        <div class="hero">
+          <h1>Explore a World of Knowledge</h1>
+          <p>
+            Access a curated collection of classic literature and modern
+            insights. Free, fast, and accessible anywhere.
+          </p>
         </div>
 
-        <div id="viewContainer">
-            </div>
-        
-        <div id="readerModal" class="reader-modal">
-            <div class="reader-header">
-                <button onclick="window.app.closeReader()" class="btn-back"><i class="ph-bold ph-arrow-left"></i> Back</button>
-                <span id="readerTitle" class="reader-title"></span>
-                <div class="reader-actions">
-                    <button id="readerFavBtn" class="btn-fav" onclick="window.app.toggleReaderFav()" aria-label="Favorite Book"><i class="ph-heart"></i></button>
-                    <div class="reader-controls">
-                        <label for="pageInput">Page</label>
-                        <input type="number" id="pageInput" min="1" value="1" onchange="window.app.updateReaderPage()">
-                        <button onclick="window.app.saveCurrentPage()" class="btn btn-save">SAVE</button>
-                    </div>
-                </div>
-            </div>
-            <iframe id="pdfFrame" class="reader-body" src=""></iframe>
-        </div>
+        <div class="filter-container" id="genreTabs"></div>
 
-    </main>
+        <div class="grid" id="publicGrid"></div>
+      </div>
+
+      <div id="page-library" class="page-view">
+        <div style="margin-bottom: 24px">
+          <h2 style="font-size: 1.8rem; color: var(--text-main)">My Library</h2>
+          <p style="color: var(--text-muted)">
+            Your personal collection of saved books.
+          </p>
+        </div>
+        <div class="grid" id="libraryGrid"></div>
+      </div>
+
+      <div id="page-continue" class="page-view">
+        <div style="margin-bottom: 24px">
+          <h2 style="font-size: 1.8rem; color: var(--text-main)">
+            Continue Reading
+          </h2>
+          <p style="color: var(--text-muted)">
+            Jump back in right where you left off.
+          </p>
+        </div>
+        <div class="grid" id="continueGrid"></div>
+      </div>
+
+      <div id="page-admin" class="page-view">
+        <div style="margin-bottom: 24px">
+          <h2 style="font-size: 1.8rem; color: var(--text-main)">
+            Admin Dashboard
+          </h2>
+          <p style="color: var(--text-muted)">
+            Manage the public book catalogue.
+          </p>
+        </div>
+        <div
+          id="adminFormContainer"
+          style="max-width: 600px; margin: 0 auto"
+        ></div>
+      </div>
+    </div>
 
     <div class="mobile-nav">
-        <button data-view="home" class="active"><i class="ph-bold ph-compass"></i> Discover</button>
-        <button data-view="library"><i class="ph-bold ph-books"></i> Library</button>
-        <button data-view="continue"><i class="ph-bold ph-clock-counter-clockwise"></i> Continue</button>
-        <button data-action="auth"><i class="ph-bold ph-user-circle" id="mobileAuthIcon"></i> <span id="mobileAuthText">Sign In</span></button>
+      <button
+        class="mobile-link active"
+        data-hash="home"
+        onclick="window.location.hash='#home'"
+      >
+        <i class="ph-bold ph-compass"></i> Discover
+      </button>
+      <button
+        class="mobile-link"
+        data-hash="library"
+        onclick="window.location.hash='#library'"
+      >
+        <i class="ph-bold ph-books"></i> Library
+      </button>
+      <button
+        class="mobile-link"
+        data-hash="continue"
+        onclick="window.location.hash='#continue'"
+      >
+        <i class="ph-bold ph-clock-counter-clockwise"></i> Continue
+      </button>
+      <button class="mobile-link" onclick="window.app.handleAuthClick()">
+        <i class="ph-bold ph-user-circle"></i> Account
+      </button>
     </div>
-    
+
+    <div class="modal-backdrop" id="authModal">
+      <div class="modal">
+        <button
+          class="close-modal"
+          onclick="window.app.closeModal('authModal')"
+        >
+          <i class="ph-bold ph-x"></i>
+        </button>
+        <h3 class="modal-title">Welcome Back</h3>
+        <p class="modal-desc">Sign in to sync your library across devices.</p>
+
+        <button
+          class="btn-primary"
+          style="
+            width: 100%;
+            justify-content: center;
+            background: #fff;
+            color: #333;
+            border: 1px solid var(--border);
+            margin-bottom: 20px;
+          "
+          onclick="window.api.loginGoogle().then(() => window.app.closeModal('authModal'))"
+        >
+          <img
+            src="https://www.svgrepo.com/show/475656/google-color.svg"
+            style="width: 18px"
+          />
+          Continue with Google
+        </button>
+
+        <div
+          style="
+            text-align: center;
+            border-top: 1px solid var(--border);
+            padding-top: 15px;
+            margin-top: 15px;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+          "
+        >
+          OR USE EMAIL
+        </div>
+
+        <form
+          onsubmit="window.app.handleEmailAuth(event)"
+          style="margin-top: 15px"
+        >
+          <div class="form-group">
+            <input
+              type="email"
+              id="emailInput"
+              class="input-field"
+              placeholder="Email address"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <input
+              type="password"
+              id="passInput"
+              class="input-field"
+              placeholder="Password"
+              required
+            />
+          </div>
+          <button
+            type="submit"
+            class="btn-primary"
+            style="width: 100%; justify-content: center"
+          >
+            Sign In
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <div class="reader-overlay" id="readerView">
+      <div class="reader-toolbar">
+        <button class="icon-btn" onclick="window.app.closeReader()">
+          <i class="ph-bold ph-arrow-left"></i>
+        </button>
+        <span
+          style="
+            font-weight: 600;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            max-width: 200px;
+          "
+          id="readerTitle"
+          >Book Title</span
+        >
+        <div style="display: flex; gap: 10px; align-items: center">
+          <button
+            class="icon-btn"
+            id="readerFavBtn"
+            onclick="window.app.toggleReaderFav()"
+          >
+            <i class="ph-heart"></i>
+          </button>
+          <input
+            type="number"
+            id="pageInput"
+            class="input-field"
+            style="width: 60px; padding: 4px 8px"
+            value="1"
+            onchange="window.app.updateReaderPage()"
+          />
+          <button class="btn-primary" onclick="window.app.saveCurrentPage()">
+            Save
+          </button>
+        </div>
+      </div>
+      <iframe id="pdfFrame" class="reader-frame" src=""></iframe>
+    </div>
+
     <script type="module">
-        // Import Firebase SDKs
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-app.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, updateDoc, arrayUnion, arrayRemove, collection, onSnapshot, query, addDoc } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-firestore.js";
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-app.js";
+      import {
+        getAuth,
+        signInWithPopup,
+        GoogleAuthProvider,
+        createUserWithEmailAndPassword,
+        signInWithEmailAndPassword,
+        signOut,
+        onAuthStateChanged,
+        signInAnonymously,
+      } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-auth.js";
+      import {
+        getFirestore,
+        doc,
+        setDoc,
+        getDoc,
+        updateDoc,
+        arrayUnion,
+        arrayRemove,
+        collection,
+        onSnapshot,
+        query,
+        addDoc,
+      } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-firestore.js";
 
-        // --- FIREBASE CONFIGURATION & API ---
-        const firebaseConfig = {
-            // Replace with your actual Firebase config
-            apiKey: "AIzaSyCh6YZVCawcGfyPz6s1K9DJqBeIC-c7Hsw", 
-            authDomain: "readersparadize-85e8e.firebaseapp.com",
-            projectId: "readersparadize-85e8e",
-            storageBucket: "readersparadize-85e8e.firebasestorage.app",
-            messagingSenderId: "168539796198",
-            appId: "1:168539796198:web:d01f9b7915292e6c5fc127",
-            measurementId: "G-GZ61PZQXC5"
-        };
-        const APP_ID = 'blue-reader-1'; 
+      // --- CONFIG ---
+      const firebaseConfig = {
+        apiKey: "AIzaSyCh6YZVCawcGfyPz6s1K9DJqBeIC-c7Hsw",
+        authDomain: "readersparadize-85e8e.firebaseapp.com",
+        projectId: "readersparadize-85e8e",
+        storageBucket: "readersparadize-85e8e.firebasestorage.app",
+        messagingSenderId: "168539796198",
+        appId: "1:168539796198:web:d01f9b7915292e6c5fc127",
+      };
+      const ADMIN_EMAILS = ["tanvirrshuvro@gmail.com"]; // UPDATE THIS
 
-        const fbApp = initializeApp(firebaseConfig);
-        const auth = getAuth(fbApp);
-        const db = getFirestore(fbApp);
-        const googleProvider = new GoogleAuthProvider();
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      const db = getFirestore(app);
+      const googleProvider = new GoogleAuthProvider();
+      const APP_ID = "blue-reader-prod";
 
-        const api = {
-            loginEmail: (e, p) => signInWithEmailAndPassword(auth, e, p),
-            signupEmail: (e, p) => createUserWithEmailAndPassword(auth, e, p),
-            loginGoogle: () => signInWithPopup(auth, googleProvider),
-            logout: () => signOut(auth),
-            onAuthStateChanged: (callback) => {
-                onAuthStateChanged(auth, (user) => {
-                    if (!user) {
-                        signInAnonymously(auth).catch(err => console.error("Anon Auth Failed:", err));
-                    }
-                    callback(user);
+      // --- API WRAPPER ---
+      window.api = {
+        loginGoogle: () => signInWithPopup(auth, googleProvider),
+        logout: () => signOut(auth),
+        loginEmail: (e, p) => signInWithEmailAndPassword(auth, e, p),
+        signupEmail: (e, p) => createUserWithEmailAndPassword(auth, e, p),
+      };
+
+      // --- STATE ---
+      const state = {
+        user: null,
+        theme: localStorage.getItem("theme") || "light",
+        books: [
+          {
+            id: "b1",
+            title: "The Great Gatsby",
+            author: "F. Scott Fitzgerald",
+            genre: "Classic",
+            cover:
+              "https://upload.wikimedia.org/wikipedia/commons/7/7a/The_Great_Gatsby_Cover_1925_Retouched.jpg",
+            pdfUrl:
+              "https://mozilla.github.io/pdf.js/web/compressed.tracemonkey-pldi-09.pdf",
+          },
+          {
+            id: "b2",
+            title: "Pride and Prejudice",
+            author: "Jane Austen",
+            genre: "Romance",
+            cover:
+              "https://upload.wikimedia.org/wikipedia/commons/thumb/1/17/PrideAndPrejudiceTitlePage.jpg/800px-PrideAndPrejudiceTitlePage.jpg",
+            pdfUrl:
+              "https://mozilla.github.io/pdf.js/web/compressed.tracemonkey-pldi-09.pdf",
+          },
+          {
+            id: "b3",
+            title: "1984",
+            author: "George Orwell",
+            genre: "Sci-Fi",
+            cover:
+              "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1676649712i/1984._SY75_.jpg",
+            pdfUrl:
+              "https://mozilla.github.io/pdf.js/web/compressed.tracemonkey-pldi-09.pdf",
+          },
+        ],
+        progress: {},
+        favorites: [],
+        filter: "All",
+        currentBook: null,
+        unsub: null,
+      };
+
+      // --- UI CONTROLLER ---
+      window.app = {
+        init: () => {
+          window.app.applyTheme();
+
+          // Listeners
+          window.addEventListener("hashchange", window.app.renderPage);
+          if (!window.location.hash) window.location.hash = "#home";
+
+          // Auth Listener
+          onAuthStateChanged(auth, (user) => {
+            if (!user) signInAnonymously(auth);
+            state.user = user;
+
+            if (state.unsub) state.unsub(); // Clear old listener
+
+            if (user && !user.isAnonymous) {
+              // Subscribe to User Data
+              const q = collection(
+                db,
+                "artifacts",
+                APP_ID,
+                "users",
+                user.uid,
+                "progress"
+              );
+              state.unsub = onSnapshot(q, (snap) => {
+                snap.docs.forEach((d) => (state.progress[d.id] = d.data()));
+                // Fetch Favs separately for simplicity in this demo
+                getDoc(
+                  doc(
+                    db,
+                    "artifacts",
+                    APP_ID,
+                    "users",
+                    user.uid,
+                    "prefs",
+                    "favs"
+                  )
+                ).then((s) => {
+                  state.favorites = s.exists() ? s.data().ids : [];
+                  window.app.renderPage(); // Re-render current view
                 });
-            },
-            subscribeToUserData: (uid, callback) => {
-                const progressRef = collection(db, 'artifacts', APP_ID, 'users', uid, 'progress');
-                const favRef = doc(db, 'artifacts', APP_ID, 'users', uid, 'preferences', 'favorites');
-                
-                const unsubProgress = onSnapshot(query(progressRef), (snapshot) => {
-                    const progress = {};
-                    snapshot.docs.forEach(doc => progress[doc.id] = doc.data());
-                    callback({ progress });
-                }, (error) => console.error("Error fetching progress:", error));
-                
-                const unsubFavs = onSnapshot(favRef, (docSnap) => {
-                    const favorites = docSnap.exists() ? docSnap.data().ids || [] : [];
-                    callback({ favorites });
-                }, (error) => console.error("Error fetching favorites:", error));
-                
-                return () => { unsubProgress(); unsubFavs(); }; 
-            },
-            subscribeToBooks: (callback) => {
-                const colRef = collection(db, 'artifacts', APP_ID, 'public', 'data', 'books');
-                return onSnapshot(query(colRef), (snapshot) => {
-                    const books = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                    callback(books);
-                }, (error) => console.error("Error fetching books:", error));
-            },
-            saveBookProgress: async (uid, bookId, page) => {
-                const ref = doc(db, 'artifacts', APP_ID, 'users', uid, 'progress', bookId);
-                await setDoc(ref, { page: page, lastRead: new Date().toISOString(), bookId: bookId }, { merge: true });
-            },
-            toggleFav: async (uid, bookId) => {
-                const ref = doc(db, 'artifacts', APP_ID, 'users', uid, 'preferences', 'favorites');
-                const docSnap = await getDoc(ref);
-                let isFav = docSnap.exists() && (docSnap.data().ids || []).includes(bookId);
-
-                if(isFav) {
-                    await updateDoc(ref, { ids: arrayRemove(bookId) });
-                    return false;
-                } else {
-                    await setDoc(ref, { ids: arrayUnion(bookId) }, { merge: true });
-                    return true;
-                }
-            },
-            addBookToDB: async (bookData) => {
-                const colRef = collection(db, 'artifacts', APP_ID, 'public', 'data', 'books');
-                return await addDoc(colRef, bookData);
-            }
-        };
-
-        // --- APPLICATION STATE & LOGIC ---
-
-        const ADMIN_EMAILS = ["tanvirrshuvro@gmail.com"]; 
-        const STATIC_BOOKS = [
-            { id: 'b1', title: 'The Great Gatsby', author: 'F. Scott Fitzgerald', genre: 'Classic', cover: 'https://upload.wikimedia.org/wikipedia/commons/7/7a/The_Great_Gatsby_Cover_1925_Retouched.jpg', pdfUrl: 'https://mozilla.github.io/pdf.js/web/compressed.tracemonkey-pldi-09.pdf' },
-            { id: 'b2', title: 'Pride and Prejudice', author: 'Jane Austen', genre: 'Romance', cover: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/17/PrideAndPrejudiceTitlePage.jpg/800px-PrideAndPrejudiceTitlePage.jpg', pdfUrl: 'https://mozilla.github.io/pdf.js/web/compressed.tracemonkey-pldi-09.pdf' },
-            { id: 'b3', title: '1984', author: 'George Orwell', genre: 'Dystopian', cover: 'https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1676649712i/1984._SY75_.jpg', pdfUrl: 'https://mozilla.github.io/pdf.js/web/compressed.tracemonkey-pldi-09.pdf' },
-            { id: 'b4', title: 'Moby Dick', author: 'Herman Melville', genre: 'Adventure', cover: 'https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1327940562i/153747.jpg', pdfUrl: 'https://mozilla.github.io/pdf.js/web/compressed.tracemonkey-pldi-09.pdf' },
-        ];
-        
-        const appState = {
-            user: null,
-            theme: localStorage.getItem('theme') || 'light',
-            progress: {},
-            favorites: [],
-            books: [],
-            filter: 'All',
-            currentView: 'home',
-            currentBook: null,
-            unsubUserData: null, 
-        };
-
-        // --- CORE LOGIC FUNCTIONS (Bound to window.app) ---
-
-        const render = () => {
-            // 1. Theme and Layout
-            document.body.className = appState.theme === 'dark' ? 'dark-mode' : '';
-            document.body.dataset.view = appState.currentView;
-            document.getElementById('themeIcon').className = appState.theme === 'dark' ? 'ph-fill ph-sun' : 'ph-fill ph-moon';
-
-            // 2. Auth Info
-            const user = appState.user;
-            const isLoggedIn = user && !user.isAnonymous;
-            const authBtn = document.getElementById('desktopAuthBtn');
-            const mobileAuthIcon = document.getElementById('mobileAuthIcon');
-            const mobileAuthText = document.getElementById('mobileAuthText');
-
-            if (isLoggedIn) {
-                document.getElementById('userAvatar').src = user.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`;
-                document.getElementById('userName').innerText = user.displayName || user.email.split('@')[0];
-                document.getElementById('userStatus').innerText = "Logged In";
-                authBtn.innerHTML = '<i class="ph-bold ph-sign-out"></i> Sign Out';
-                mobileAuthIcon.className = 'ph-bold ph-sign-out';
-                mobileAuthText.innerText = 'Sign Out';
+              });
+              document.getElementById("desktopAuthBtn").innerText = "Sign Out";
             } else {
-                document.getElementById('userAvatar').src = `https://api.dicebear.com/7.x/avataaars/svg?seed=Guest`;
-                document.getElementById('userName').innerText = "Guest Reader";
-                document.getElementById('userStatus').innerText = "Log in to sync";
-                authBtn.innerHTML = '<i class="ph-bold ph-sign-in"></i> Sign In';
-                mobileAuthIcon.className = 'ph-bold ph-user-circle';
-                mobileAuthText.innerText = 'Sign In';
+              state.progress = {};
+              state.favorites = [];
+              document.getElementById("desktopAuthBtn").innerText = "Sign In";
             }
-            
-            // 3. Admin Button
-            const isAdmin = isLoggedIn && ADMIN_EMAILS.includes(user.email.toLowerCase());
-            document.getElementById('adminBtn').style.display = isAdmin ? 'flex' : 'none';
-            
-            // 4. Navigation Active State
-            document.querySelectorAll('.nav-btn, .mobile-nav button').forEach(btn => {
-                const view = btn.dataset.view;
-                btn.classList.toggle('active', view === appState.currentView);
-            });
+            window.app.renderPage(); // Initial Render
+          });
 
-            // 5. Render Current View
-            let content = '';
-            switch (appState.currentView) {
-                case 'home': content = renderHomeView(); break;
-                case 'library': content = renderLibraryView(); break;
-                case 'continue': content = renderContinueView(); break;
-                case 'admin': content = renderAdminForm(); break;
-                default: content = renderHomeView();
+          // Firestore Books Listener
+          onSnapshot(
+            collection(db, "artifacts", APP_ID, "public", "books"),
+            (snap) => {
+              const newBooks = snap.docs.map((d) => ({
+                id: d.id,
+                ...d.data(),
+              }));
+              // Merge uniqueness
+              const ids = new Set(newBooks.map((b) => b.id));
+              state.books = [
+                ...state.books.filter((b) => !ids.has(b.id)),
+                ...newBooks,
+              ];
+              window.app.renderPage();
             }
-            document.getElementById('viewContainer').innerHTML = content;
-        };
-        
-        const getBookCard = (book) => {
-            const progress = appState.progress[book.id];
-            const progressPercent = progress ? Math.min(100, (progress.page / 200) * 100).toFixed(0) : 0; 
-            const isFav = appState.favorites.includes(book.id);
-            const requireAuth = appState.currentView === 'home'; 
+          );
 
-            return `
-                <div class="project-card" onclick="window.app.openBook('${book.id}', ${requireAuth})">
-                    <img src="${book.cover}" class="book-cover" onerror="this.src='https://placehold.co/200x300/CCCCCC/333333?text=${book.title.substring(0, 1).toUpperCase()}'">
-                    <h5>${book.title}</h5>
-                    <p>${book.author}</p>
-                    ${progress ? `
-                        <div class="progress-bar"><div class="progress-fill" style="width: ${progressPercent}%"></div></div>
-                        <p style="font-size: 0.75rem; margin-top: 5px; color: var(--primary);">${progressPercent}% Complete (Pg ${progress.page})</p>
-                    ` : ''}
-                    ${isFav ? `<i class="ph-fill ph-heart" style="position:absolute; top: 10px; right: 10px; color: red;"></i>` : ''}
-                </div>
-            `;
-        };
-        
-        const renderHomeView = () => {
-            const genres = ['All', ...new Set(appState.books.map(b => b.genre))];
-            const genreTabs = genres.map(g => `
-                <li><button class="tab-link ${appState.filter === g ? 'active' : ''}" onclick="window.app.filterBooks('${g}')">${g}</button></li>
-            `).join('');
-            const publicFiltered = appState.filter === 'All' ? appState.books : appState.books.filter(b => b.genre === appState.filter);
-            const bookCards = publicFiltered.length > 0 ? publicFiltered.map(getBookCard).join('') : 
-                `<div style="grid-column: 1/-1; text-align: center; color: var(--text-light); padding: 20px;">No books found in this genre.</div>`;
+          window.app.renderPage();
+        },
 
-            return `
-                <div>
-                    <div class="section-title"><h2>Discover New Worlds</h2></div>
-                    <p class="section-subtitle">Explore our curated collection of free e-books by genre.</p>
-                    <div class="tabs">
-                        <ul id="genreTabs">${genreTabs}</ul>
-                    </div>
-                    <div class="portfolio-grid">${bookCards}</div>
-                </div>
-            `;
-        };
+        renderPage: () => {
+          const hash = window.location.hash.substring(1) || "home";
+          const user = state.user && !state.user.isAnonymous;
 
-        const renderLibraryView = () => {
-            const isLoggedIn = appState.user && !appState.user.isAnonymous;
-            let content = '';
-            if (isLoggedIn) {
-                const libraryBooks = appState.books.filter(b => appState.favorites.includes(b.id) || appState.progress[b.id]);
-                if (libraryBooks.length > 0) {
-                    content = libraryBooks.map(getBookCard).join('');
-                } else {
-                    content = '<div style="grid-column: 1/-1; text-align: center; color: var(--text-light); padding: 20px;">Your library is empty. Go to Discover and start reading or add favorites!</div>';
-                }
-            } else {
-                content = '<div style="grid-column: 1/-1; text-align: center; color: var(--text-light); padding: 20px;">Log in to build your personal library.</div>';
-            }
+          // Admin Protection
+          if (
+            hash === "admin" &&
+            (!user || !ADMIN_EMAILS.includes(state.user.email))
+          ) {
+            window.location.hash = "#home";
+            return;
+          }
+          document.getElementById("nav-admin").style.display =
+            user && ADMIN_EMAILS.includes(state.user.email) ? "block" : "none";
 
-            return `
-                <div>
-                    <div class="section-title"><h2>My Library</h2></div>
-                    <p class="section-subtitle">Your personal collection of favorited and in-progress books.</p>
-                    <div class="portfolio-grid">${content}</div>
-                </div>
-            `;
-        };
+          // View Toggle
+          document
+            .querySelectorAll(".page-view")
+            .forEach((el) => el.classList.remove("active"));
+          const activePage = document.getElementById(`page-${hash}`);
+          if (activePage) activePage.classList.add("active");
 
-        const renderContinueView = () => {
-            const isLoggedIn = appState.user && !appState.user.isAnonymous;
-            let content = '';
-            if (isLoggedIn) {
-                const continueReading = appState.books
-                    .filter(b => appState.progress[b.id])
-                    .sort((a, b) => new Date(appState.progress[b.id].lastRead) - new Date(appState.progress[a.id].lastRead));
-                
-                if (continueReading.length > 0) {
-                    content = continueReading.map(getBookCard).join('');
-                } else {
-                    content = '<div style="grid-column: 1/-1; text-align: center; color: var(--text-light); padding: 20px;">You haven\'t started any books yet. Get reading!</div>';
-                }
-            } else {
-                content = '<div style="grid-column: 1/-1; text-align: center; color: var(--text-light); padding: 20px;">Log in to track your reading progress.</div>';
-            }
+          // Nav State
+          document
+            .querySelectorAll(".nav-item")
+            .forEach((el) =>
+              el.classList.toggle(
+                "active",
+                el.getAttribute("href") === `#${hash}`
+              )
+            );
+          document
+            .querySelectorAll(".mobile-link")
+            .forEach((el) =>
+              el.classList.toggle("active", el.dataset.hash === hash)
+            );
 
-            return `
-                <div>
-                    <div class="section-title"><h2>Continue Reading</h2></div>
-                    <p class="section-subtitle">Pick up exactly where you left off on your latest reads.</p>
-                    <div class="portfolio-grid">${content}</div>
-                </div>
-            `;
-        };
+          // Content Rendering
+          if (hash === "home") window.app.renderHome();
+          else if (hash === "library") window.app.renderLibrary();
+          else if (hash === "continue") window.app.renderContinue();
+          else if (hash === "admin") window.app.renderAdmin();
+        },
 
-        // BUG FIX: Form moved to simple div structure to allow direct rendering
-        const renderAdminForm = () => {
-            return `
-                <button class="btn" style="margin-bottom: 20px;" onclick="window.app.switchView('home')"><i class="ph-bold ph-arrow-left"></i> Back to Discover</button>
-                <div class="section-title"><h2>Add New Book</h2></div>
-                <p class="section-subtitle">Only visible to administrators. Use this to add public e-books.</p>
-                <form onsubmit="window.app.submitNewBook(event)" class="admin-form-container">
-                    <div class="form-group"><input type="text" id="nbTitle" class="form-input" placeholder="Title" required></div>
-                    <div class="form-group"><input type="text" id="nbAuthor" class="form-input" placeholder="Author" required></div>
-                    <div class="form-group"><input type="text" id="nbGenre" class="form-input" placeholder="Genre (e.g., Classic, Romance, Sci-Fi)" required></div>
-                    <div class="form-group"><input type="url" id="nbCover" class="form-input" placeholder="Cover Image URL" required></div>
-                    <div class="form-group"><input type="url" id="nbPdf" class="form-input" placeholder="PDF Link (Google Drive / Direct URL)" required></div>
-                    <button type="submit" class="btn" style="width: 100%;">Add to Library</button>
-                </form>
-            `;
-        };
+        renderHome: () => {
+          // Filters
+          const genres = ["All", ...new Set(state.books.map((b) => b.genre))];
+          document.getElementById("genreTabs").innerHTML = genres
+            .map(
+              (g) =>
+                `<button class="filter-tag ${
+                  state.filter === g ? "active" : ""
+                }" onclick="window.app.setFilter('${g}')">${g}</button>`
+            )
+            .join("");
 
-        const appMethods = {
-            init: () => {
-                setTimeout(() => document.getElementById('loadingScreen').classList.add('hidden'), 500);
-                
-                if (appState.theme === 'dark' || (!appState.theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-                    appState.theme = 'dark';
-                } else {
-                    appState.theme = 'light';
-                }
-                
-                document.body.addEventListener('click', appMethods.handleGlobalClick);
+          const books =
+            state.filter === "All"
+              ? state.books
+              : state.books.filter((b) => b.genre === state.filter);
+          document.getElementById("publicGrid").innerHTML = books
+            .map((b) => window.app.bookCard(b))
+            .join("");
+        },
 
-                api.onAuthStateChanged(appMethods.handleAuthStateChange);
-                api.subscribeToBooks(appMethods.handleBookUpdate);
-                
-                render();
-            },
-            handleGlobalClick: (e) => {
-                const target = e.target.closest('[data-action], [data-view]');
-                if (!target) return;
-                
-                if (target.hasAttribute('data-action')) {
-                    const action = target.dataset.action;
-                    if (action === 'auth') appMethods.handleAuthClick();
-                    if (action === 'close-modal') appMethods.closeModal();
-                    if (action === 'toggle-theme') appMethods.toggleTheme();
-                }
-                if (target.hasAttribute('data-view')) {
-                    e.preventDefault(); 
-                    appMethods.switchView(target.dataset.view);
-                }
-            },
-            handleAuthStateChange: async (user) => {
-                if (appState.unsubUserData) appState.unsubUserData(); 
-                appState.user = user;
-                
-                if (user && !user.isAnonymous) {
-                    appState.unsubUserData = api.subscribeToUserData(user.uid, ({ progress, favorites }) => {
-                        if (progress) appState.progress = progress;
-                        if (favorites) appState.favorites = favorites;
-                        render();
-                    });
-                    if(appState.currentView === 'home' || appState.currentView === 'admin') appMethods.switchView('library');
-                } else {
-                    appState.progress = {};
-                    appState.favorites = [];
-                    render();
-                }
-            },
-            handleAuthClick: () => {
-                if(appState.user && !appState.user.isAnonymous) {
-                    api.logout(); 
-                } else {
-                    appMethods.openAuthModal();
-                }
-            },
-            handleEmailAuth: async (e) => {
-                e.preventDefault();
-                const em = document.getElementById('emailInput').value;
-                const pw = document.getElementById('passInput').value;
-                try { 
-                    await api.loginEmail(em, pw); 
-                    appMethods.closeModal(); 
-                }
-                catch(err) {
-                    if(err.code.includes('not-found') || err.code.includes('invalid-credential')) {
-                        try { 
-                            await api.signupEmail(em, pw); 
-                            appMethods.closeModal(); 
-                            alert("Sign Up Successful! You are now logged in.");
-                        } catch(e2) { 
-                            alert("Authentication Failed. Error: " + (e2.message || "Invalid credentials.")); 
-                        }
-                    } else {
-                        alert("Authentication Failed. Error: " + (err.message || "Please check your network connection."));
-                    }
-                }
-            },
-            handleBookUpdate: (firestoreBooks) => {
-                const firestoreBookMap = new Map(firestoreBooks.map(b => [b.id, b]));
-                const uniqueStaticBooks = STATIC_BOOKS.filter(b => !firestoreBookMap.has(b.id));
-                appState.books = [...uniqueStaticBooks, ...firestoreBooks];
-                render();
-            },
-            toggleTheme: () => {
-                appState.theme = appState.theme === 'dark' ? 'light' : 'dark';
-                localStorage.setItem('theme', appState.theme);
-                render();
-            },
-            switchView: (viewName) => {
-                if (viewName === 'admin' && (!appState.user || !ADMIN_EMAILS.includes(appState.user.email.toLowerCase()))) {
-                    console.warn("Attempted access to Admin view without permission.");
-                    return; 
-                }
-                appState.currentView = viewName;
-                render();
-            },
-            filterBooks: (genre) => {
-                appState.filter = genre;
-                render();
-            },
-            openModal: (contentHTML) => {
-                const modal = document.getElementById('globalModal');
-                document.getElementById('modalBox').innerHTML = contentHTML;
-                modal.classList.add('active');
-            },
-            closeModal: () => {
-                document.getElementById('globalModal').classList.remove('active');
-                document.getElementById('modalBox').innerHTML = ''; 
-            },
-            openAuthModal: () => {
-                const authHTML = `
-                    <button onclick="window.app.closeModal()" class="close-btn" data-action="close-modal"><i class="ph-bold ph-x"></i></button>
-                    <h2 class="section-title" style="text-align: center;">Welcome</h2>
-                    <p style="text-align: center; color: var(--text-light); margin-bottom: 20px;">Sign in to save your progress.</p>
-                    <button class="btn" onclick="api.loginGoogle().then(window.app.closeModal).catch(e => alert(e.message))" style="width: 100%; justify-content: center; background: white; color: var(--text-dark); border: 1px solid var(--glass-border); margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-                        <img src="https://www.svgrepo.com/show/475656/google-color.svg" style="width: 20px; margin-right: 10px;"> Continue with Google
-                    </button>
-                    <div class="separator"></div>
-                    <form onsubmit="window.app.handleEmailAuth(event)">
-                        <div class="form-group"><input type="email" id="emailInput" class="form-input" placeholder="Email Address" required></div>
-                        <div class="form-group"><input type="password" id="passInput" class="form-input" placeholder="Password (Min 6 characters)" required></div>
-                        <button type="submit" class="btn" style="width: 100%;">Sign In / Sign Up</button>
+        renderLibrary: () => {
+          if (!state.user || state.user.isAnonymous) {
+            document.getElementById("libraryGrid").innerHTML =
+              window.app.emptyState(
+                "lock-key",
+                "Sign in to access your library"
+              );
+            return;
+          }
+          const books = state.books.filter((b) =>
+            state.favorites.includes(b.id)
+          );
+          document.getElementById("libraryGrid").innerHTML = books.length
+            ? books.map((b) => window.app.bookCard(b)).join("")
+            : window.app.emptyState("books", "No favorites yet");
+        },
+
+        renderContinue: () => {
+          if (!state.user || state.user.isAnonymous) {
+            document.getElementById("continueGrid").innerHTML =
+              window.app.emptyState("lock-key", "Sign in to track progress");
+            return;
+          }
+          const books = state.books.filter((b) => state.progress[b.id]);
+          document.getElementById("continueGrid").innerHTML = books.length
+            ? books.map((b) => window.app.bookCard(b)).join("")
+            : window.app.emptyState("clock", "No active readings");
+        },
+
+        renderAdmin: () => {
+          document.getElementById("adminFormContainer").innerHTML = `
+                    <form onsubmit="window.app.addBook(event)" style="background:var(--bg-surface); padding:24px; border-radius:12px; border:1px solid var(--border);">
+                        <div class="form-group"><input id="nTitle" class="input-field" placeholder="Title" required></div>
+                        <div class="form-group"><input id="nAuthor" class="input-field" placeholder="Author" required></div>
+                        <div class="form-group"><input id="nGenre" class="input-field" placeholder="Genre" required></div>
+                        <div class="form-group"><input id="nCover" class="input-field" placeholder="Cover URL" required></div>
+                        <div class="form-group"><input id="nPdf" class="input-field" placeholder="PDF URL" required></div>
+                        <button class="btn-primary" style="width:100%; justify-content:center;">Add Book</button>
                     </form>
-                `;
-                appMethods.openModal(authHTML);
-            },
-            openBook: (id, requireAuth) => {
-                if(requireAuth && (!appState.user || appState.user.isAnonymous)) {
-                    appMethods.openAuthModal();
-                    return;
-                }
-                const book = appState.books.find(b => b.id === id);
-                if (!book) return;
+                 `;
+        },
 
-                appState.currentBook = book;
-                document.getElementById('readerTitle').innerText = book.title;
-                
-                const initialPage = appState.progress[id] ? appState.progress[id].page : 1;
-                document.getElementById('pageInput').value = initialPage;
-                
-                appMethods.updateReaderPDF(initialPage);
-                document.getElementById('readerModal').classList.add('active');
-                appMethods.updateReaderFavIcon();
-            },
-            closeReader: () => {
-                document.getElementById('readerModal').classList.remove('active');
-                document.getElementById('pdfFrame').src = "";
-                appState.currentBook = null;
-                render();
-            },
-            updateReaderPDF: (page) => {
-                const book = appState.currentBook;
-                if (!book) return;
-                document.getElementById('pdfFrame').src = book.pdfUrl + (book.pdfUrl.includes('#') ? '&' : '#') + `page=${page}&toolbar=0`;
-            },
-            updateReaderPage: () => {
-                const page = parseInt(document.getElementById('pageInput').value);
-                if (page > 0) appMethods.updateReaderPDF(page);
-            },
-            saveCurrentPage: async () => {
-                if (!appState.user || appState.user.isAnonymous) return alert("Please log in to save progress.");
+        bookCard: (b) => {
+          const prog = state.progress[b.id];
+          const pct = prog
+            ? Math.min(100, (prog.page / 200) * 100).toFixed(0)
+            : 0;
+          return `
+                <div class="book-card" onclick="window.app.openReader('${
+                  b.id
+                }')">
+                    <div class="book-cover-wrap"><img src="${
+                      b.cover
+                    }" class="book-cover" onerror="this.src='https://placehold.co/200x300?text=Book'"></div>
+                    ${
+                      state.favorites.includes(b.id)
+                        ? `<div class="fav-badge"><i class="ph-fill ph-heart"></i></div>`
+                        : ""
+                    }
+                    <div class="book-info">
+                        <div class="book-title">${b.title}</div>
+                        <div class="book-author">${b.author}</div>
+                        ${
+                          prog
+                            ? `<div class="progress-track"><div class="progress-bar" style="width:${pct}%"></div></div>`
+                            : ""
+                        }
+                    </div>
+                </div>`;
+        },
 
-                const page = parseInt(document.getElementById('pageInput').value);
-                const id = appState.currentBook.id;
-                
-                try {
-                    await api.saveBookProgress(appState.user.uid, id, page);
-                    
-                    const btn = document.querySelector('.reader-controls .btn-save');
-                    btn.innerText = 'SAVED!';
-                    setTimeout(() => btn.innerText = 'SAVE', 1000);
-                    
-                    appState.progress[id] = { page, lastRead: new Date().toISOString() };
-                    render(); 
-                } catch (error) {
-                    console.error("Failed to save progress:", error);
-                    alert("Failed to save progress. Please try again.");
-                }
-            },
-            updateReaderFavIcon: () => {
-                const isFav = appState.favorites.includes(appState.currentBook.id);
-                document.getElementById('readerFavBtn').innerHTML = isFav ? '<i class="ph-fill ph-heart" style="color: red;"></i>' : '<i class="ph-heart"></i>';
-            },
-            toggleReaderFav: async () => {
-                if (!appState.user || appState.user.isAnonymous) return alert("Please log in to favorite books.");
-                try {
-                    await api.toggleFav(appState.user.uid, appState.currentBook.id);
-                } catch (error) {
-                    console.error("Failed to toggle favorite:", error);
-                    alert("Failed to change favorite status. Please try again.");
-                }
-            },
-            submitNewBook: async (e) => {
-                e.preventDefault();
-                
-                const user = appState.user;
-                if (!user || !ADMIN_EMAILS.includes(user.email.toLowerCase())) {
-                    return alert("You do not have permission to add books.");
-                }
-                
-                let pdf = document.getElementById('nbPdf').value;
-                if (pdf.includes("drive.google.com") && pdf.includes("/view")) {
-                    pdf = pdf.replace("/view", "/preview");
-                }
+        emptyState: (icon, text) => `
+                <div class="empty-state" style="grid-column:1/-1;">
+                    <i class="ph-${icon} empty-icon"></i>
+                    <div class="empty-text">${text}</div>
+                </div>`,
 
-                const book = {
-                    title: document.getElementById('nbTitle').value,
-                    author: document.getElementById('nbAuthor').value,
-                    genre: document.getElementById('nbGenre').value,
-                    cover: document.getElementById('nbCover').value,
-                    pdfUrl: pdf,
-                    createdAt: new Date().toISOString()
-                };
-                
-                try {
-                    await api.addBookToDB(book);
-                    alert(`Book "${book.title}" added successfully!`);
-                } catch (error) {
-                    alert("Failed to add book. Check console for details.");
-                    console.error("Firestore Add Book Error:", error);
-                }
-                
-                e.target.reset();
-                appMethods.switchView('home');
+        // --- ACTIONS ---
+        setFilter: (g) => {
+          state.filter = g;
+          window.app.renderHome();
+        },
+        toggleTheme: () => {
+          state.theme = state.theme === "light" ? "dark" : "light";
+          localStorage.setItem("theme", state.theme);
+          window.app.applyTheme();
+        },
+        applyTheme: () => {
+          document.body.className = state.theme === "dark" ? "dark-mode" : "";
+          document.getElementById("themeIcon").className =
+            state.theme === "dark" ? "ph-fill ph-sun" : "ph-fill ph-moon";
+        },
+        handleAuthClick: () => {
+          if (state.user && !state.user.isAnonymous) window.api.logout();
+          else document.getElementById("authModal").classList.add("active");
+        },
+        closeModal: (id) =>
+          document.getElementById(id).classList.remove("active"),
+        handleEmailAuth: async (e) => {
+          e.preventDefault();
+          try {
+            await window.api.loginEmail(
+              document.getElementById("emailInput").value,
+              document.getElementById("passInput").value
+            );
+            window.app.closeModal("authModal");
+          } catch (err) {
+            try {
+              await window.api.signupEmail(
+                document.getElementById("emailInput").value,
+                document.getElementById("passInput").value
+              );
+              window.app.closeModal("authModal");
+            } catch (err2) {
+              alert(err2.message);
             }
-        };
+          }
+        },
+        addBook: async (e) => {
+          e.preventDefault();
+          const book = {
+            title: document.getElementById("nTitle").value,
+            author: document.getElementById("nAuthor").value,
+            genre: document.getElementById("nGenre").value,
+            cover: document.getElementById("nCover").value,
+            pdfUrl: document.getElementById("nPdf").value,
+          };
+          await addDoc(
+            collection(db, "artifacts", APP_ID, "public", "books"),
+            book
+          );
+          alert("Book Added");
+          e.target.reset();
+        },
 
-        // Expose all methods to the global window.app for inline HTML calls
-        window.app = appMethods;
+        // --- READER ---
+        openReader: (id) => {
+          if (
+            window.location.hash !== "#home" &&
+            (!state.user || state.user.isAnonymous)
+          ) {
+            window.app.handleAuthClick();
+            return;
+          }
+          state.currentBook = state.books.find((b) => b.id === id);
+          document.getElementById("readerTitle").innerText =
+            state.currentBook.title;
+          document.getElementById("readerView").style.display = "flex";
+          document.getElementById("pageInput").value = state.progress[id]
+            ? state.progress[id].page
+            : 1;
+          window.app.updateReaderPage();
+          window.app.updateFavBtn();
+        },
+        closeReader: () => {
+          document.getElementById("readerView").style.display = "none";
+          document.getElementById("pdfFrame").src = "";
+        },
+        updateReaderPage: () => {
+          const pg = document.getElementById("pageInput").value;
+          const url = state.currentBook.pdfUrl;
+          // Basic PDF.js params logic
+          document.getElementById("pdfFrame").src = url + `#page=${pg}`;
+        },
+        saveCurrentPage: async () => {
+          if (!state.user || state.user.isAnonymous) {
+            alert("Sign in to save");
+            return;
+          }
+          const pg = document.getElementById("pageInput").value;
+          await setDoc(
+            doc(
+              db,
+              "artifacts",
+              APP_ID,
+              "users",
+              state.user.uid,
+              "progress",
+              state.currentBook.id
+            ),
+            { page: pg, lastRead: new Date().toISOString() },
+            { merge: true }
+          );
+        },
+        toggleReaderFav: async () => {
+          if (!state.user || state.user.isAnonymous) {
+            alert("Sign in to favorite");
+            return;
+          }
+          const ref = doc(
+            db,
+            "artifacts",
+            APP_ID,
+            "users",
+            state.user.uid,
+            "prefs",
+            "favs"
+          );
+          const isFav = state.favorites.includes(state.currentBook.id);
+          await setDoc(
+            ref,
+            {
+              ids: isFav
+                ? arrayRemove(state.currentBook.id)
+                : arrayUnion(state.currentBook.id),
+            },
+            { merge: true }
+          );
+          // Optimistic UI
+          state.favorites = isFav
+            ? state.favorites.filter((id) => id !== state.currentBook.id)
+            : [...state.favorites, state.currentBook.id];
+          window.app.updateFavBtn();
+        },
+        updateFavBtn: () => {
+          const isFav = state.favorites.includes(state.currentBook.id);
+          document.getElementById("readerFavBtn").innerHTML = isFav
+            ? '<i class="ph-fill ph-heart" style="color:#ef4444"></i>'
+            : '<i class="ph-heart"></i>';
+        },
+      };
 
-        // Start the application
-        window.addEventListener('load', appMethods.init);
+      window.onload = window.app.init;
     </script>
-</body>
+  </body>
 </html>
