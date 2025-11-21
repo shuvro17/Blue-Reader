@@ -13,7 +13,7 @@
     />
 
     <style>
-      /* --- CSS STYLES (Fluid / Glassmorphism) --- */
+      /* --- CSS VARIABLES --- */
       :root {
         --primary: #6366f1;
         --secondary: #a855f7;
@@ -39,6 +39,8 @@
         --input-text: #f1f5f9;
         --input-border: #334155;
       }
+
+      /* --- BASE STYLES --- */
       * {
         margin: 0;
         padding: 0;
@@ -56,7 +58,7 @@
         background: #020617;
       }
 
-      /* Fluid BG */
+      /* --- FLUID BACKGROUND --- */
       .background-fluid {
         position: fixed;
         top: 0;
@@ -101,7 +103,7 @@
         }
       }
 
-      /* Navbar */
+      /* --- NAVBAR --- */
       .navbar {
         position: fixed;
         top: 20px;
@@ -173,7 +175,7 @@
         transition: 0.3s;
       }
 
-      /* Main Layout */
+      /* --- MAIN CONTAINER & VIEWS --- */
       .main-container {
         max-width: 1200px;
         margin: 120px auto 40px;
@@ -197,7 +199,7 @@
         }
       }
 
-      /* Components */
+      /* --- HERO & COMPONENTS --- */
       .hero-banner {
         width: 100%;
         border-radius: var(--radius-lg);
@@ -319,7 +321,7 @@
         background: #ef4444;
       }
 
-      /* Forms */
+      /* --- FORMS & INPUTS --- */
       .glass-input {
         width: 100%;
         padding: 14px;
@@ -355,7 +357,7 @@
         background: rgba(255, 255, 255, 0.1);
       }
 
-      /* Modals */
+      /* --- MODALS --- */
       .modal-overlay {
         position: fixed;
         top: 0;
@@ -397,7 +399,7 @@
         }
       }
 
-      /* Reader */
+      /* --- READER --- */
       .reader-view {
         position: fixed;
         top: 0;
@@ -420,7 +422,7 @@
         backdrop-filter: blur(10px);
       }
 
-      /* Mobile */
+      /* --- MOBILE --- */
       .mobile-nav {
         display: none;
       }
@@ -458,7 +460,7 @@
         }
       }
 
-      /* Loading Spinner */
+      /* SPINNER */
       .spinner {
         border: 4px solid rgba(0, 0, 0, 0.1);
         width: 36px;
@@ -629,7 +631,6 @@
             >
               Upload PDF to Drive or Paste Link
             </div>
-
             <label class="file-upload-wrap" for="fileInput">
               <i
                 class="ph-cloud-arrow-up"
@@ -646,11 +647,10 @@
             </label>
 
             <div style="text-align: center; margin-bottom: 10px">OR</div>
-
             <input
               id="nPdf"
               class="glass-input"
-              placeholder="PDF URL (If not uploading file)"
+              placeholder="PDF URL (Drive / OneDrive / Direct)"
             />
 
             <div class="spinner" id="uploadSpinner"></div>
@@ -813,7 +813,10 @@
       } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-firestore.js";
 
       // --- CONFIG ---
-      const ADMIN_EMAILS = ["tanvirrshuvro@gmail.com"]; // REPLACE THIS
+      // !!! REPLACE "your-email@gmail.com" WITH YOUR ACTUAL GOOGLE EMAIL !!!
+      const ADMIN_EMAILS = ["tanvirrshuvro@gmail.com"];
+
+      // Updated with the correct GAS URL you provided
       const GAS_WEB_APP_URL =
         "https://script.google.com/macros/s/AKfycbxa4MrSt5Mo0lKGBB232fSJ7Li54u3UTYGdoQcoBI3tokIACRURJWPZfeoo4eWTkga6/exec";
 
@@ -850,6 +853,7 @@
         currentBook: null,
       };
 
+      // --- HELPER: LINK CONVERTER (Updated for OneDrive/Drive/Dropbox) ---
       const formatLink = (url) => {
         if (!url) return "";
         if (url.includes("drive.google.com")) {
@@ -1029,16 +1033,19 @@
         closeModal: (id) =>
           document.getElementById(id).classList.remove("active"),
 
-        // --- FILE HANDLING ---
+        // --- FILE UPLOAD TO DRIVE ---
         handleFileSelect: (input) => {
-          if (input.files.length > 0) {
+          if (input.files.length > 0)
             document.getElementById("fileNameDisplay").innerText =
               input.files[0].name;
-          }
         },
 
         uploadToDrive: (file) => {
           return new Promise((resolve, reject) => {
+            if (file.size > 5 * 1024 * 1024) {
+              reject(new Error("File too large (Max 5MB)"));
+              return;
+            }
             const reader = new FileReader();
             reader.readAsDataURL(file);
             reader.onload = async () => {
@@ -1048,15 +1055,16 @@
                 mimeType: file.type,
                 file: base64,
               };
-
               try {
+                // FIXED: Send as text/plain to avoid CORS preflight
                 const res = await fetch(GAS_WEB_APP_URL, {
                   method: "POST",
                   body: JSON.stringify(payload),
+                  headers: { "Content-Type": "text/plain" },
                 });
                 const data = await res.json();
                 if (data.status === "success") resolve(data.url);
-                else reject(data.message);
+                else reject(new Error(data.message));
               } catch (e) {
                 reject(e);
               }
@@ -1080,10 +1088,8 @@
           let pdfUrl = document.getElementById("nPdf").value;
 
           try {
-            if (fileInput.files.length > 0) {
+            if (fileInput.files.length > 0)
               pdfUrl = await app.uploadToDrive(fileInput.files[0]);
-            }
-
             if (!pdfUrl)
               throw new Error("Please provide a PDF URL or upload a file.");
 
@@ -1152,7 +1158,11 @@
         },
 
         openReader: (id) => {
-          if (!state.user || state.user.isAnonymous) return app.handleAuth();
+          // STRICT AUTH CHECK
+          if (!state.user || state.user.isAnonymous) {
+            app.handleAuth();
+            return;
+          }
 
           state.currentBook = state.books.find((b) => b.id === id);
           document.getElementById("readerTitle").innerText =
