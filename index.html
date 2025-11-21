@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>BlueReader | Fluid Admin</title>
+    <title>BlueReader | Secure Library</title>
 
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
 
@@ -595,7 +595,7 @@
             <input
               id="nPdf"
               class="glass-input"
-              placeholder="PDF URL (Drive/Dropbox/Direct)"
+              placeholder="PDF URL (Drive/OneDrive/Direct)"
               required
             />
             <div style="display: flex; gap: 10px">
@@ -667,7 +667,7 @@
         </button>
         <h2 style="font-family: 'Outfit'; margin-bottom: 10px">Welcome</h2>
         <p style="color: var(--text-muted); margin-bottom: 20px">
-          Sign in to sync your library.
+          Sign in to read and sync your library.
         </p>
         <button
           class="btn-main"
@@ -791,18 +791,29 @@
         currentBook: null,
       };
 
-      // --- HELPER: LINK CONVERTER ---
+      // --- HELPER: LINK CONVERTER (Drive + OneDrive) ---
       const formatLink = (url) => {
         if (!url) return "";
+
         // Google Drive
         if (url.includes("drive.google.com")) {
-          // Extract ID
           const match = url.match(/\/d\/(.+?)(\/|$)/);
           if (match && match[1])
             return `https://drive.google.com/file/d/${match[1]}/preview`;
         }
+
         // Dropbox
         if (url.includes("dropbox.com")) return url.replace("dl=0", "raw=1");
+
+        // OneDrive (New)
+        if (url.includes("1drv.ms") || url.includes("onedrive.live.com")) {
+          // Ensure embed parameter is present
+          if (url.includes("?")) {
+            return url + "&embed=1";
+          } else {
+            return url + "?embed=1";
+          }
+        }
 
         return url;
       };
@@ -812,8 +823,11 @@
           window.addEventListener("hashchange", app.router);
           onAuthStateChanged(auth, (u) => {
             state.user = u;
-            if (!u) signInAnonymously(auth);
-            else if (!u.isAnonymous) {
+            // Don't sign in anon immediately, wait for user action,
+            // OR use anon to load public data but restrict read.
+            // Here we stay logged out (null) or User object.
+
+            if (u && !u.isAnonymous) {
               onSnapshot(
                 collection(db, "artifacts", APP_ID, "users", u.uid, "progress"),
                 (s) => {
@@ -827,11 +841,15 @@
                 if (s.exists()) state.favs = s.data().ids;
                 app.render();
               });
+            } else {
+              state.progress = {};
+              state.favs = [];
+              app.render();
             }
             app.updateUI();
           });
 
-          // Use "books" collection (odd segments = valid)
+          // Load public books regardless of auth
           onSnapshot(collection(db, "artifacts", APP_ID, "books"), (s) => {
             state.books = s.docs.map((d) => ({ id: d.id, ...d.data() }));
             app.render();
@@ -1044,6 +1062,12 @@
         },
 
         openReader: (id) => {
+          // --- STRICT AUTH CHECK ---
+          if (!state.user || state.user.isAnonymous) {
+            app.handleAuth(); // Open login modal
+            return;
+          }
+
           state.currentBook = state.books.find((b) => b.id === id);
           document.getElementById("readerTitle").innerText =
             state.currentBook.title;
