@@ -432,7 +432,7 @@
         margin: 0 auto;
       }
 
-      /* --- Modern Auth Modal (Fixed) --- */
+      /* --- Modern Auth Modal --- */
       .modal-overlay {
         position: fixed;
         top: 0;
@@ -445,7 +445,6 @@
         display: none;
         align-items: center;
         justify-content: center;
-        /* FIX: Makes background clickable */
         cursor: pointer;
       }
       .modal-overlay.active {
@@ -463,7 +462,6 @@
         position: relative;
         text-align: center;
         animation: popIn 0.3s ease;
-        /* FIX: Prevents background clicks from affecting the card */
         cursor: default;
       }
 
@@ -974,24 +972,20 @@
             app.updateUI();
           });
 
-          // Live Books
-          onSnapshot(
-            collection(db, "artifacts", APP_ID, "public", "books"),
-            (s) => {
-              const live = s.docs.map((d) => ({ id: d.id, ...d.data() }));
-              const ids = new Set(live.map((b) => b.id));
-              state.books = [
-                ...state.books.filter((b) => !ids.has(b.id)),
-                ...live,
-              ];
-              app.render();
-            }
-          );
+          // Live Books - FIX: Using simpler 3-segment path
+          onSnapshot(collection(db, "artifacts", APP_ID, "books"), (s) => {
+            const live = s.docs.map((d) => ({ id: d.id, ...d.data() }));
+            const ids = new Set(live.map((b) => b.id));
+            state.books = [
+              ...state.books.filter((b) => !ids.has(b.id)),
+              ...live,
+            ];
+            app.render();
+          });
 
           if (!location.hash) location.hash = "#home";
           app.router();
 
-          // Close modals on Esc
           document.addEventListener("keydown", (e) => {
             if (e.key === "Escape") app.closeModal("authModal");
           });
@@ -1117,16 +1111,15 @@
           }
 
           try {
-            await addDoc(
-              collection(db, "artifacts", APP_ID, "public", "books"),
-              {
-                title: document.getElementById("nTitle").value,
-                author: document.getElementById("nAuthor").value,
-                genre: document.getElementById("nGenre").value,
-                cover: document.getElementById("nCover").value,
-                pdfUrl: document.getElementById("nPdf").value,
-              }
-            );
+            // FIX: Use 3-segment path for odd number of segments (Collection Reference)
+            // Path: artifacts / blue-fluid-v2 / books
+            await addDoc(collection(db, "artifacts", APP_ID, "books"), {
+              title: document.getElementById("nTitle").value,
+              author: document.getElementById("nAuthor").value,
+              genre: document.getElementById("nGenre").value,
+              cover: document.getElementById("nCover").value,
+              pdfUrl: document.getElementById("nPdf").value,
+            });
             alert("Book successfully added to database!");
             e.target.reset();
           } catch (err) {
