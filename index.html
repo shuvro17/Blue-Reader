@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>BlueReader | Secure Cloud</title>
+    <title>BlueReader | Beta</title>
 
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
 
@@ -435,15 +435,14 @@
       }
 
       /* 🔒 POP-OUT BLOCKER 🔒 */
-      /* This invisible box sits on top of the Google Drive "Pop-out" button */
       .popout-blocker {
         position: absolute;
-        top: 70px; /* Height of the reader-top bar */
+        top: 70px;
         right: 0;
-        width: 60px; /* Covers the icon */
-        height: 60px;
-        z-index: 301; /* Sits above the iframe */
-        /* background: rgba(255,0,0,0.3); Uncomment to debug placement */
+        width: 200px;
+        height: 80px;
+        z-index: 1000;
+        background: transparent;
       }
 
       /* --- MOBILE --- */
@@ -815,6 +814,81 @@
       </div>
     </div>
 
+    <div
+      class="modal-overlay"
+      id="constructionModal"
+      onclick="app.closeModal('constructionModal')"
+    >
+      <div
+        class="glass-modal"
+        onclick="event.stopPropagation()"
+        style="max-width: 380px"
+      >
+        <button
+          style="
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            cursor: pointer;
+          "
+          onclick="app.closeModal('constructionModal')"
+        >
+          <i class="ph-x" style="font-size: 1.5rem"></i>
+        </button>
+
+        <div style="margin-bottom: 15px">
+          <i
+            class="ph-duotone ph-cone"
+            style="font-size: 3.5rem; color: var(--accent)"
+          ></i>
+        </div>
+
+        <h2 style="font-family: 'Outfit'; margin-bottom: 10px">
+          Under Construction
+        </h2>
+        <p
+          style="
+            color: var(--text-muted);
+            margin-bottom: 20px;
+            line-height: 1.5;
+          "
+        >
+          BlueReader is currently in Beta. You may encounter bugs or missing
+          features.
+        </p>
+
+        <div
+          style="
+            background: var(--glass-bg);
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid var(--glass-border);
+            margin-bottom: 20px;
+          "
+        >
+          <span
+            style="
+              font-size: 0.85rem;
+              color: var(--text-muted);
+              display: block;
+              margin-bottom: 5px;
+            "
+            >Report bugs to developer:</span
+          >
+          <strong
+            style="color: var(--primary); font-size: 0.95rem; user-select: all"
+            >tanvirrshuvro@gmail.com</strong
+          >
+        </div>
+
+        <button class="btn-main" onclick="app.closeModal('constructionModal')">
+          Got it
+        </button>
+      </div>
+    </div>
+
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-app.js";
       import {
@@ -919,15 +993,27 @@
             }
             app.updateUI();
           });
+
           onSnapshot(collection(db, "artifacts", APP_ID, "books"), (s) => {
             state.books = s.docs.map((d) => ({ id: d.id, ...d.data() }));
             app.render();
           });
+
           if (!location.hash) location.hash = "#home";
           app.router();
           document.addEventListener("keydown", (e) => {
             if (e.key === "Escape") app.closeModal("authModal");
           });
+
+          // 🚧 SHOW CONSTRUCTION POPUP ON LOAD (ONCE PER SESSION) 🚧
+          if (!sessionStorage.getItem("seenConstruction")) {
+            setTimeout(() => {
+              document
+                .getElementById("constructionModal")
+                .classList.add("active");
+              sessionStorage.setItem("seenConstruction", "true");
+            }, 1500); // Delay slightly for smoothness
+          }
         },
 
         router: () => {
