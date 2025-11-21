@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>BlueReader | Cloud Library</title>
+    <title>BlueReader | Secure Cloud</title>
 
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
 
@@ -434,6 +434,18 @@
         backdrop-filter: blur(10px);
       }
 
+      /* 🔒 POP-OUT BLOCKER 🔒 */
+      /* This invisible box sits on top of the Google Drive "Pop-out" button */
+      .popout-blocker {
+        position: absolute;
+        top: 70px; /* Height of the reader-top bar */
+        right: 0;
+        width: 60px; /* Covers the icon */
+        height: 60px;
+        z-index: 301; /* Sits above the iframe */
+        /* background: rgba(255,0,0,0.3); Uncomment to debug placement */
+      }
+
       /* --- MOBILE --- */
       .mobile-nav {
         display: none;
@@ -716,6 +728,7 @@
           </button>
         </div>
       </div>
+      <div class="popout-blocker"></div>
       <iframe id="pdfFrame" style="flex: 1; border: none" src=""></iframe>
     </div>
 
@@ -906,13 +919,10 @@
             }
             app.updateUI();
           });
-
-          // Fetch books and setup listener
           onSnapshot(collection(db, "artifacts", APP_ID, "books"), (s) => {
             state.books = s.docs.map((d) => ({ id: d.id, ...d.data() }));
             app.render();
           });
-
           if (!location.hash) location.hash = "#home";
           app.router();
           document.addEventListener("keydown", (e) => {
@@ -964,28 +974,22 @@
         },
 
         render: () => {
-          // 1. UPDATE HERO BANNER
           if (state.books.length > 0) {
-            // Sort by creation date (newest first) or fall back to array order
             const sorted = [...state.books].sort(
               (a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0)
             );
             const latest = sorted[0];
-
             document.getElementById("bannerTitle").innerText = latest.title;
             document.getElementById("bannerDesc").innerText =
               latest.author + (latest.genre ? ` • ${latest.genre}` : "");
             document.getElementById("bannerImg").src = latest.cover;
-
-            // Re-bind click listener safely
             const btn = document.getElementById("bannerBtn");
-            btn.replaceWith(btn.cloneNode(true)); // Wipe old event listeners
+            btn.replaceWith(btn.cloneNode(true));
             document
               .getElementById("bannerBtn")
               .addEventListener("click", () => app.openReader(latest.id));
           }
 
-          // 2. Render Grid
           const genres = ["All", ...new Set(state.books.map((b) => b.genre))];
           document.getElementById("genreFilters").innerHTML = genres
             .map(
@@ -1136,7 +1140,7 @@
               genre: document.getElementById("nGenre").value,
               cover: document.getElementById("nCover").value,
               pdfUrl: formatLink(pdfUrl),
-              createdAt: new Date().toISOString(), // ADD TIMESTAMP
+              createdAt: new Date().toISOString(),
             };
 
             const editId = document.getElementById("editBookId").value;
